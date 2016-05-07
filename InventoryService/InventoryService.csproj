@@ -45,6 +45,9 @@
     <Compile Include="Messages\ReserveMessage.cs" />
     <Compile Include="Messages\ReservedMessage.cs" />
     <Compile Include="Actors\ProductInventoryActor.cs" />
+    <Compile Include="Messages\LoadedInventoryMessage.cs" />
+    <Compile Include="Messages\GetInventoryMessage.cs" />
+    <Compile Include="Actors\ProductInventoryRepositoryActor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -53,5 +56,11 @@
   <ItemGroup>
     <Folder Include="Actors\" />
     <Folder Include="Messages\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Repository\InventoryService.Repository.csproj">
+      <Project>{C0A7B404-6A67-45AA-9E4A-00B850DA6336}</Project>
+      <Name>InventoryService.Repository</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
