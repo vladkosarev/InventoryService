@@ -3,12 +3,12 @@ using Akka.Actor;
 
 namespace InventoryService
 {
-	public class InventorySectionActor : ReceiveActor
+	public class ProductInventoryActor : ReceiveActor
 	{
 		private string Id;
 		private int Quantity;
 
-		public InventorySectionActor (string id)
+		public ProductInventoryActor (string id)
 		{
 			Id = id;
 			Quantity = 10;

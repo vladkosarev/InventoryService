@@ -6,18 +6,18 @@ namespace InventoryService
 {
 	public class InventoryActor : ReceiveActor
 	{
-		private Dictionary<string, IActorRef> ticketSections = new Dictionary<string, IActorRef>();
+		private Dictionary<string, IActorRef> products = new Dictionary<string, IActorRef>();
 
 		public InventoryActor()
 		{
 			Receive<ReserveMessage>(message =>
 				{
-					var exists = ticketSections.ContainsKey(message.TicketSection);
-					if (!exists) {
-						var ticketSectionActorRef = Context.ActorOf(Props.Create(() => new InventorySectionActor(message.TicketSection)), message.TicketSection);
-						ticketSections.Add(message.TicketSection, ticketSectionActorRef);
+					if (!products.ContainsKey(message.ProductId)) {
+						var productActorRef = Context.ActorOf(
+							Props.Create(() => new ProductInventoryActor(message.ProductId)), message.ProductId);
+						products.Add(message.ProductId, productActorRef);
 					}
-					ticketSections[message.TicketSection].Forward(message);
+					products[message.ProductId].Forward(message);
 				});
 		}
 	}

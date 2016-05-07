@@ -9,17 +9,17 @@ namespace InventoryService.Tests
 	public class TestClass : TestKit
 	{
 		[Fact]
-		public void Identity_actor_should_confirm_user_creation_success()
+		public void Should_not_over_reserve()
 		{
 			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor()));
 
-			var result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage("ticketsection1", 2)).Result;
+			var result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage("product1", 2)).Result;
 
 			Assert.True(result.Successful);
 
-			result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage("ticketsection2", 9)).Result;
+			result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage("product1", 9)).Result;
 
-			Assert.True(result.Successful);
+			Assert.False(result.Successful);
 		}
 	}
 }
