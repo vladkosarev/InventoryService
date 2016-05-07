@@ -3,15 +3,49 @@ using Xunit;
 using FsCheck;
 using System.Linq;
 using System.Collections.Generic;
+using InventoryService.Repository;
+using InventoryService;
+using Akka.Actor;
+using Akka.TestKit.Xunit2;
 
 namespace InventoryService.Tests
 {
-	public class PropertyTests
+	public class PropertyTests : TestKit
 	{
 		[Fact]
 		public void RevRevIsOrig(){
 			Prop.ForAll<int[]>(xs => xs.Reverse().Reverse().SequenceEqual(xs))
 				.QuickCheckThrowOnFailure();
+		}
+
+		[Fact]
+		public void Should_be_able_to_reserve_max(){
+			Prop.ForAll<int>(i => Reserve(i, i))
+				.QuickCheckThrowOnFailure();
+		}
+
+		[Fact]
+		public void Should_not_be_able_to_reserve_more_than_max() {
+			Prop.ForAll(
+				Arb.From<int> ()
+				, Arb.From (Gen.Choose (1, int.MaxValue))
+				, (total, overflow) => {
+					return !Reserve (total, total + overflow);
+				})
+				.QuickCheckThrowOnFailure();
+		}
+
+		public bool Reserve(int quantity, int reserveQuantity)
+		{
+			var productId = "product1";
+			var inventoryService = new InMemoryInventoryServiceRepository();
+			inventoryService.WriteQuantityAndReservations (productId, quantity, 0);
+
+			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
+
+			var result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
+
+			return result.Successful;
 		}
 	}
 }
