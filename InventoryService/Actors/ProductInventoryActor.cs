@@ -49,6 +49,17 @@ namespace InventoryService
 					Sender.Tell(new ReservedMessage(Id, message.ReservationQuantity, false));
 				}
 			});
+
+			Receive<PurchaseMessage> (message => {
+				var newQuantity = Quantity - message.Quantity;
+				if (newQuantity >= 0 ) {
+					// write to repository here
+					Quantity = newQuantity;
+					Sender.Tell(new PurchasedMessage(Id, message.Quantity, true));
+				} else {
+					Sender.Tell(new PurchasedMessage(Id, message.Quantity, false));
+				}
+			});
 		}
 	}
 }

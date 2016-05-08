@@ -48,6 +48,8 @@
     <Compile Include="Messages\LoadedInventoryMessage.cs" />
     <Compile Include="Messages\GetInventoryMessage.cs" />
     <Compile Include="Actors\ProductInventoryRepositoryActor.cs" />
+    <Compile Include="Messages\PurchaseMessage.cs" />
+    <Compile Include="Messages\PurchasedMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -19,7 +19,24 @@ namespace InventoryService.Tests
 		}
 
 		[Fact]
+		public void Should_be_able_to_purchase_max(){
+			Prop.ForAll<int>(i => Purchase(i, 0, i))
+				.QuickCheckThrowOnFailure();
+		}
+
+		[Fact]
 		public void Should_not_be_able_to_reserve_more_than_max() {
+			Prop.ForAll(
+				Arb.From<int> ()
+				, Arb.From (Gen.Choose (1, int.MaxValue))
+				, (total, overflow) => {
+					return !Reserve (total, 0, total + overflow);
+				})
+				.QuickCheckThrowOnFailure();
+		}
+
+		[Fact]
+		public void Should_not_be_able_to_purchase_more_than_max() {
 			Prop.ForAll(
 				Arb.From<int> ()
 				, Arb.From (Gen.Choose (1, int.MaxValue))
@@ -41,6 +58,21 @@ namespace InventoryService.Tests
 
 			return result.Successful;
 		}
+
+		public bool Purchase(int initialQuantity, int initialReservations, int purchaseQuantity)
+		{
+			var productId = "product1";
+			var inventoryService = new InMemoryInventoryServiceRepository();
+			inventoryService.WriteQuantityAndReservations (productId, initialQuantity, initialReservations);
+
+			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
+
+			var result = inventoryActor.Ask<PurchasedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
+
+			return result.Successful;
+		}
+
+
 	}
 }
 

@@ -22,6 +22,18 @@ namespace InventoryService
 					}
 					products[message.ProductId].Forward(message);
 				});
+			
+			Receive<PurchaseMessage>(message =>
+				{
+					if (!products.ContainsKey(message.ProductId)) {
+						var productActorRef = Context.ActorOf(
+							Props.Create(() => 
+								new ProductInventoryActor(inventoryServiceRepository, message.ProductId))
+							, message.ProductId);
+						products.Add(message.ProductId, productActorRef);
+					}
+					products[message.ProductId].Forward(message);
+				});
 		}
 	}
 }

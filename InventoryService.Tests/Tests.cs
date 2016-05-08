@@ -7,6 +7,7 @@ using InventoryService.Repository;
 
 namespace InventoryService.Tests
 {
+	//TODO: convert to property tests
 	public class TestClass : TestKit
 	{
 		[Fact]
@@ -25,20 +26,6 @@ namespace InventoryService.Tests
 			result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, 9), TimeSpan.FromSeconds(1)).Result;
 
 			Assert.False(result.Successful);
-		}
-
-		[Fact]
-		public void Should_be_able_to_rserve_all()
-		{
-			var productId = "product1";
-			var inventoryService = new InMemoryInventoryServiceRepository();
-			inventoryService.WriteQuantityAndReservations (productId, 10, 0);
-
-			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
-
-			var result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, 10), TimeSpan.FromSeconds(1)).Result;
-
-			Assert.True(result.Successful);
 		}
 
 		[Fact]
