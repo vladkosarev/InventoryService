@@ -8,7 +8,7 @@ namespace InventoryService
 	{
 		private string Id;
 		private int Quantity;
-		private int Reservations;
+		private int ReservedQuantity;
 		private IActorRef inventoryServiceRepositoryActor;
 		public IStash Stash { get; set; }
 
@@ -27,12 +27,12 @@ namespace InventoryService
 		{
 			Receive<LoadedInventoryMessage> (message => {
 				Quantity = message.Quantity;
-				Reservations = message.Reservations;
+				ReservedQuantity = message.ReservedQuantity;
 				Become(Running);
 				Stash.UnstashAll();
 			});
 
-			Receive<ReserveMessage> (message => {
+			ReceiveAny(message => {
 				Stash.Stash();
 			});
 		}
@@ -40,13 +40,13 @@ namespace InventoryService
 		private void Running()
 		{
 			Receive<ReserveMessage> (message => {
-				var newQuantity = Quantity - message.Quantity;
-				if (newQuantity >= 0) {
+				var newReservedQuantity = ReservedQuantity + message.ReservationQuantity;
+				if (newReservedQuantity <= Quantity ) {
 					// write to repository here
-					Quantity = newQuantity;
-					Sender.Tell(new ReservedMessage(Id, Quantity, true));
+					ReservedQuantity = newReservedQuantity;
+					Sender.Tell(new ReservedMessage(Id, message.ReservationQuantity, true));
 				} else {
-					Sender.Tell(new ReservedMessage(Id, Quantity, false));
+					Sender.Tell(new ReservedMessage(Id, message.ReservationQuantity, false));
 				}
 			});
 		}

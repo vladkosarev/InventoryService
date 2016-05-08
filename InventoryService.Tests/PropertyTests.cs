@@ -13,14 +13,8 @@ namespace InventoryService.Tests
 	public class PropertyTests : TestKit
 	{
 		[Fact]
-		public void RevRevIsOrig(){
-			Prop.ForAll<int[]>(xs => xs.Reverse().Reverse().SequenceEqual(xs))
-				.QuickCheckThrowOnFailure();
-		}
-
-		[Fact]
 		public void Should_be_able_to_reserve_max(){
-			Prop.ForAll<int>(i => Reserve(i, i))
+			Prop.ForAll<int>(i => Reserve(i, 0, i))
 				.QuickCheckThrowOnFailure();
 		}
 
@@ -30,16 +24,16 @@ namespace InventoryService.Tests
 				Arb.From<int> ()
 				, Arb.From (Gen.Choose (1, int.MaxValue))
 				, (total, overflow) => {
-					return !Reserve (total, total + overflow);
+					return !Reserve (total, 0, total + overflow);
 				})
 				.QuickCheckThrowOnFailure();
 		}
 
-		public bool Reserve(int quantity, int reserveQuantity)
+		public bool Reserve(int initialQuantity, int initialReservations, int reserveQuantity)
 		{
 			var productId = "product1";
 			var inventoryService = new InMemoryInventoryServiceRepository();
-			inventoryService.WriteQuantityAndReservations (productId, quantity, 0);
+			inventoryService.WriteQuantityAndReservations (productId, initialQuantity, initialReservations);
 
 			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
 
