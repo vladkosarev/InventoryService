@@ -14,10 +14,14 @@ namespace InventoryService.Tests
 	{
 		[Fact]
 		public void Should_be_able_to_reserve_max(){
-			Prop.ForAll<int>(i => Reserve(i, 0, i))
-				.QuickCheckThrowOnFailure();
+			Prop.ForAll<Guid, int>((productId, quantity) => {
+				var repository = InitializeInventoryServiceRepository(
+					new List<Tuple<string,int,int>>() {new Tuple<string,int,int>(productId.ToString(), quantity, 0)});
+				Reserve(repository, quantity, productId.ToString());
+			}
+			).QuickCheckThrowOnFailure();
 		}
-
+			
 		[Fact]
 		public void Should_be_able_to_purchase_max(){
 			Prop.ForAll<int>(i => Purchase(i, 0, i))
@@ -30,7 +34,9 @@ namespace InventoryService.Tests
 				Arb.From<int> ()
 				, Arb.From (Gen.Choose (1, int.MaxValue))
 				, (total, overflow) => {
-					return !Reserve (total, 0, total + overflow);
+					var repository = InitializeInventoryServiceRepository(
+						new List<Tuple<string,int,int>>() {new Tuple<string,int,int>("product1", total, 0)});
+					return !Reserve (repository, total + overflow);
 				})
 				.QuickCheckThrowOnFailure();
 		}
@@ -41,27 +47,33 @@ namespace InventoryService.Tests
 				Arb.From<int> ()
 				, Arb.From (Gen.Choose (1, int.MaxValue))
 				, (total, overflow) => {
-					return !Reserve (total, 0, total + overflow);
+					return !Purchase (total, 0, total + overflow);
 				})
 				.QuickCheckThrowOnFailure();
 		}
 
-		public bool Reserve(int initialQuantity, int initialReservations, int reserveQuantity)
+		public IInventoryServiceRepository InitializeInventoryServiceRepository(IList<Tuple<string,int,int>> productInventory)
 		{
-			var productId = "product1";
 			var inventoryService = new InMemoryInventoryServiceRepository();
-			inventoryService.WriteQuantityAndReservations (productId, initialQuantity, initialReservations);
 
-			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
+			foreach (var product in productInventory) {
+				inventoryService.WriteQuantityAndReservations (product.Item1, product.Item2, product.Item3);
+			}
+
+			return inventoryService;
+		}
+
+		public bool Reserve(IInventoryServiceRepository repository, int reserveQuantity, string productId = "product1")
+		{
+			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(repository)));
 
 			var result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
 
 			return result.Successful;
 		}
 
-		public bool Purchase(int initialQuantity, int initialReservations, int purchaseQuantity)
+		public bool Purchase(int initialQuantity, int initialReservations, int purchaseQuantity, string productId = "product1")
 		{
-			var productId = "product1";
 			var inventoryService = new InMemoryInventoryServiceRepository();
 			inventoryService.WriteQuantityAndReservations (productId, initialQuantity, initialReservations);
 
@@ -71,8 +83,6 @@ namespace InventoryService.Tests
 
 			return result.Successful;
 		}
-
-
 	}
 }
 

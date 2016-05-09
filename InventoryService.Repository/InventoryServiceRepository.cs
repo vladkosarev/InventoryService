@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace InventoryService.Repository
 {
@@ -16,7 +16,8 @@ namespace InventoryService.Repository
 
 	public class InMemoryInventoryServiceRepository : IInventoryServiceRepository
 	{
-		private Dictionary<string, Tuple<int,int>> productInventories = new Dictionary<string, Tuple<int,int>> ();
+		private ConcurrentDictionary<string, Tuple<int,int>> productInventories = 
+			new ConcurrentDictionary<string, Tuple<int,int>> ();
 
 		public async Task<int> ReadQuantity(string productId)
 		{
@@ -42,7 +43,7 @@ namespace InventoryService.Repository
 		public async Task<bool> WriteQuantity(string productId, int quantity)
 		{
 			if (!productInventories.ContainsKey(productId))
-				productInventories.Add(productId, new Tuple<int,int>(quantity, 0));
+				productInventories.TryAdd(productId, new Tuple<int,int>(quantity, 0));
 			else		
 				productInventories[productId] = new Tuple<int,int>(quantity, productInventories[productId].Item2);
 			return true;
@@ -51,7 +52,7 @@ namespace InventoryService.Repository
 		public async Task<bool> WriteReservations(string productId, int reservationQuantity)
 		{
 			if (!productInventories.ContainsKey(productId))
-				productInventories.Add(productId, new Tuple<int,int>(0, reservationQuantity));
+				productInventories.TryAdd(productId, new Tuple<int,int>(0, reservationQuantity));
 			else		
 				productInventories[productId] = new Tuple<int,int>(productInventories[productId].Item1, reservationQuantity);
 			return true;
@@ -60,7 +61,7 @@ namespace InventoryService.Repository
 		public async Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity)
 		{
 			if (!productInventories.ContainsKey(productId))
-				productInventories.Add(productId, new Tuple<int,int>(quantity, reservationQuantity));
+				productInventories.TryAdd(productId, new Tuple<int,int>(quantity, reservationQuantity));
 			else		
 				productInventories[productId] = new Tuple<int,int>(quantity, reservationQuantity);
 			return true;
