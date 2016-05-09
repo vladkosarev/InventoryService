@@ -114,7 +114,7 @@ namespace InventoryService.Repository
                         reservationQuantity);
         }
 
-        private async Task<int> ReadInt(string file, int position)
+        private static async Task<int> ReadInt(string file, int position)
         {
             var filename = file;
             byte[] result;
@@ -128,7 +128,7 @@ namespace InventoryService.Repository
             return BitConverter.ToInt32(result, 0);
         }
 
-        private async Task<bool> WriteInt(string file, int position, int value)
+        private static async Task<bool> WriteInt(string file, int position, int value)
         {
             var filename = file;
             var buffer = BitConverter.GetBytes(value);
@@ -155,7 +155,7 @@ namespace InventoryService.Repository
             return new Tuple<int, int>(BitConverter.ToInt32(result, 0), BitConverter.ToInt32(result, 4));
         }
 
-        private async Task<bool> WriteConsecutiveInt(string file, int position, int value1, int value2)
+        private static async Task<bool> WriteConsecutiveInt(string file, int position, int value1, int value2)
         {
             var filename = file;
             var buffer = BitConverter.GetBytes(value1).Concat(BitConverter.GetBytes(value2)).ToArray();

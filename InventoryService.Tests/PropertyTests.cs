@@ -77,7 +77,7 @@ namespace InventoryService.Tests
 
         public IActorRef InitializeInventoryServiceRepository(IList<Tuple<string, int, int>> productInventory)
         {
-            var inventoryService = new FileServiceRepository();
+            var inventoryService = new InMemoryInventoryServiceRepository();
 
             //improve this with parallel
             foreach (var product in productInventory)

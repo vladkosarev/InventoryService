@@ -16,26 +16,26 @@ namespace InventoryService.Console
 		{
 			var inventoryService = new FileServiceRepository();
 
-			Task.Run(() => inventoryService.WriteQuantityAndReservations("product1", 100000, 0)).Wait();
-			Task.Run(() => inventoryService.WriteQuantityAndReservations("product2", 100000, 0)).Wait();
+			Task.Run(() => inventoryService.WriteQuantityAndReservations("product1", 10000, 0)).Wait();
+			Task.Run(() => inventoryService.WriteQuantityAndReservations("product2", 10000, 0)).Wait();
 
-			ActorSystem Sys = ActorSystem.Create("TestSystem");
+			var sys = ActorSystem.Create("TestSystem");
 
-			var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
+			var inventoryActor = sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
 
 			var stopwatch = new Stopwatch();
 
 			stopwatch.Start ();
 
 			var task1 = Task.Run(() => {
-				for (int i = 0; i < 100000; i++) {
+				for (var i = 0; i < 10000; i++) {
 					var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage ("product1", 1)).Result;
 					if (!reservation.Successful)
 						System.Console.WriteLine ("Failed on iteration {0}", i);
 				}});
 			
 			var task2 = Task.Run(() => {
-				for (int i = 0; i < 100000; i++) {
+				for (var i = 0; i < 10000; i++) {
 					var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage ("product2", 1)).Result;
 					if (!reservation.Successful)
 						System.Console.WriteLine ("Failed on iteration {0}", i);
