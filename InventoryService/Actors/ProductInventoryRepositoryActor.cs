@@ -1,14 +1,14 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using Akka.Actor;
-using System.Threading.Tasks;
+using InventoryService.Messages;
 using InventoryService.Repository;
 
-namespace InventoryService
+namespace InventoryService.Actors
 {
 	public class ProductInventoryRepositoryActor : ReceiveActor
 	{
-		private IInventoryServiceRepository _inventoryServiceRepository;
-		private string Id;
+		private readonly IInventoryServiceRepository _inventoryServiceRepository;
+		private readonly string Id;
 
 		public ProductInventoryRepositoryActor (IInventoryServiceRepository inventoryServiceRepository, string id)
 		{
@@ -16,7 +16,7 @@ namespace InventoryService
 			Id = id;
 
 			Receive<GetInventoryMessage> (message => {
-				inventoryServiceRepository.ReadQuantityAndReservations(Id)
+				_inventoryServiceRepository.ReadQuantityAndReservations(Id)
 					.ContinueWith(task => new LoadedInventoryMessage(task.Result.Item1, task.Result.Item2), 
 						TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
 					.PipeTo(Sender);

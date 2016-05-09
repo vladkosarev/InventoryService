@@ -1,17 +1,14 @@
-﻿using System;
-
-namespace InventoryService
+﻿namespace InventoryService.Messages
 {
-	public class ReserveMessage
-	{
-		public string ProductId { get; private set; }
-		public int ReservationQuantity { get; private set; }
+    public class ReserveMessage
+    {
+        public ReserveMessage(string productId, int reservationQuantity)
+        {
+            ProductId = productId;
+            ReservationQuantity = reservationQuantity;
+        }
 
-		public ReserveMessage (string productId, int reservationQuantity)
-		{
-			ProductId = productId;
-			ReservationQuantity = reservationQuantity;
-		}
-	}
+        public string ProductId { get; private set; }
+        public int ReservationQuantity { get; private set; }
+    }
 }
-

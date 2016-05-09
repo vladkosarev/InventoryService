@@ -1,16 +1,14 @@
-﻿using System;
-
-namespace InventoryService
+﻿namespace InventoryService.Messages
 {
-	public class LoadedInventoryMessage {
-		public int Quantity { get; private set; }
-		public int ReservedQuantity { get; private set; }
+    public class LoadedInventoryMessage
+    {
+        public LoadedInventoryMessage(int quantity, int reservedQuantity)
+        {
+            Quantity = quantity;
+            ReservedQuantity = reservedQuantity;
+        }
 
-		public LoadedInventoryMessage (int quantity, int reservedQuantity)
-		{
-			Quantity = quantity;
-			ReservedQuantity = reservedQuantity;
-		}
-	}
+        public int Quantity { get; private set; }
+        public int ReservedQuantity { get; private set; }
+    }
 }
-

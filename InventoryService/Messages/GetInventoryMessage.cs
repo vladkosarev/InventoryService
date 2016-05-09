@@ -1,12 +1,6 @@
-﻿using System;
-
-namespace InventoryService
+﻿namespace InventoryService.Messages
 {
-	public class GetInventoryMessage
-	{
-		public GetInventoryMessage ()
-		{
-		}
-	}
+    public class GetInventoryMessage
+    {
+    }
 }
-

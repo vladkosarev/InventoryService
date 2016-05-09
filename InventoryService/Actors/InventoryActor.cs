@@ -1,38 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Akka.Actor;
+using InventoryService.Messages;
 using InventoryService.Repository;
 
-namespace InventoryService
+namespace InventoryService.Actors
 {
 	public class InventoryActor : ReceiveActor
 	{
-		private Dictionary<string, IActorRef> products = new Dictionary<string, IActorRef>();
+		private readonly Dictionary<string, IActorRef> _products = new Dictionary<string, IActorRef>();
 
 		public InventoryActor(IInventoryServiceRepository inventoryServiceRepository)
 		{
 			Receive<ReserveMessage>(message =>
 				{
-					if (!products.ContainsKey(message.ProductId)) {
+					if (!_products.ContainsKey(message.ProductId)) {
 						var productActorRef = Context.ActorOf(
 							Props.Create(() => 
 								new ProductInventoryActor(inventoryServiceRepository, message.ProductId))
 								, message.ProductId);
-						products.Add(message.ProductId, productActorRef);
+						_products.Add(message.ProductId, productActorRef);
 					}
-					products[message.ProductId].Forward(message);
+					_products[message.ProductId].Forward(message);
 				});
 			
 			Receive<PurchaseMessage>(message =>
 				{
-					if (!products.ContainsKey(message.ProductId)) {
+					if (!_products.ContainsKey(message.ProductId)) {
 						var productActorRef = Context.ActorOf(
 							Props.Create(() => 
 								new ProductInventoryActor(inventoryServiceRepository, message.ProductId))
 							, message.ProductId);
-						products.Add(message.ProductId, productActorRef);
+						_products.Add(message.ProductId, productActorRef);
 					}
-					products[message.ProductId].Forward(message);
+					_products[message.ProductId].Forward(message);
 				});
 		}
 	}
