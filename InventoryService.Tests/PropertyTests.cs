@@ -13,7 +13,37 @@ namespace InventoryService.Tests
 	public class PropertyTests : TestKit
 	{
 		[Fact]
-		public void Should_be_able_to_reserve_max(){
+		public void Should_be_able_to_reserve_max_for_multiple_products() {
+			Prop.ForAll<IList<Tuple<Guid, int, int>>>(l => {
+				var initialInventory = 
+					l.Select(i => new Tuple<string,int,int>(i.Item1.ToString(), i.Item2, i.Item3)).ToList();
+				
+				var repository = InitializeInventoryServiceRepository(initialInventory);
+
+				foreach (var item in l) {
+					Assert.True(Reserve(repository, item.Item2 - item.Item3, item.Item1.ToString()));
+				}
+			}
+			).QuickCheckThrowOnFailure();
+		}
+
+		[Fact]
+		public void Should_not_be_able_to_reserve_over_max_for_multiple_products() {
+			Prop.ForAll<IList<Tuple<Guid, int, int, uint>>>(l => {
+				var initialInventory = 
+					l.Select(i => new Tuple<string,int,int>(i.Item1.ToString(), i.Item2, i.Item3)).ToList();
+
+				var repository = InitializeInventoryServiceRepository(initialInventory);
+
+				foreach (var item in l) {
+					Assert.False(Reserve(repository, (int)(item.Item2 - item.Item3 + item.Item4 + 1), item.Item1.ToString()));
+				}
+			}
+			).QuickCheckThrowOnFailure();
+		}
+
+		[Fact]
+		public void Should_be_able_to_reserve_max() {
 			Prop.ForAll<Guid, int>((productId, quantity) => {
 				var repository = InitializeInventoryServiceRepository(
 					new List<Tuple<string,int,int>>() {new Tuple<string,int,int>(productId.ToString(), quantity, 0)});
