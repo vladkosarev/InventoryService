@@ -21,6 +21,13 @@ namespace InventoryService.Actors
 						TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
 					.PipeTo(Sender);
 			});
+
+			Receive<WriteInventoryMessage> (message => {
+				_inventoryServiceRepository.WriteQuantityAndReservations(Id, message.Quantity, message.ReservationQuantity)
+					.ContinueWith(task => new WroteInventoryMessage(true), 
+						TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
+					.PipeTo(Sender);
+			});
 		}
 	}
 }

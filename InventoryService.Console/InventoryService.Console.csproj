@@ -3,10 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D709C476-E572-470A-B948-1B05339F6C7E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>InventoryService</RootNamespace>
-    <AssemblyName>InventoryService</AssemblyName>
+    <ProjectGuid>{FE583E78-6C0E-467B-A836-C4F88F5046CE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>InventoryService.Console</RootNamespace>
+    <AssemblyName>InventoryService.Console</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -17,7 +17,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -25,7 +25,7 @@
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -40,31 +40,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Actors\InventoryActor.cs" />
-    <Compile Include="Messages\ReserveMessage.cs" />
-    <Compile Include="Messages\ReservedMessage.cs" />
-    <Compile Include="Actors\ProductInventoryActor.cs" />
-    <Compile Include="Messages\LoadedInventoryMessage.cs" />
-    <Compile Include="Messages\GetInventoryMessage.cs" />
-    <Compile Include="Actors\ProductInventoryRepositoryActor.cs" />
-    <Compile Include="Messages\PurchaseMessage.cs" />
-    <Compile Include="Messages\PurchasedMessage.cs" />
-    <Compile Include="Messages\WriteInventoryMessage.cs" />
-    <Compile Include="Messages\WroteInventoryMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Actors\" />
-    <Folder Include="Messages\" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InventoryService.Repository\InventoryService.Repository.csproj">
       <Project>{C0A7B404-6A67-45AA-9E4A-00B850DA6336}</Project>
       <Name>InventoryService.Repository</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
+      <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
+      <Name>InventoryService</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -42,7 +42,10 @@ namespace InventoryService.Actors
 			Receive<ReserveMessage> (message => {
 				var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
 				if (newReservedQuantity <= _quantity ) {
+					
                     // write to repository here
+					inventoryServiceRepositoryActor.Ask(message);
+
                     _reservedQuantity = newReservedQuantity;
 					Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, true));
 				} else {
