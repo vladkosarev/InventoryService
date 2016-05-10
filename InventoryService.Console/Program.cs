@@ -33,15 +33,19 @@ namespace InventoryService.Console
 					if (!reservation.Successful)
 						System.Console.WriteLine ("Failed on iteration {0}", i);
 				}});
-			
-			var task2 = Task.Run(() => {
-				for (var i = 0; i < 10000; i++) {
-					var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage ("product2", 1)).Result;
-					if (!reservation.Successful)
-						System.Console.WriteLine ("Failed on iteration {0}", i);
-				}});
 
-			Task.WhenAll(task1, task2).Wait();
+            var task2 = Task.Run(() =>
+            {
+                for (var i = 0; i < 10000; i++)
+                {
+                    var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage("product2", 1)).Result;
+                    if (!reservation.Successful)
+                        System.Console.WriteLine("Failed on iteration {0}", i);
+                }
+            });
+
+            Task.WhenAll(task1, task2).Wait();
+            //Task.WhenAll(task1).Wait();
 
 			stopwatch.Stop ();
 			System.Console.WriteLine("Elapsed: {0}", stopwatch.Elapsed.TotalSeconds);

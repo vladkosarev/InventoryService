@@ -47,7 +47,10 @@ namespace InventoryService.Actors
                 if (newReservedQuantity <= _quantity)
                 {
                     // write to repository here
-                    var result = await inventoryServiceRepositoryActor.Ask<WroteInventoryMessage>(new WriteInventoryMessage(_id, _quantity, newReservedQuantity));
+                    //var result = await inventoryServiceRepositoryActor.Ask<WroteReservationsMessage>(
+                    //    new WriteReservationsMessage(_id, newReservedQuantity));
+                    var result = await inventoryServiceRepositoryActor.Ask<WroteInventoryMessage>(
+                        new WriteInventoryMessage(_id, _quantity, newReservedQuantity));
                     if (result.Successful)
                     {
                         _reservedQuantity = newReservedQuantity;
