@@ -97,12 +97,18 @@ namespace InventoryService.Repository
             new ConcurrentDictionary<string, OpenedStream>();
 
         private readonly bool _atomic;
+        private readonly bool _appendMode;
+
         private Task _flushTask;
 
-        public FileServiceRepository(uint flushInterval = 100, bool atomic = false)
+        public FileServiceRepository(
+            uint flushInterval = 100
+            , bool atomic = true
+            , bool appendMode = true)
         {
             if (!Directory.Exists(DbFolder)) Directory.CreateDirectory(DbFolder);
             _atomic = atomic;
+            _appendMode = appendMode;
             //_flushTask = Task.Run(async () =>
             //{
             //    while (!atomic)
@@ -163,6 +169,7 @@ namespace InventoryService.Repository
             {
                 var fileStream = createIfDoesNotExist ?
                     File.Open(fileName, FileMode.OpenOrCreate) : File.Open(fileName, FileMode.Open);
+                fileStream.Seek(0, SeekOrigin.End);
                 openedStream = new OpenedStream(fileStream);
                 _fileStreams.TryAdd(fileName, openedStream);
             }
@@ -172,7 +179,7 @@ namespace InventoryService.Repository
         private async Task<int> ReadInt(string fileName, int position)
         {
             var result = new byte[sizeof(int)];
-            await GetOpenedStream(fileName).FileStream.ReadAsync(result, position, sizeof(int));
+            await GetOpenedStream(fileName).FileStream.ReadAsync(result, 0, sizeof(int));
             return BitConverter.ToInt32(result, 0);
         }
 
@@ -180,7 +187,10 @@ namespace InventoryService.Repository
         {
             var result = new byte[sizeof(int) * 2];
             var fileStream = GetOpenedStream(fileName).FileStream;
-            fileStream.Seek(position, SeekOrigin.Begin);
+            if (_appendMode)
+                fileStream.Seek(-sizeof(int) * 2 + position, SeekOrigin.End);
+            else
+                fileStream.Seek(position, SeekOrigin.Begin);
             await fileStream.ReadAsync(result, 0, sizeof(int) * 2);
 
             return new Tuple<int, int>(BitConverter.ToInt32(result, 0), BitConverter.ToInt32(result, 4));
@@ -204,7 +214,8 @@ namespace InventoryService.Repository
         {
             var openedStream = GetOpenedStream(fileName, true);
             var fileStream = openedStream.FileStream;
-            fileStream.Seek(position, SeekOrigin.Begin);
+            if (!_appendMode)
+                fileStream.Seek(position, SeekOrigin.Begin);
             await fileStream.WriteAsync(buffer, 0, buffer.Length);
             _fileStreams[fileName].Dirty = true;
             if (_atomic)

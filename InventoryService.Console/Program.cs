@@ -1,55 +1,60 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using InventoryService;
 using InventoryService.Repository;
 using InventoryService.Actors;
 using InventoryService.Messages;
+using InventoryService.Repository.AzureTable;
 using System.Threading.Tasks;
 using Akka;
 using Akka.Actor;
 
 namespace InventoryService.Console
 {
-	class MainClass
-	{
-		public static void Main (string[] args)
-		{
-			var inventoryService = new FileServiceRepository();
+    class MainClass
+    {
+        public static void Main(string[] args)
+        {
+            var inventoryService = new FileServiceRepository();
+            var productCount = 10;
 
-			Task.Run(() => inventoryService.WriteQuantityAndReservations("product1", 10000, 0)).Wait();
-			Task.Run(() => inventoryService.WriteQuantityAndReservations("product2", 10000, 0)).Wait();
-
-			var sys = ActorSystem.Create("TestSystem");
-
-			var inventoryActor = sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
-
-			var stopwatch = new Stopwatch();
-
-			stopwatch.Start ();
-
-			var task1 = Task.Run(() => {
-				for (var i = 0; i < 10000; i++) {
-					var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage ("product1", 1)).Result;
-					if (!reservation.Successful)
-						System.Console.WriteLine ("Failed on iteration {0}", i);
-				}});
-
-            var task2 = Task.Run(() =>
+            IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
+            for (int product = 0; product < productCount; product++)
             {
-                for (var i = 0; i < 10000; i++)
+                products.Add(new Tuple<string, int, int>("product" + product, 5000, 0));
+            }
+
+            Task.WaitAll(
+                products
+                .Select(p => inventoryService.WriteQuantityAndReservations(p.Item1, p.Item2, p.Item3))
+                .ToArray());
+
+            var sys = ActorSystem.Create("TestSystem");
+
+            var inventoryActor = sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
+
+            var stopwatch = new Stopwatch();
+
+            stopwatch.Start();
+
+            Task.WaitAll(products.Select(p =>
+            {
+                return Task.Run(() =>
                 {
-                    var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage("product2", 1)).Result;
-                    if (!reservation.Successful)
-                        System.Console.WriteLine("Failed on iteration {0}", i);
-                }
-            });
+                    for (var i = 0; i < 5000; i++)
+                    {
+                        var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(p.Item1, 1)).Result;
+                        if (!reservation.Successful)
+                            System.Console.WriteLine("Failed on iteration {0}", i);
+                    }
+                });
+            }).ToArray());
 
-            Task.WhenAll(task1, task2).Wait();
-            //Task.WhenAll(task1).Wait();
-
-			stopwatch.Stop ();
-			System.Console.WriteLine("Elapsed: {0}", stopwatch.Elapsed.TotalSeconds);
-			System.Console.ReadLine ();
-		}
-	}
+            stopwatch.Stop();
+            System.Console.WriteLine("Elapsed: {0}", stopwatch.Elapsed.TotalSeconds);
+            System.Console.ReadLine();
+        }
+    }
 }
