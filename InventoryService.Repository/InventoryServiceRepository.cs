@@ -181,7 +181,7 @@ namespace InventoryService.Repository
             var result = new byte[sizeof(int) * 2];
             var fileStream = GetOpenedStream(fileName).FileStream;
             fileStream.Seek(position, SeekOrigin.Begin);
-            await fileStream.ReadAsync(result, position, sizeof(int) * 2);
+            await fileStream.ReadAsync(result, 0, sizeof(int) * 2);
 
             return new Tuple<int, int>(BitConverter.ToInt32(result, 0), BitConverter.ToInt32(result, 4));
         }
@@ -221,7 +221,6 @@ namespace InventoryService.Repository
                 await stream.FileStream.FlushAsync();
                 stream.Dirty = false;
             }
-            await Task.Delay(TimeSpan.FromMilliseconds(100));
         }
     }
 }
