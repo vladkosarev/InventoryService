@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using InventoryService;
 using InventoryService.Repository;
 using InventoryService.Actors;
 using InventoryService.Messages;
-using InventoryService.Repository.AzureTable;
 using System.Threading.Tasks;
-using Akka;
 using Akka.Actor;
 
 namespace InventoryService.Console
@@ -41,11 +38,11 @@ namespace InventoryService.Console
 
             Task.WaitAll(products.Select(p =>
             {
-                return Task.Run(() =>
+                return Task.Run(async () =>
                 {
                     for (var i = 0; i < 5000; i++)
                     {
-                        var reservation = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(p.Item1, 1)).Result;
+                        var reservation = await inventoryActor.Ask<ReservedMessage>(new ReserveMessage(p.Item1, 1));
                         if (!reservation.Successful)
                             System.Console.WriteLine("Failed on iteration {0}", i);
                     }

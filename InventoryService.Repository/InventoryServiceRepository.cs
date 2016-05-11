@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace InventoryService.Repository
@@ -79,7 +78,7 @@ namespace InventoryService.Repository
 
     public class FileServiceRepository : IInventoryServiceRepository
     {
-        private const string DbFolder = "db";
+        private readonly string _dbFolder;
         private const string FileExtension = ".dbx";
 
         private class OpenedStream
@@ -103,12 +102,15 @@ namespace InventoryService.Repository
 
         public FileServiceRepository(
             uint flushInterval = 100
+            , string dbFolder = "db"
             , bool atomic = true
             , bool appendMode = true)
         {
-            if (!Directory.Exists(DbFolder)) Directory.CreateDirectory(DbFolder);
+            _dbFolder = dbFolder;
+            if (!Directory.Exists(_dbFolder)) Directory.CreateDirectory(_dbFolder);
             _atomic = atomic;
             _appendMode = appendMode;
+            
             //_flushTask = Task.Run(async () =>
             //{
             //    while (!atomic)
@@ -126,34 +128,34 @@ namespace InventoryService.Repository
 
         public async Task<int> ReadQuantity(string productId)
         {
-            return await ReadInt(Path.Combine(DbFolder, productId + FileExtension), 0);
+            return await ReadInt(Path.Combine(_dbFolder, productId + FileExtension), 0);
         }
 
         public async Task<int> ReadReservations(string productId)
         {
-            return await ReadInt(Path.Combine(DbFolder, productId + FileExtension), 4);
+            return await ReadInt(Path.Combine(_dbFolder, productId + FileExtension), 4);
         }
 
         public async Task<Tuple<int, int>> ReadQuantityAndReservations(string productId)
         {
-            return await ReadConsecutiveInt(Path.Combine(DbFolder, productId + FileExtension), 0);
+            return await ReadConsecutiveInt(Path.Combine(_dbFolder, productId + FileExtension), 0);
         }
 
         public async Task<bool> WriteQuantity(string productId, int quantity)
         {
-            return await WriteInt(Path.Combine(DbFolder, productId + FileExtension), 0, quantity);
+            return await WriteInt(Path.Combine(_dbFolder, productId + FileExtension), 0, quantity);
         }
 
         public async Task<bool> WriteReservations(string productId, int reservationQuantity)
         {
-            return await WriteInt(Path.Combine(DbFolder, productId + FileExtension), 4, reservationQuantity);
+            return await WriteInt(Path.Combine(_dbFolder, productId + FileExtension), 4, reservationQuantity);
         }
 
         public async Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity)
         {
             return
                 await
-                    WriteConsecutiveInt(Path.Combine(DbFolder, productId + FileExtension), 0, quantity,
+                    WriteConsecutiveInt(Path.Combine(_dbFolder, productId + FileExtension), 0, quantity,
                         reservationQuantity);
         }
 

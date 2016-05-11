@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace InventoryService.Repository.AzureTable
+namespace InventoryService.Repository
 {
-    public class Service : IInventoryServiceRepository
+    public class AzureTableRepository : IInventoryServiceRepository
     {
         private class Quantity : TableEntity
         {
@@ -39,7 +37,7 @@ namespace InventoryService.Repository.AzureTable
 
         private readonly CloudStorageAccount _storageAccount;
         private readonly string _tableName;
-        public Service(string tableName = "products")
+        public AzureTableRepository(string tableName = "products")
         {
             _tableName = tableName;
             _storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
@@ -59,8 +57,8 @@ namespace InventoryService.Repository.AzureTable
             var tableClient = _storageAccount.CreateCloudTableClient();
             var table = tableClient.GetTableReference(_tableName);
             var tableQuery = new TableQuery<Quantity>()
-                .Where(TableQuery.GenerateFilterCondition("PartitionKey"
-                       , QueryComparisons.Equal, productId));
+                .Where(TableQuery.GenerateFilterCondition(
+                        "PartitionKey", QueryComparisons.Equal, productId));
             TableContinuationToken continuationToken = null;
             tableQuery.TakeCount = 2;
             var queryResult =
