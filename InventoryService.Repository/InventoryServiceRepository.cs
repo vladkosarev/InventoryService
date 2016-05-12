@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +17,7 @@ namespace InventoryService.Repository
         Task<bool> WriteReservations(string productId, int reservationQuantity);
         Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity);
         Task Flush();
+        Task<Dictionary<string, int>> GetAll();
     }
 
     public class InMemoryInventoryServiceRepository : IInventoryServiceRepository
@@ -74,12 +77,17 @@ namespace InventoryService.Repository
         public async Task Flush()
         {
         }
+
+        public async Task<Dictionary<string, int>> GetAll()
+        {
+            return new Dictionary<string, int>();
+        }
     }
 
     public class FileServiceRepository : IInventoryServiceRepository
     {
         private readonly string _dbFolder;
-        private const string FileExtension = ".dbx";
+        private const string FileExtension = ".dbf";
 
         private class OpenedStream
         {
@@ -104,7 +112,7 @@ namespace InventoryService.Repository
             uint flushInterval = 100
             , string dbFolder = "db"
             , bool atomic = true
-            , bool appendMode = true)
+            , bool appendMode = false)
         {
             _dbFolder = dbFolder;
             if (!Directory.Exists(_dbFolder)) Directory.CreateDirectory(_dbFolder);
@@ -234,6 +242,11 @@ namespace InventoryService.Repository
                 await stream.FileStream.FlushAsync();
                 stream.Dirty = false;
             }
+        }
+
+        public async Task<Dictionary<string, int>> GetAll()
+        {
+            return new Dictionary<string, int>();
         }
     }
 }

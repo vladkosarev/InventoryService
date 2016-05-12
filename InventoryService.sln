@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Console", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Repository.AzureTable", "InventoryService.Repository.AzureTable\InventoryService.Repository.AzureTable.csproj", "{1D65E194-DABD-4AC3-9865-39DB0E5F068B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.FileSystem", "InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj", "{80A8D243-5C6E-455C-BC99-1A046F8A108D}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -42,6 +44,10 @@ Global
 		{1D65E194-DABD-4AC3-9865-39DB0E5F068B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D65E194-DABD-4AC3-9865-39DB0E5F068B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D65E194-DABD-4AC3-9865-39DB0E5F068B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80A8D243-5C6E-455C-BC99-1A046F8A108D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80A8D243-5C6E-455C-BC99-1A046F8A108D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80A8D243-5C6E-455C-BC99-1A046F8A108D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80A8D243-5C6E-455C-BC99-1A046F8A108D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

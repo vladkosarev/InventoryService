@@ -55,6 +55,10 @@
       <Project>{C0A7B404-6A67-45AA-9E4A-00B850DA6336}</Project>
       <Name>InventoryService.Repository</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj">
+      <Project>{80a8d243-5c6e-455c-bc99-1a046f8a108d}</Project>
+      <Name>InventoryService.Storage.FileSystem</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService\InventoryService.csproj">
       <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
       <Name>InventoryService</Name>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure;
@@ -17,7 +18,9 @@ namespace InventoryService.Repository
                 this.RowKey = "quantity";
             }
 
-            public Quantity() { }
+            public Quantity()
+            {
+            }
 
             public int Value { get; set; }
         }
@@ -30,18 +33,22 @@ namespace InventoryService.Repository
                 this.RowKey = "reserved";
             }
 
-            public Reserved() { }
+            public Reserved()
+            {
+            }
 
             public int Value { get; set; }
         }
 
         private readonly CloudStorageAccount _storageAccount;
         private readonly string _tableName;
+
         public AzureTableRepository(string tableName = "products")
         {
             _tableName = tableName;
             _storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
         }
+
         public Task<int> ReadQuantity(string productId)
         {
             throw new NotImplementedException();
@@ -58,7 +65,7 @@ namespace InventoryService.Repository
             var table = tableClient.GetTableReference(_tableName);
             var tableQuery = new TableQuery<Quantity>()
                 .Where(TableQuery.GenerateFilterCondition(
-                        "PartitionKey", QueryComparisons.Equal, productId));
+                    "PartitionKey", QueryComparisons.Equal, productId));
             TableContinuationToken continuationToken = null;
             tableQuery.TakeCount = 2;
             var queryResult =
@@ -66,7 +73,7 @@ namespace InventoryService.Repository
 
             var quantity = queryResult.FirstOrDefault(x => x.RowKey == "quantity").Value;
             var reserved = queryResult.FirstOrDefault(x => x.RowKey == "reserved").Value;
-            
+
             return new Tuple<int, int>(quantity, reserved);
         }
 
@@ -95,11 +102,16 @@ namespace InventoryService.Repository
                 ,
                 table.ExecuteAsync(TableOperation.InsertOrReplace(new Reserved(productId) {Value = reservationQuantity}))
                 );
-            
+
             return true;
         }
 
         public Task Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Dictionary<string, int>> GetAll()
         {
             throw new NotImplementedException();
         }
