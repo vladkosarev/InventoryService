@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Threading.Tasks;
+using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Repository;
 
@@ -9,57 +11,50 @@ namespace InventoryService.Actors
         private readonly string _id;
         private int _quantity;
         private int _reservedQuantity;
-        private readonly IActorRef inventoryServiceRepositoryActor;
+        private IInventoryServiceRepository _inventoryServiceRepository;
         public IStash Stash { get; set; }
 
         public ProductInventoryActor(IInventoryServiceRepository inventoryServiceRepository, string id)
         {
             _id = id;
-            inventoryServiceRepositoryActor = Context.ActorOf(
-                Props.Create(() =>
-                    new ProductInventoryRepositoryActor(inventoryServiceRepository, _id))
-                    , _id + "-repository");
-            Become(Initializing);
-            inventoryServiceRepositoryActor.Tell(new GetInventoryMessage());
-        }
-
-        private void Initializing()
-        {
-            Receive<LoadedInventoryMessage>(message =>
-            {
-                _quantity = message.Quantity;
-                _reservedQuantity = message.ReservedQuantity;
-                Become(Running);
-                Stash.UnstashAll();
-            });
-
-            ReceiveAny(message =>
-            {
-                Stash.Stash();
-            });
+            _inventoryServiceRepository = inventoryServiceRepository;
+            Become(Running);
+            var inventory = _inventoryServiceRepository.ReadQuantityAndReservations(id).Result;
+            _quantity = inventory.Item1;
+            _reservedQuantity = inventory.Item2;
+            Context.System.Scheduler.ScheduleTellRepeatedly(
+                TimeSpan.Zero
+                , TimeSpan.FromMilliseconds(100)
+                , Self
+                , new FlushStreamMessage(_id)
+                , ActorRefs.Nobody);
         }
 
         private void Running()
         {
-            ReceiveAsync<ReserveMessage>(async message =>
+            Receive<ReserveMessage>(message =>
             {
                 var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
                 if (newReservedQuantity <= _quantity)
                 {
-                    // write to repository here
-                    //var result = await inventoryServiceRepositoryActor.Ask<WroteReservationsMessage>(
-                    //    new WriteReservationsMessage(_id, newReservedQuantity));
-                    var result = await inventoryServiceRepositoryActor.Ask<WroteInventoryMessage>(
-                        new WriteInventoryMessage(_id, _quantity, newReservedQuantity));
-                    if (result.Successful)
-                    {
-                        _reservedQuantity = newReservedQuantity;
-                        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, true));
-                    }
-                    else
-                    {
-                        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, false));
-                    }
+                    var sender = Sender;
+                    _inventoryServiceRepository.WriteQuantityAndReservations(
+                        message.ProductId
+                        , _quantity
+                        , newReservedQuantity)
+                        .ContinueWith(task =>
+                        {
+                            if (task.Result)
+                            {
+                                _reservedQuantity = newReservedQuantity;
+                                return new ReservedMessage(_id, message.ReservationQuantity, true);
+                            }
+                            else
+                            {
+                                return new ReservedMessage(_id, message.ReservationQuantity, false);
+                            }
+                        }, TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
+                        .PipeTo(sender);
                 }
                 else
                 {
@@ -80,6 +75,11 @@ namespace InventoryService.Actors
                 {
                     Sender.Tell(new PurchasedMessage(_id, message.Quantity, false));
                 }
+            });
+
+            Receive<FlushStreamMessage>(message =>
+            {
+                _inventoryServiceRepository.Flush(_id);
             });
         }
     }

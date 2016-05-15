@@ -41,6 +41,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Messages\FlushStreamMessage.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
     <Compile Include="Messages\WriteReservationsMessage.cs" />
     <Compile Include="Messages\WroteReservationsMessage.cs" />
@@ -51,7 +52,6 @@
     <Compile Include="Actors\ProductInventoryActor.cs" />
     <Compile Include="Messages\LoadedInventoryMessage.cs" />
     <Compile Include="Messages\GetInventoryMessage.cs" />
-    <Compile Include="Actors\ProductInventoryRepositoryActor.cs" />
     <Compile Include="Messages\PurchaseMessage.cs" />
     <Compile Include="Messages\PurchasedMessage.cs" />
     <Compile Include="Messages\WriteInventoryMessage.cs" />

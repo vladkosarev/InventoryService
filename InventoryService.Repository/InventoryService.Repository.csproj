@@ -32,6 +32,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IInventoryServiceRepository.cs" />
+    <Compile Include="InMemoryInventoryServiceRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="InventoryServiceRepository.cs" />
   </ItemGroup>

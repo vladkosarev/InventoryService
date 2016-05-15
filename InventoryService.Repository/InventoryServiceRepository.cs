@@ -2,81 +2,12 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace InventoryService.Repository
 {
-    public interface IInventoryServiceRepository
-    {
-        Task<int> ReadQuantity(string productId);
-        Task<int> ReadReservations(string productId);
-        Task<Tuple<int, int>> ReadQuantityAndReservations(string productId);
-        Task<bool> WriteQuantity(string productId, int quantity);
-        Task<bool> WriteReservations(string productId, int reservationQuantity);
-        Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity);
-        Task Flush();
-    }
-
-    public class InMemoryInventoryServiceRepository : IInventoryServiceRepository
-    {
-        private readonly ConcurrentDictionary<string, Tuple<int, int>> _productInventories =
-            new ConcurrentDictionary<string, Tuple<int, int>>();
-
-        public async Task<int> ReadQuantity(string productId)
-        {
-            if (!_productInventories.ContainsKey(productId))
-                throw new InvalidOperationException();
-            return _productInventories[productId].Item1;
-        }
-
-        public async Task<int> ReadReservations(string productId)
-        {
-            if (!_productInventories.ContainsKey(productId))
-                throw new InvalidOperationException();
-            return _productInventories[productId].Item2;
-        }
-
-        public async Task<Tuple<int, int>> ReadQuantityAndReservations(string productId)
-        {
-            if (!_productInventories.ContainsKey(productId))
-                throw new InvalidOperationException();
-            return _productInventories[productId];
-        }
-
-        public async Task<bool> WriteQuantity(string productId, int quantity)
-        {
-            if (!_productInventories.ContainsKey(productId))
-                _productInventories.TryAdd(productId, new Tuple<int, int>(quantity, 0));
-            else
-                _productInventories[productId] = new Tuple<int, int>(quantity, _productInventories[productId].Item2);
-            return true;
-        }
-
-        public async Task<bool> WriteReservations(string productId, int reservationQuantity)
-        {
-            if (!_productInventories.ContainsKey(productId))
-                _productInventories.TryAdd(productId, new Tuple<int, int>(0, reservationQuantity));
-            else
-                _productInventories[productId] = new Tuple<int, int>(_productInventories[productId].Item1,
-                    reservationQuantity);
-            return true;
-        }
-
-        public async Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity)
-        {
-            if (!_productInventories.ContainsKey(productId))
-                _productInventories.TryAdd(productId, new Tuple<int, int>(quantity, reservationQuantity));
-            else
-                _productInventories[productId] = new Tuple<int, int>(quantity, reservationQuantity);
-            return true;
-        }
-
-        public async Task Flush()
-        {
-        }
-    }
-
-    public class FileServiceRepository : IInventoryServiceRepository
+    public class FileServiceRepository : IInventoryServiceRepository, IDisposable
     {
         private readonly string _dbFolder;
         private const string FileExtension = ".dbx";
@@ -99,31 +30,31 @@ namespace InventoryService.Repository
         private readonly bool _appendMode;
 
         private Task _flushTask;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public FileServiceRepository(
-            uint flushInterval = 100
+            uint flushInterval = 1000
             , string dbFolder = "db"
-            , bool atomic = true
+            , bool atomic = false
             , bool appendMode = true)
         {
             _dbFolder = dbFolder;
             if (!Directory.Exists(_dbFolder)) Directory.CreateDirectory(_dbFolder);
             _atomic = atomic;
             _appendMode = appendMode;
-            
+
             //_flushTask = Task.Run(async () =>
             //{
-            //    while (!atomic)
+            //    while (!atomic && !_cancellationTokenSource.IsCancellationRequested)
             //    {
             //        foreach (var stream in _fileStreams.Values.Where(v => v.Dirty))
             //        {
-            //            //await stream.FileStream.FlushAsync();
-            //            //stream.FileStream.Flush();
+            //            await stream.FileStream.FlushAsync();
             //            stream.Dirty = false;
             //        }
             //        await Task.Delay(TimeSpan.FromMilliseconds(flushInterval));
             //    }
-            //});
+            //}, _cancellationTokenSource.Token);
         }
 
         public async Task<int> ReadQuantity(string productId)
@@ -169,8 +100,12 @@ namespace InventoryService.Repository
             }
             else
             {
-                var fileStream = createIfDoesNotExist ?
-                    File.Open(fileName, FileMode.OpenOrCreate) : File.Open(fileName, FileMode.Open);
+                var mode = createIfDoesNotExist ? FileMode.OpenOrCreate : FileMode.Open;
+
+                var fileStream = new FileStream(fileName,
+                    mode, FileAccess.ReadWrite, FileShare.Read,
+                    bufferSize: 4096, useAsync: true);
+
                 fileStream.Seek(0, SeekOrigin.End);
                 openedStream = new OpenedStream(fileStream);
                 _fileStreams.TryAdd(fileName, openedStream);
@@ -217,7 +152,7 @@ namespace InventoryService.Repository
             var openedStream = GetOpenedStream(fileName, true);
             var fileStream = openedStream.FileStream;
             if (!_appendMode)
-                fileStream.Seek(position, SeekOrigin.Begin);
+                fileStream.Seek(fileStream.Length - position, SeekOrigin.End);
             await fileStream.WriteAsync(buffer, 0, buffer.Length);
             _fileStreams[fileName].Dirty = true;
             if (_atomic)
@@ -232,6 +167,22 @@ namespace InventoryService.Repository
             foreach (var stream in _fileStreams.Values.Where(v => v.Dirty))
             {
                 await stream.FileStream.FlushAsync();
+                stream.Dirty = false;
+            }
+        }
+
+        public async Task Flush(string productId)
+        {
+            await _fileStreams[Path.Combine(_dbFolder, productId + FileExtension)].FileStream.FlushAsync();
+            _fileStreams[Path.Combine(_dbFolder, productId + FileExtension)].Dirty = false;
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+            foreach (var stream in _fileStreams.Values)
+            {
+                stream.FileStream.Close();
                 stream.Dirty = false;
             }
         }

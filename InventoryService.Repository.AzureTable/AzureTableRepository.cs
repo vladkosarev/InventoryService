@@ -103,5 +103,10 @@ namespace InventoryService.Repository
         {
             throw new NotImplementedException();
         }
+
+        public Task Flush(string productId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
