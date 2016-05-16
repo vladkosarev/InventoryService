@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>InventoryService.Repository</RootNamespace>
     <AssemblyName>InventoryService.Repository</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

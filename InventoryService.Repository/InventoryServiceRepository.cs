@@ -33,28 +33,14 @@ namespace InventoryService.Repository
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public FileServiceRepository(
-            uint flushInterval = 1000
-            , string dbFolder = "db"
-            , bool atomic = false
-            , bool appendMode = true)
+            string dbFolder = "db"
+            , bool atomic = true
+            , bool appendMode = false)
         {
             _dbFolder = dbFolder;
             if (!Directory.Exists(_dbFolder)) Directory.CreateDirectory(_dbFolder);
             _atomic = atomic;
             _appendMode = appendMode;
-
-            //_flushTask = Task.Run(async () =>
-            //{
-            //    while (!atomic && !_cancellationTokenSource.IsCancellationRequested)
-            //    {
-            //        foreach (var stream in _fileStreams.Values.Where(v => v.Dirty))
-            //        {
-            //            await stream.FileStream.FlushAsync();
-            //            stream.Dirty = false;
-            //        }
-            //        await Task.Delay(TimeSpan.FromMilliseconds(flushInterval));
-            //    }
-            //}, _cancellationTokenSource.Token);
         }
 
         public async Task<int> ReadQuantity(string productId)
@@ -91,7 +77,7 @@ namespace InventoryService.Repository
         }
 
         //TODO: error checking
-        private OpenedStream GetOpenedStream(string fileName, bool createIfDoesNotExist = false)
+        private async Task<OpenedStream> GetOpenedStream(string fileName, bool createIfDoesNotExist = false)
         {
             OpenedStream openedStream;
             if (_fileStreams.ContainsKey(fileName))
@@ -100,34 +86,60 @@ namespace InventoryService.Repository
             }
             else
             {
-                var mode = createIfDoesNotExist ? FileMode.OpenOrCreate : FileMode.Open;
+                await CreateFile(createIfDoesNotExist, fileName);
 
-                var fileStream = new FileStream(fileName,
-                    mode, FileAccess.ReadWrite, FileShare.Read,
+                FileStream fileStream;
+
+                if (_appendMode)
+                {
+                    fileStream = new FileStream(fileName,
+                    FileMode.Append, FileAccess.Write, FileShare.Read,
                     bufferSize: 4096, useAsync: true);
+                }
+                else
+                {
+                    fileStream = new FileStream(fileName,
+                    FileMode.Open, FileAccess.ReadWrite, FileShare.Read,
+                    bufferSize: 4096, useAsync: true);
+                    fileStream.Seek(0, SeekOrigin.End);
+                }
 
-                fileStream.Seek(0, SeekOrigin.End);
                 openedStream = new OpenedStream(fileStream);
                 _fileStreams.TryAdd(fileName, openedStream);
             }
             return openedStream;
         }
 
+        private async Task<bool> CreateFile(bool createIfDoesNotExist, string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                return true;
+            }
+            else
+            {
+                if (!createIfDoesNotExist) throw new Exception("No such file"); //todo clean up
+                using (var stream = File.Create(fileName))
+                {
+                }
+            }
+            return true;
+        }
+
         private async Task<int> ReadInt(string fileName, int position)
         {
             var result = new byte[sizeof(int)];
-            await GetOpenedStream(fileName).FileStream.ReadAsync(result, 0, sizeof(int));
+            var stream = await GetOpenedStream(fileName);
+            await stream.FileStream.ReadAsync(result, 0, sizeof(int));
             return BitConverter.ToInt32(result, 0);
         }
 
         private async Task<Tuple<int, int>> ReadConsecutiveInt(string fileName, int position)
         {
             var result = new byte[sizeof(int) * 2];
-            var fileStream = GetOpenedStream(fileName).FileStream;
-            if (_appendMode)
-                fileStream.Seek(-sizeof(int) * 2 + position, SeekOrigin.End);
-            else
-                fileStream.Seek(position, SeekOrigin.Begin);
+            var stream = await GetOpenedStream(fileName);
+            var fileStream = stream.FileStream;
+            if (!_appendMode) fileStream.Seek(-sizeof(int) * 2 + position, SeekOrigin.End);
             await fileStream.ReadAsync(result, 0, sizeof(int) * 2);
 
             return new Tuple<int, int>(BitConverter.ToInt32(result, 0), BitConverter.ToInt32(result, 4));
@@ -149,10 +161,10 @@ namespace InventoryService.Repository
 
         private async Task WriteBuffer(string fileName, int position, byte[] buffer)
         {
-            var openedStream = GetOpenedStream(fileName, true);
+            var openedStream = await GetOpenedStream(fileName, true);
             var fileStream = openedStream.FileStream;
             if (!_appendMode)
-                fileStream.Seek(fileStream.Length - position, SeekOrigin.End);
+                if (fileStream.Position > 0) fileStream.Seek(-buffer.Length, SeekOrigin.End);
             await fileStream.WriteAsync(buffer, 0, buffer.Length);
             _fileStreams[fileName].Dirty = true;
             if (_atomic)

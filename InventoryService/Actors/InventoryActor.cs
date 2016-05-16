@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Repository;
@@ -19,7 +20,7 @@ namespace InventoryService.Actors
 								new ProductInventoryActor(inventoryServiceRepository, message.ProductId))
 								, message.ProductId);
 						_products.Add(message.ProductId, productActorRef);
-					}
+					}                    
 					_products[message.ProductId].Forward(message);
 				});
 			

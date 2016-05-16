@@ -22,39 +22,67 @@ namespace InventoryService.Actors
             var inventory = _inventoryServiceRepository.ReadQuantityAndReservations(id).Result;
             _quantity = inventory.Item1;
             _reservedQuantity = inventory.Item2;
-            Context.System.Scheduler.ScheduleTellRepeatedly(
-                TimeSpan.Zero
-                , TimeSpan.FromMilliseconds(100)
-                , Self
-                , new FlushStreamMessage(_id)
-                , ActorRefs.Nobody);
+            //Context.System.Scheduler.ScheduleTellRepeatedly(
+            //    TimeSpan.Zero
+            //    , TimeSpan.FromMilliseconds(100)
+            //    , Self
+            //    , new FlushStreamMessage(_id)
+            //    , ActorRefs.Nobody);
         }
 
         private void Running()
         {
-            Receive<ReserveMessage>(message =>
+            //Receive<ReserveMessage>(message =>
+            //{
+            //    var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
+            //    if (newReservedQuantity <= _quantity)
+            //    {
+            //        if (message.ProductId == "product0") Console.WriteLine("{0} - {1} [{2}]", message.ProductId, _reservedQuantity, Sender.Path);
+            //        var sender = Sender;
+            //        _inventoryServiceRepository.WriteQuantityAndReservations(
+            //            message.ProductId
+            //            , _quantity
+            //            , newReservedQuantity)
+            //            .ContinueWith(task =>
+            //            {
+            //                if (task.Result)
+            //                {
+            //                    _reservedQuantity = newReservedQuantity;
+            //                    return new ReservedMessage(_id, message.ReservationQuantity, true);
+            //                }
+            //                else
+            //                {
+            //                    return new ReservedMessage(_id, message.ReservationQuantity, false);
+            //                }
+            //            }, TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
+            //            .PipeTo(sender);
+            //    }
+            //    else
+            //    {
+            //        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, false));
+            //    }
+            //});
+
+            ReceiveAsync<ReserveMessage>(async message =>
             {
                 var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
                 if (newReservedQuantity <= _quantity)
                 {
-                    var sender = Sender;
-                    _inventoryServiceRepository.WriteQuantityAndReservations(
+                    if (message.ProductId == "product0") Console.WriteLine("{0} - {1} [{2}]", message.ProductId, _reservedQuantity, Sender.Path);
+                    var result = await _inventoryServiceRepository.WriteQuantityAndReservations(
                         message.ProductId
                         , _quantity
-                        , newReservedQuantity)
-                        .ContinueWith(task =>
-                        {
-                            if (task.Result)
-                            {
-                                _reservedQuantity = newReservedQuantity;
-                                return new ReservedMessage(_id, message.ReservationQuantity, true);
-                            }
-                            else
-                            {
-                                return new ReservedMessage(_id, message.ReservationQuantity, false);
-                            }
-                        }, TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
-                        .PipeTo(sender);
+                        , newReservedQuantity);
+
+                    if (result)
+                    {
+                        _reservedQuantity = newReservedQuantity;
+                        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, true));
+                    }
+                    else
+                    {
+                        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, false));
+                    }
                 }
                 else
                 {
