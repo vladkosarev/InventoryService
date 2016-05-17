@@ -52,7 +52,7 @@ akka {
             Console.WriteLine("Starting Server");
 
             var productCount = 100;
-            var initialQuantity = 50000;
+            var initialQuantity = 5000;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
             for (int product = 0; product < productCount; product++)
@@ -60,16 +60,16 @@ akka {
                 products.Add(new Tuple<string, int, int>("product" + product, initialQuantity, 0));
             }
 
-            using (var service = new FileServiceRepository(appendMode: false))
+            using (var service = new FileStorage(appendMode: false))
             {
                 Task.WaitAll(
                     products
-                    .Select(p => service.WriteQuantityAndReservations(p.Item1, p.Item2, p.Item3))
+                    .Select(p => service.WriteInventory(p.Item1, p.Item2, p.Item3))
                     .ToArray());
             }
 
             // close and re-open
-            var inventoryService = new FileServiceRepository();
+            var inventoryService = new FileStorage();
 
             using (var actorSystem = ActorSystem.Create("InventoryServiceCluster", config))
             {

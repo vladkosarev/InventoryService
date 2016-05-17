@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using InventoryService.Storage;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace InventoryService.Repository
 {
-    public class AzureTableRepository : IInventoryServiceRepository
+    public class AzureTableRepository : IInventoryStorage
     {
         private class Quantity : TableEntity
         {
@@ -52,7 +53,7 @@ namespace InventoryService.Repository
             throw new NotImplementedException();
         }
 
-        public async Task<Tuple<int, int>> ReadQuantityAndReservations(string productId)
+        public async Task<Tuple<int, int>> ReadInventory(string productId)
         {
             var tableClient = _storageAccount.CreateCloudTableClient();
             var table = tableClient.GetTableReference(_tableName);
@@ -80,7 +81,7 @@ namespace InventoryService.Repository
             throw new NotImplementedException();
         }
 
-        public async Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity)
+        public async Task<bool> WriteInventory(string productId, int quantity, int reservationQuantity)
         {
             var tableClient = _storageAccount.CreateCloudTableClient();
             var table = tableClient.GetTableReference(_tableName);

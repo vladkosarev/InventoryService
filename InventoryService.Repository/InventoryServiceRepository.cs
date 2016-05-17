@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using InventoryService.Storage;
 
 namespace InventoryService.Repository
 {
-    public class FileServiceRepository : IInventoryServiceRepository, IDisposable
+    public class FileStorage : IInventoryStorage, IDisposable
     {
         private readonly string _dbFolder;
         private const string FileExtension = ".dbx";
@@ -32,7 +33,7 @@ namespace InventoryService.Repository
         private Task _flushTask;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public FileServiceRepository(
+        public FileStorage(
             string dbFolder = "db"
             , bool atomic = true
             , bool appendMode = false)
@@ -53,7 +54,7 @@ namespace InventoryService.Repository
             return await ReadInt(Path.Combine(_dbFolder, productId + FileExtension), 4);
         }
 
-        public async Task<Tuple<int, int>> ReadQuantityAndReservations(string productId)
+        public async Task<Tuple<int, int>> ReadInventory(string productId)
         {
             return await ReadConsecutiveInt(Path.Combine(_dbFolder, productId + FileExtension), 0);
         }
@@ -68,7 +69,7 @@ namespace InventoryService.Repository
             return await WriteInt(Path.Combine(_dbFolder, productId + FileExtension), 4, reservationQuantity);
         }
 
-        public async Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity)
+        public async Task<bool> WriteInventory(string productId, int quantity, int reservationQuantity)
         {
             return
                 await
@@ -94,13 +95,13 @@ namespace InventoryService.Repository
                 {
                     fileStream = new FileStream(fileName,
                     FileMode.Append, FileAccess.Write, FileShare.Read,
-                    bufferSize: 4096, useAsync: true);
+                    bufferSize: 8, useAsync: true);
                 }
                 else
                 {
                     fileStream = new FileStream(fileName,
                     FileMode.Open, FileAccess.ReadWrite, FileShare.Read,
-                    bufferSize: 4096, useAsync: true);
+                    bufferSize: 8, useAsync: true);
                     fileStream.Seek(0, SeekOrigin.End);
                 }
 

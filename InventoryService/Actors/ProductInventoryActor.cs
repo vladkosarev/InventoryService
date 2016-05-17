@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Repository;
+using InventoryService.Storage;
 
 namespace InventoryService.Actors
 {
@@ -11,15 +12,15 @@ namespace InventoryService.Actors
         private readonly string _id;
         private int _quantity;
         private int _reservedQuantity;
-        private IInventoryServiceRepository _inventoryServiceRepository;
+        private IInventoryStorage _inventoryStorage;
         public IStash Stash { get; set; }
 
-        public ProductInventoryActor(IInventoryServiceRepository inventoryServiceRepository, string id)
+        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id)
         {
             _id = id;
-            _inventoryServiceRepository = inventoryServiceRepository;
+            _inventoryStorage = inventoryStorage;
             Become(Running);
-            var inventory = _inventoryServiceRepository.ReadQuantityAndReservations(id).Result;
+            var inventory = _inventoryStorage.ReadInventory(id).Result;
             _quantity = inventory.Item1;
             _reservedQuantity = inventory.Item2;
             //Context.System.Scheduler.ScheduleTellRepeatedly(
@@ -32,44 +33,13 @@ namespace InventoryService.Actors
 
         private void Running()
         {
-            //Receive<ReserveMessage>(message =>
-            //{
-            //    var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
-            //    if (newReservedQuantity <= _quantity)
-            //    {
-            //        if (message.ProductId == "product0") Console.WriteLine("{0} - {1} [{2}]", message.ProductId, _reservedQuantity, Sender.Path);
-            //        var sender = Sender;
-            //        _inventoryServiceRepository.WriteQuantityAndReservations(
-            //            message.ProductId
-            //            , _quantity
-            //            , newReservedQuantity)
-            //            .ContinueWith(task =>
-            //            {
-            //                if (task.Result)
-            //                {
-            //                    _reservedQuantity = newReservedQuantity;
-            //                    return new ReservedMessage(_id, message.ReservationQuantity, true);
-            //                }
-            //                else
-            //                {
-            //                    return new ReservedMessage(_id, message.ReservationQuantity, false);
-            //                }
-            //            }, TaskContinuationOptions.AttachedToParent & TaskContinuationOptions.ExecuteSynchronously)
-            //            .PipeTo(sender);
-            //    }
-            //    else
-            //    {
-            //        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, false));
-            //    }
-            //});
-
             ReceiveAsync<ReserveMessage>(async message =>
             {
                 var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
                 if (newReservedQuantity <= _quantity)
                 {
-                    if (message.ProductId == "product0") Console.WriteLine("{0} - {1} [{2}]", message.ProductId, _reservedQuantity, Sender.Path);
-                    var result = await _inventoryServiceRepository.WriteQuantityAndReservations(
+                    //if (message.ProductId == "product0") Console.WriteLine("{0} - {1} [{2}]", message.ProductId, _reservedQuantity, Sender.Path);
+                    var result = await _inventoryStorage.WriteInventory(
                         message.ProductId
                         , _quantity
                         , newReservedQuantity);
@@ -107,7 +77,7 @@ namespace InventoryService.Actors
 
             Receive<FlushStreamMessage>(message =>
             {
-                _inventoryServiceRepository.Flush(_id);
+                _inventoryStorage.Flush(_id);
             });
         }
     }

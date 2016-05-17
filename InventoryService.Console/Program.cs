@@ -13,7 +13,7 @@ namespace InventoryService.Console
     {
         public static void Main(string[] args)
         {
-            var productCount = 100;
+            var productCount = 10;
             var initialQuantity = 5000;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();

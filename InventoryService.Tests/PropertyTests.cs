@@ -77,12 +77,12 @@ namespace InventoryService.Tests
 
         public IActorRef InitializeInventoryServiceRepository(IList<Tuple<string, int, int>> productInventory)
         {
-            var inventoryService = new InMemoryInventoryServiceRepository();
+            var inventoryService = new InMemoryInventoryStorage();
 
             //improve this with parallel
             foreach (var product in productInventory)
             {
-                Task.Run(() => inventoryService.WriteQuantityAndReservations(product.Item1, product.Item2, product.Item3)).Wait();
+                Task.Run(() => inventoryService.WriteInventory(product.Item1, product.Item2, product.Item3)).Wait();
             }
 
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
@@ -98,8 +98,8 @@ namespace InventoryService.Tests
 
         public bool Purchase(int initialQuantity, int initialReservations, int purchaseQuantity, string productId = "product1")
         {
-            var inventoryService = new InMemoryInventoryServiceRepository();
-            inventoryService.WriteQuantityAndReservations(productId, initialQuantity, initialReservations);
+            var inventoryService = new InMemoryInventoryStorage();
+            inventoryService.WriteInventory(productId, initialQuantity, initialReservations);
 
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService)));
 

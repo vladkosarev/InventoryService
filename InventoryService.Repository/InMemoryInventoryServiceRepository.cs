@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using InventoryService.Storage;
 
 namespace InventoryService.Repository
 {
-    public class InMemoryInventoryServiceRepository : IInventoryServiceRepository
+    public class InMemoryInventoryStorage : IInventoryStorage
     {
         private readonly ConcurrentDictionary<string, Tuple<int, int>> _productInventories =
             new ConcurrentDictionary<string, Tuple<int, int>>();
@@ -23,7 +24,7 @@ namespace InventoryService.Repository
             return _productInventories[productId].Item2;
         }
 
-        public async Task<Tuple<int, int>> ReadQuantityAndReservations(string productId)
+        public async Task<Tuple<int, int>> ReadInventory(string productId)
         {
             if (!_productInventories.ContainsKey(productId))
                 throw new InvalidOperationException();
@@ -49,7 +50,7 @@ namespace InventoryService.Repository
             return true;
         }
 
-        public async Task<bool> WriteQuantityAndReservations(string productId, int quantity, int reservationQuantity)
+        public async Task<bool> WriteInventory(string productId, int quantity, int reservationQuantity)
         {
             if (!_productInventories.ContainsKey(productId))
                 _productInventories.TryAdd(productId, new Tuple<int, int>(quantity, reservationQuantity));
