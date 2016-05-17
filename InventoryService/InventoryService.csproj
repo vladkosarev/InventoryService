@@ -64,9 +64,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\InventoryService.Repository\InventoryService.Repository.csproj">
-      <Project>{C0A7B404-6A67-45AA-9E4A-00B850DA6336}</Project>
-      <Name>InventoryService.Repository</Name>
+    <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
+      <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
+      <Name>InventoryService.Storage</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

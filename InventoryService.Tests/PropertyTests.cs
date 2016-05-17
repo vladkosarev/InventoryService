@@ -5,11 +5,11 @@ using FsCheck.Xunit;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using InventoryService.Repository;
 using Akka.Actor;
 using Akka.TestKit.Xunit2;
 using InventoryService.Actors;
 using InventoryService.Messages;
+using InventoryService.Storage;
 
 namespace InventoryService.Tests
 {

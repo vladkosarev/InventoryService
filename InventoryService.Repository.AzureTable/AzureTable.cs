@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using InventoryService.Storage;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace InventoryService.Repository
+namespace InventoryService.Storage
 {
-    public class AzureTableRepository : IInventoryStorage
+    public class AzureTable : IInventoryStorage
     {
         private class Quantity : TableEntity
         {
@@ -38,7 +37,7 @@ namespace InventoryService.Repository
 
         private readonly CloudStorageAccount _storageAccount;
         private readonly string _tableName;
-        public AzureTableRepository(string tableName = "products")
+        public AzureTable(string tableName = "products")
         {
             _tableName = tableName;
             _storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));

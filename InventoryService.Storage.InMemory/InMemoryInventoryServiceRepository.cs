@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using InventoryService.Storage;
 
-namespace InventoryService.Repository
+namespace InventoryService.Storage
 {
     public class InMemoryInventoryStorage : IInventoryStorage
     {

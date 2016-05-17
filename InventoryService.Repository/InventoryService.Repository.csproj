@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C0A7B404-6A67-45AA-9E4A-00B850DA6336}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>InventoryService.Repository</RootNamespace>
-    <AssemblyName>InventoryService.Repository</AssemblyName>
+    <RootNamespace>InventoryService.Storage</RootNamespace>
+    <AssemblyName>InventoryService.Storage</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -32,10 +32,13 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IInventoryStorage.cs" />
-    <Compile Include="InMemoryInventoryServiceRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="InventoryServiceRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
+      <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
+      <Name>InventoryService.Storage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

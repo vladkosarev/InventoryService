@@ -80,13 +80,21 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj">
+      <Project>{d7108c47-df6c-47c6-a3fe-dfcef066e6a6}</Project>
+      <Name>InventoryService.Storage.FileSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemory.csproj">
+      <Project>{94389D22-92E0-4933-A1C9-41CAB38FFD7C}</Project>
+      <Name>InventoryService.Storage.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
+      <Project>{69c4264a-cb21-47f8-a467-6072172da842}</Project>
+      <Name>InventoryService.Storage</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService\InventoryService.csproj">
       <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
       <Name>InventoryService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService.Repository\InventoryService.Repository.csproj">
-      <Project>{C0A7B404-6A67-45AA-9E4A-00B850DA6336}</Project>
-      <Name>InventoryService.Repository</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

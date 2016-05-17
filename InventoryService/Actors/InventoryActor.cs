@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Akka.Actor;
 using InventoryService.Messages;
-using InventoryService.Repository;
+using InventoryService.Storage;
 using InventoryService.Storage;
 
 namespace InventoryService.Actors

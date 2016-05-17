@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using InventoryService.Storage;
 
-namespace InventoryService.Repository
+namespace InventoryService.Storage
 {
     public class FileStorage : IInventoryStorage, IDisposable
     {

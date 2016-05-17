@@ -8,7 +8,7 @@ using Akka.Actor;
 using Akka.Configuration;
 using InventoryService.Actors;
 using InventoryService.Messages;
-using InventoryService.Repository;
+using InventoryService.Storage;
 
 namespace InventoryService.Server
 {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Akka.Actor;
 using InventoryService.Messages;
-using InventoryService.Repository;
+using InventoryService.Storage;
 using InventoryService.Storage;
 
 namespace InventoryService.Actors
