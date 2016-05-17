@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace InventoryService.Storage
 {
-    public class FileStorage : IInventoryStorage, IDisposable
+    public class FileSystem : IInventoryStorage, IDisposable
     {
         private readonly string _dbFolder;
         private const string FileExtension = ".dbx";
@@ -32,7 +32,7 @@ namespace InventoryService.Storage
         private Task _flushTask;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public FileStorage(
+        public FileSystem(
             string dbFolder = "db"
             , bool atomic = true
             , bool appendMode = false)
@@ -43,29 +43,9 @@ namespace InventoryService.Storage
             _appendMode = appendMode;
         }
 
-        public async Task<int> ReadQuantity(string productId)
-        {
-            return await ReadInt(Path.Combine(_dbFolder, productId + FileExtension), 0);
-        }
-
-        public async Task<int> ReadReservations(string productId)
-        {
-            return await ReadInt(Path.Combine(_dbFolder, productId + FileExtension), 4);
-        }
-
         public async Task<Tuple<int, int>> ReadInventory(string productId)
         {
             return await ReadConsecutiveInt(Path.Combine(_dbFolder, productId + FileExtension), 0);
-        }
-
-        public async Task<bool> WriteQuantity(string productId, int quantity)
-        {
-            return await WriteInt(Path.Combine(_dbFolder, productId + FileExtension), 0, quantity);
-        }
-
-        public async Task<bool> WriteReservations(string productId, int reservationQuantity)
-        {
-            return await WriteInt(Path.Combine(_dbFolder, productId + FileExtension), 4, reservationQuantity);
         }
 
         public async Task<bool> WriteInventory(string productId, int quantity, int reservationQuantity)

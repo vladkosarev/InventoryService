@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Configuration;
 using InventoryService.Actors;
-using InventoryService.Messages;
 using InventoryService.Storage;
 
 namespace InventoryService.Server
@@ -60,7 +57,7 @@ akka {
                 products.Add(new Tuple<string, int, int>("product" + product, initialQuantity, 0));
             }
 
-            using (var service = new FileStorage(appendMode: false))
+            using (var service = new FileSystem(appendMode: false))
             {
                 Task.WaitAll(
                     products
@@ -69,7 +66,7 @@ akka {
             }
 
             // close and re-open
-            var inventoryService = new FileStorage();
+            var inventoryService = new FileSystem();
 
             using (var actorSystem = ActorSystem.Create("InventoryServiceCluster", config))
             {
