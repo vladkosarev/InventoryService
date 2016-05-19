@@ -1,28 +1,31 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Akka.Actor;
 using InventoryService.Messages;
-using InventoryService.Storage;
 using InventoryService.Storage;
 
 namespace InventoryService.Actors
 {
-    public class ProductInventoryActor : ReceiveActor, IWithUnboundedStash
+    public class ProductInventoryActor : ReceiveActor
     {
         private readonly string _id;
         private int _quantity;
         private int _reservedQuantity;
-        private IInventoryStorage _inventoryStorage;
-        public IStash Stash { get; set; }
+        private bool _withCache;
 
-        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id)
+        private readonly IInventoryStorage _inventoryStorage;
+
+        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
             _inventoryStorage = inventoryStorage;
-            Become(Running);
+            _withCache = withCache;
+
             var inventory = _inventoryStorage.ReadInventory(id).Result;
             _quantity = inventory.Item1;
             _reservedQuantity = inventory.Item2;
+
+            Become(Running);
+
             //Context.System.Scheduler.ScheduleTellRepeatedly(
             //    TimeSpan.Zero
             //    , TimeSpan.FromMilliseconds(100)
@@ -33,8 +36,14 @@ namespace InventoryService.Actors
 
         private void Running()
         {
-            Receive<GetInventoryMessage>(message =>
+            ReceiveAsync<GetInventoryMessage>(async message =>
             {
+                if (!_withCache)
+                {
+                    var inventory = await _inventoryStorage.ReadInventory(message.ProductId);
+                    _quantity = inventory.Item1;
+                    _reservedQuantity = inventory.Item2;
+                }
                 Sender.Tell(new RetrievedInventoryMessage(message.ProductId, _quantity, _reservedQuantity));
             });
 
@@ -43,7 +52,6 @@ namespace InventoryService.Actors
                 var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
                 if (newReservedQuantity <= _quantity)
                 {
-                    //if (message.ProductId == "product0") Console.WriteLine("{0} - {1} [{2}]", message.ProductId, _reservedQuantity, Sender.Path);
                     var result = await _inventoryStorage.WriteInventory(
                         message.ProductId
                         , _quantity
