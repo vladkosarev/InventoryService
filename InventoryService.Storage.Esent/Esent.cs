@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Isam.Esent.Collections.Generic;
 
-namespace InventoryService.Storage.Esent
+namespace InventoryService.Storage
 {
     public class Esent : IInventoryStorage, IDisposable
     {

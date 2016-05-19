@@ -68,16 +68,19 @@ namespace InventoryService.Actors
             ReceiveAsync<PurchaseMessage>(async message =>
             {
                 var newQuantity = _quantity - message.Quantity;
+                var newReservedQuantity = Math.Max(0,_reservedQuantity - message.Quantity);
+
                 if (newQuantity >= 0)
                 {
                     var result = await _inventoryStorage.WriteInventory(
                         message.ProductId
                         , newQuantity
-                        , _reservedQuantity);
+                        , newReservedQuantity);
 
                     if (result)
                     {
                         _quantity = newQuantity;
+                        _reservedQuantity = newReservedQuantity;
                         Sender.Tell(new PurchasedMessage(_id, message.Quantity, true));
                     }
                     else
