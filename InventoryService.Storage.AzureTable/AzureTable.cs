@@ -108,5 +108,9 @@ namespace InventoryService.Storage
         {
             throw new NotImplementedException();
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

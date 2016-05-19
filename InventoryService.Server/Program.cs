@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
-using Akka.Configuration;
 using InventoryService.Actors;
 using InventoryService.Storage;
 
@@ -13,51 +12,19 @@ namespace InventoryService.Server
     {
         static void Main(string[] args)
         {
-            var config = ConfigurationFactory.ParseString(
-    @"
-akka {
-    actor {
-        serializers {
-            wire = ""Akka.Serialization.WireSerializer, Akka.Serialization.Wire""
-        }
-            serialization-bindings {
-                ""System.Object"" = wire
-        }
-        provider = ""Akka.Cluster.ClusterActorRefProvider, Akka.Cluster""
-        debug {  
-            receive = on 
-            autoreceive = on
-            lifecycle = on
-            event-stream = on
-            unhandled = on
-        }
-    }
+            Console.WriteLine("Initializing");
 
-    remote {
-                helios.tcp {
-                    port = 10000
-                    hostname = localhost
-                }
-            }
-            cluster {
-                seed-nodes = [""akka.tcp://InventoryServiceCluster@localhost:10000""]
-                roles = [""server""]
-                auto-down-unreachable-after = 30s
-            }
-        }
-");
-            Console.WriteLine("Starting Server");
-
-            var productCount = 100;
-            var initialQuantity = 5000;
+            var storageType = typeof(Esent);
+            const int productCount = 3000;
+            const int initialQuantity = 10000;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
-            for (int product = 0; product < productCount; product++)
+            for (var product = 0; product < productCount; product++)
             {
-                products.Add(new Tuple<string, int, int>("product" + product, initialQuantity, 0));
+                products.Add(new Tuple<string, int, int>("products" + product, initialQuantity, 0));
             }
 
-            using (var service = new FileSystem(appendMode: false))
+            using (var service = (IInventoryStorage)Activator.CreateInstance(storageType))
             {
                 Task.WaitAll(
                     products
@@ -65,12 +32,14 @@ akka {
                     .ToArray());
             }
 
-            // close and re-open
-            var inventoryService = new FileSystem();
+            Console.WriteLine("Starting Server");
 
-            using (var actorSystem = ActorSystem.Create("InventoryServiceCluster", config))
+            // close and re-open
+            var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
+
+            using (var actorSystem = ActorSystem.Create("InventoryService-Server"))
             {
-                var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService)), "InventoryActor");
+                var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService, true)), "InventoryActor");
                 Console.ReadLine();
             }
         }

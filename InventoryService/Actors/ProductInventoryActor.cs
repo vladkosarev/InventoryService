@@ -10,7 +10,7 @@ namespace InventoryService.Actors
         private readonly string _id;
         private int _quantity;
         private int _reservedQuantity;
-        private bool _withCache;
+        private readonly bool _withCache;
 
         private readonly IInventoryStorage _inventoryStorage;
 
