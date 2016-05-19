@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Messages\FlushStreamMessage.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
+    <Compile Include="Messages\RetrievedInventoryMessage.cs" />
     <Compile Include="Messages\GetMetrics.cs" />
     <Compile Include="Messages\WriteReservationsMessage.cs" />
     <Compile Include="Messages\WroteReservationsMessage.cs" />

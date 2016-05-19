@@ -33,6 +33,11 @@ namespace InventoryService.Actors
 
         private void Running()
         {
+            Receive<GetInventoryMessage>(message =>
+            {
+                Sender.Tell(new RetrievedInventoryMessage(message.ProductId, _quantity, _reservedQuantity));
+            });
+
             ReceiveAsync<ReserveMessage>(async message =>
             {
                 var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
@@ -60,14 +65,25 @@ namespace InventoryService.Actors
                 }
             });
 
-            Receive<PurchaseMessage>(message =>
+            ReceiveAsync<PurchaseMessage>(async message =>
             {
                 var newQuantity = _quantity - message.Quantity;
                 if (newQuantity >= 0)
                 {
-                    // write to repository here
-                    _quantity = newQuantity;
-                    Sender.Tell(new PurchasedMessage(_id, message.Quantity, true));
+                    var result = await _inventoryStorage.WriteInventory(
+                        message.ProductId
+                        , newQuantity
+                        , _reservedQuantity);
+
+                    if (result)
+                    {
+                        _quantity = newQuantity;
+                        Sender.Tell(new PurchasedMessage(_id, message.Quantity, true));
+                    }
+                    else
+                    {
+                        Sender.Tell(new PurchasedMessage(_id, message.Quantity, false));
+                    }
                 }
                 else
                 {

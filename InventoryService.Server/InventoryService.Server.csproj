@@ -91,6 +91,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Storage.AzureTable\InventoryService.Storage.AzureTable.csproj">
+      <Project>{c850ea74-43d7-439f-9f61-76c233141290}</Project>
+      <Name>InventoryService.Storage.AzureTable</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage.Esent\InventoryService.Storage.Esent.csproj">
+      <Project>{5515e3d0-e58f-4637-8044-48e05ee35b96}</Project>
+      <Name>InventoryService.Storage.Esent</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj">
       <Project>{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}</Project>
       <Name>InventoryService.Storage.FileSystem</Name>

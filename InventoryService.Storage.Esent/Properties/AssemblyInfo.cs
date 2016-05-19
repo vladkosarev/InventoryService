@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("InventoryService.Repository.AzureTable")]
+[assembly: AssemblyTitle("InventoryService.Storage.Esent")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("InventoryService.Repository.AzureTable")]
+[assembly: AssemblyProduct("InventoryService.Storage.Esent")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("1d65e194-dabd-4ac3-9865-39db0e5f068b")]
+[assembly: Guid("5515e3d0-e58f-4637-8044-48e05ee35b96")]
 
 // Version information for an assembly consists of the following four values:
 //
