@@ -41,13 +41,13 @@ namespace InventoryService.Actors
             Receive<GetInventoryMessage>(message =>
             {
                 _getMessageCount++;
-                GetActorRef(inventoryStorage, message.ProductId);
+                GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
             Receive<ReserveMessage>(message =>
             {
                 _reserveMessageCount++;
-                GetActorRef(inventoryStorage, message.ProductId);
+                GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
             Receive<PurchaseMessage>(message =>

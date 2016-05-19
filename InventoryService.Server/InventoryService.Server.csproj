@@ -103,6 +103,10 @@
       <Project>{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}</Project>
       <Name>InventoryService.Storage.FileSystem</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage.RavenDB\InventoryService.Storage.RavenDB.csproj">
+      <Project>{e2380752-99e6-493a-b7bc-108896f5d71c}</Project>
+      <Name>InventoryService.Storage.RavenDB</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69c4264a-cb21-47f8-a467-6072172da842}</Project>
       <Name>InventoryService.Storage</Name>
@@ -111,6 +115,9 @@
       <Project>{d709c476-e572-470a-b948-1b05339f6c7e}</Project>
       <Name>InventoryService</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
