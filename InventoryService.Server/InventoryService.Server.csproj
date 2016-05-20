@@ -70,6 +70,7 @@
       <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -102,6 +103,10 @@
     <ProjectReference Include="..\InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj">
       <Project>{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}</Project>
       <Name>InventoryService.Storage.FileSystem</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemory.csproj">
+      <Project>{94389d22-92e0-4933-a1c9-41cab38ffd7c}</Project>
+      <Name>InventoryService.Storage.InMemory</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.RavenDB\InventoryService.Storage.RavenDB.csproj">
       <Project>{e2380752-99e6-493a-b7bc-108896f5d71c}</Project>
