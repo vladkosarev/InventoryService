@@ -77,7 +77,7 @@ namespace InventoryService.Tests
 
         public IActorRef InitializeInventoryServiceRepository(IList<Tuple<string, int, int>> productInventory)
         {
-            var inventoryService = new InMemoryInventoryStorage();
+            var inventoryService = new InMemory();
 
             //improve this with parallel
             foreach (var product in productInventory)
@@ -98,7 +98,7 @@ namespace InventoryService.Tests
 
         public bool Purchase(int initialQuantity, int initialReservations, int purchaseQuantity, string productId = "product1")
         {
-            var inventoryService = new InMemoryInventoryStorage();
+            var inventoryService = new InMemory();
             inventoryService.WriteInventory(productId, initialQuantity, initialReservations);
 
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, true)));

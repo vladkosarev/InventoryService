@@ -5,7 +5,6 @@ using System.Linq;
 using InventoryService.Messages;
 using System.Threading.Tasks;
 using Akka.Actor;
-using Akka.Configuration;
 
 namespace InventoryService.Console
 {
