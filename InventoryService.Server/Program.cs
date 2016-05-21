@@ -32,12 +32,12 @@ namespace InventoryService.Server
 
             //using (var service = (IInventoryStorage)Activator.CreateInstance(storageType))
             //{
-                Task.WaitAll(
-                    products
-                    .Select(p => inventoryService.WriteInventory(p.Item1, p.Item2, p.Item3))
-                    .ToArray());
+            Task.WaitAll(
+                products
+                .Select(p => inventoryService.WriteInventory(p.Item1, p.Item2, p.Item3))
+                .ToArray());
             //}
-            
+
             Console.WriteLine("Starting Server");
 
             // close and re-open
@@ -46,31 +46,7 @@ namespace InventoryService.Server
             {
                 var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService, true)), "InventoryActor");
 
- 
-                    var stopwatch = new Stopwatch();
-
-                    stopwatch.Start();
-
-                    Task.WaitAll(products.Select(p =>
-                    {
-                        return Task.Run(async () =>
-                        {
-                            for (var i = 0; i < initialQuantity; i++)
-                            {
-                                var reservation = await inventoryActor.Ask<ReservedMessage>(new ReserveMessage(p.Item1, 1), TimeSpan.FromSeconds(10));
-                                if (!reservation.Successful)
-                                    System.Console.WriteLine("Failed on iteration {0}", i);
-                            }
-                        });
-                    }).ToArray());
-
-                    stopwatch.Stop();
-
-                    System.Console.WriteLine("Elapsed: {0}", stopwatch.Elapsed.TotalSeconds);
-                    System.Console.WriteLine("Speed: {0} per second", productCount * initialQuantity / stopwatch.Elapsed.TotalSeconds);
-
-
-            Console.ReadLine();
+                Console.ReadLine();
             }
         }
     }
