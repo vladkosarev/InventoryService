@@ -85,7 +85,7 @@ namespace InventoryService.Tests
                 Task.Run(() => inventoryService.WriteInventory(product.Item1, product.Item2, product.Item3)).Wait();
             }
 
-            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, true)));
+            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
             return inventoryActor;
         }
 
@@ -101,7 +101,7 @@ namespace InventoryService.Tests
             var inventoryService = new InMemory();
             inventoryService.WriteInventory(productId, initialQuantity, initialReservations);
 
-            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, true)));
+            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
 
             var result = inventoryActor.Ask<PurchasedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
 

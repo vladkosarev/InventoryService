@@ -14,22 +14,11 @@ namespace InventoryService.Actors
 
         private readonly bool _withCache;
 
-        private readonly Stopwatch _stopwatch = new Stopwatch();
-        private int _reserveMessageCount = 0;
-        private int _reserveMessageLastCount = 0;
-
-        private int _purchaseMessageCount = 0;
-        private int _purchaseMessageLastCount = 0;
-
-        private int _getMessageCount = 0;
-        private int _getMessageLastCount = 0;
-
-        public InventoryActor(IInventoryStorage inventoryStorage, bool withCache = true)
+        public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
         {
             _withCache = withCache;
 
-            Console.Clear();
-            Console.CursorVisible = false;
+            performanceService.Init();
 
             Context.System.Scheduler.ScheduleTellRepeatedly(
                 TimeSpan.Zero
@@ -40,45 +29,27 @@ namespace InventoryService.Actors
 
             Receive<GetInventoryMessage>(message =>
             {
-                _getMessageCount++;
+                performanceService.Increment("getMessageCount");
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
             Receive<ReserveMessage>(message =>
             {
-                _reserveMessageCount++;
+                performanceService.Increment("reserveMessageCount");
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
             Receive<PurchaseMessage>(message =>
             {
-                _purchaseMessageCount++;
+                performanceService.Increment("purchaseMessageCount");
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
             Receive<GetMetrics>(message =>
             {
-                PrintMetrics();
+                performanceService.PrintMetrics();
             });
-        }
-
-        private void PrintMetrics()
-        {
-            _stopwatch.Stop();
-            var reserved = (_reserveMessageCount - _reserveMessageLastCount)/_stopwatch.Elapsed.TotalSeconds;
-            var get = (_getMessageCount - _getMessageLastCount)/_stopwatch.Elapsed.TotalSeconds;
-            var puchase = (_purchaseMessageCount - _purchaseMessageLastCount)/_stopwatch.Elapsed.TotalSeconds;
-            _reserveMessageLastCount = _reserveMessageCount;
-            _getMessageLastCount = _getMessageCount;
-            _purchaseMessageLastCount = _purchaseMessageCount;
-            var width = Console.WindowWidth;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.SetCursorPosition(0, 0);
-            Console.Write($"\r\n{(int) get} m/s {_getMessageCount} total reads".PadRight(width));
-            Console.Write($"\r\n{(int) reserved} m/s {_reserveMessageCount} total reservations".PadRight(width));
-            Console.Write($"\r\n{(int) puchase} m/s {_purchaseMessageCount} total purchases".PadRight(width));
-            _stopwatch.Restart();
-        }
+        }        
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {

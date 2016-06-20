@@ -44,7 +44,7 @@ namespace InventoryService.Server
 
             using (var actorSystem = ActorSystem.Create("InventoryService-Server"))
             {
-                var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService, true)), "InventoryActor");
+                var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)), "InventoryActor");
 
                 Console.ReadLine();
             }

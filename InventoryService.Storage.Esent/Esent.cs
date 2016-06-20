@@ -4,7 +4,7 @@ using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace InventoryService.Storage
 {
-    public class Esent : IInventoryStorage, IDisposable
+    public class Esent : IInventoryStorage
     {
         [Serializable]
         struct Inventory
@@ -15,21 +15,21 @@ namespace InventoryService.Storage
                 Reservations = reservations;
             }
 
-            public int Quantity;
-            public int Reservations;
+            public readonly int Quantity;
+            public readonly int Reservations;
         }
 
-        PersistentDictionary<string, Inventory> dictionary = new PersistentDictionary<string, Inventory>("esent");
+        private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("esent");
 
         public async Task<Tuple<int, int>> ReadInventory(string productId)
         {
-            var value = dictionary[productId];
+            var value = _data[productId];
             return new Tuple<int, int>(value.Quantity, value.Reservations);
         }
 
         public async Task<bool> WriteInventory(string productId, int quantity, int reservationQuantity)
         {
-            dictionary[productId] = new Inventory(quantity, reservationQuantity);
+            _data[productId] = new Inventory(quantity, reservationQuantity);
             return true;
         }
 
@@ -40,7 +40,7 @@ namespace InventoryService.Storage
 
         public void Dispose()
         {
-            dictionary.Dispose();
+            _data.Dispose();
         }
     }
 }
