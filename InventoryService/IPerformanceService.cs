@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 
 namespace InventoryService
 {
@@ -25,25 +26,30 @@ namespace InventoryService
         public void Increment(string counter)
         {
             _counters.AddOrUpdate(counter, 1, (id, count) => count + 1);
-            _counters.AddOrUpdate(counter + "Last", 0, (id, count) => count - 1);
         }
 
         public void PrintMetrics()
         {
-            //_stopwatch.Stop();
-            //var reserved = (_reserveMessageCount - _reserveMessageLastCount) / _stopwatch.Elapsed.TotalSeconds;
-            //var get = (_getMessageCount - _getMessageLastCount) / _stopwatch.Elapsed.TotalSeconds;
-            //var puchase = (_purchaseMessageCount - _purchaseMessageLastCount) / _stopwatch.Elapsed.TotalSeconds;
-            //_reserveMessageLastCount = _reserveMessageCount;
-            //_getMessageLastCount = _getMessageCount;
-            //_purchaseMessageLastCount = _purchaseMessageCount;
-            //var width = Console.WindowWidth;
-            //Console.ForegroundColor = ConsoleColor.Green;
-            //Console.SetCursorPosition(0, 0);
-            //Console.Write($"\r\n{(int)get} m/s {_getMessageCount} total reads".PadRight(width));
-            //Console.Write($"\r\n{(int)reserved} m/s {_reserveMessageCount} total reservations".PadRight(width));
-            //Console.Write($"\r\n{(int)puchase} m/s {_purchaseMessageCount} total purchases".PadRight(width));
-            //_stopwatch.Restart();
+            _stopwatch.Stop();
+            var width = Console.WindowWidth;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.SetCursorPosition(0, 0);
+            foreach (var counter in _counters.Where(k => !k.Key.EndsWith("Last")))
+            {
+                var lastKey = counter.Key + "Last";
+                var lastValue = 0;
+
+                if (_counters.ContainsKey(lastKey))
+                {
+                    lastValue = _counters[lastKey];
+                }
+
+                var value = (counter.Value - lastValue) / _stopwatch.Elapsed.TotalSeconds;
+                _counters.AddOrUpdate(lastKey, 0, (id, count) => counter.Value);
+                Console.Write($"\r\n{counter.Key} - {(int)value} m/s {counter.Value} total".PadRight(width));
+
+            }
+            _stopwatch.Restart();
         }
     }
 

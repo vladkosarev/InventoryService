@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Storage;

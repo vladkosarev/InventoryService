@@ -18,6 +18,11 @@ namespace InventoryService.Server
             Console.WriteLine("Initializing");
 
             var storageType = Type.GetType(ConfigurationManager.AppSettings["Storage"]);
+            if (storageType == null)
+            {
+                Console.WriteLine("Invalid Storage Type {0}", ConfigurationManager.AppSettings["Storage"]);
+                return;
+            } 
 
             const int productCount = 3000;
             const int initialQuantity = 10000;
@@ -44,7 +49,7 @@ namespace InventoryService.Server
 
             using (var actorSystem = ActorSystem.Create("InventoryService-Server"))
             {
-                var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)), "InventoryActor");
+                var inventoryActor = actorSystem.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new ConsolePerformanceService(), true)), "InventoryActor");
 
                 Console.ReadLine();
             }

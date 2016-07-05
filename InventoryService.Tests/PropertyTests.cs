@@ -44,12 +44,6 @@ namespace InventoryService.Tests
         }
 
         [Property]
-        public void Should_be_able_to_purchase_max(int i)
-        {
-            Purchase(i, 0, i);
-        }
-
-        [Property()]
         public void Should_not_be_able_to_reserve_more_than_max()
         {
             Prop.ForAll(
@@ -63,6 +57,12 @@ namespace InventoryService.Tests
                     return !Reserve(inventoryActor, total + overflow);
                 })
                 .QuickCheckThrowOnFailure();
+        }
+
+        [Property]
+        public void Should_be_able_to_purchase_max(int i)
+        {
+            Purchase(i, 0, i);
         }
 
         [Property]
@@ -99,7 +99,7 @@ namespace InventoryService.Tests
         public bool Purchase(int initialQuantity, int initialReservations, int purchaseQuantity, string productId = "product1")
         {
             var inventoryService = new InMemory();
-            inventoryService.WriteInventory(productId, initialQuantity, initialReservations);
+            inventoryService.WriteInventory(productId, initialQuantity, initialReservations).Wait();
 
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
 
