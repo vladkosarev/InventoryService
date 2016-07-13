@@ -109,6 +109,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
+      <Project>{0a7a978d-2bd7-4a10-9088-28c74b5aff80}</Project>
+      <Name>InventoryService.Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.AzureTable\InventoryService.Storage.AzureTable.csproj">
       <Project>{c850ea74-43d7-439f-9f61-76c233141290}</Project>
       <Name>InventoryService.Storage.AzureTable</Name>

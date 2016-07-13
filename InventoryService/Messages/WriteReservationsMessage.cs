@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace InventoryService.Messages
+﻿namespace InventoryService.Messages
 {
 	public class WriteReservationsMessage
 	{

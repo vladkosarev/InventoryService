@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using InventoryService.Messages;
 using System.Threading.Tasks;
 using Akka.Actor;
+using InventoryService.Messages;
 
 namespace InventoryService.Console
 {

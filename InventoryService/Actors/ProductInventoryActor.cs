@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Storage;
@@ -34,6 +35,37 @@ namespace InventoryService.Actors
             //    , ActorRefs.Nobody);
         }
 
+        private async Task<bool> Reserve(string productId, int reservationQuantity)
+        {
+            var newReservedQuantity = _reservedQuantity + reservationQuantity;
+            if (newReservedQuantity > _quantity) return false;
+            var result = await _inventoryStorage.WriteInventory(
+                productId
+                , _quantity
+                , newReservedQuantity);
+
+            if (!result) return false;
+            _reservedQuantity = newReservedQuantity;
+            return true;
+        }
+
+        private async Task<bool> Purchase(string productId, int quantity)
+        {
+            var newQuantity = _quantity - quantity;
+            var newReservedQuantity = Math.Max(0, _reservedQuantity - quantity);
+
+            if (newQuantity < 0) return false;
+            var result = await _inventoryStorage.WriteInventory(
+                productId
+                , newQuantity
+                , newReservedQuantity);
+
+            if (!result) return false;
+            _quantity = newQuantity;
+            _reservedQuantity = newReservedQuantity;
+            return true;
+        }
+
         private void Running()
         {
             ReceiveAsync<GetInventoryMessage>(async message =>
@@ -49,64 +81,23 @@ namespace InventoryService.Actors
 
             ReceiveAsync<ReserveMessage>(async message =>
             {
-                var newReservedQuantity = _reservedQuantity + message.ReservationQuantity;
-                if (newReservedQuantity <= _quantity)
-                {
-                    var result = await _inventoryStorage.WriteInventory(
+                Sender.Tell(
+                    new ReservedMessage(
                         message.ProductId
-                        , _quantity
-                        , newReservedQuantity);
-
-                    if (result)
-                    {
-                        _reservedQuantity = newReservedQuantity;
-                        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, true));
-                    }
-                    else
-                    {
-                        Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, false));
-                    }
-                }
-                else
-                {
-                    Sender.Tell(new ReservedMessage(_id, message.ReservationQuantity, false));
-                }
+                        , message.ReservationQuantity
+                        , await Reserve(message.ProductId, message.ReservationQuantity)));
             });
 
             ReceiveAsync<PurchaseMessage>(async message =>
             {
-                var newQuantity = _quantity - message.Quantity;
-                var newReservedQuantity = Math.Max(0,_reservedQuantity - message.Quantity);
-
-                if (newQuantity >= 0)
-                {
-                    var result = await _inventoryStorage.WriteInventory(
+                Sender.Tell(
+                    new PurchasedMessage(
                         message.ProductId
-                        , newQuantity
-                        , newReservedQuantity);
-
-                    if (result)
-                    {
-                        _quantity = newQuantity;
-                        _reservedQuantity = newReservedQuantity;
-                        Sender.Tell(new PurchasedMessage(_id, message.Quantity, true));
-                    }
-                    else
-                    {
-                        Sender.Tell(new PurchasedMessage(_id, message.Quantity, false));
-                    }
-                }
-                else
-                {
-                    Sender.Tell(new PurchasedMessage(_id, message.Quantity, false));
-                }
+                        , message.Quantity
+                        , await Purchase(message.ProductId, message.Quantity)));
             });
 
-            Receive<FlushStreamMessage>(message =>
-            {
-                _inventoryStorage.Flush(_id);
-            });
+            Receive<FlushStreamsMessage>(message => { _inventoryStorage.Flush(_id); });
         }
     }
 }
-

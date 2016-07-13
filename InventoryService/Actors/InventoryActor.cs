@@ -23,7 +23,7 @@ namespace InventoryService.Actors
                 TimeSpan.Zero
                 , TimeSpan.FromMilliseconds(1000)
                 , Self
-                , new GetMetrics()
+                , new GetMetricsMessage()
                 , ActorRefs.Nobody);
 
             Receive<GetInventoryMessage>(message =>
@@ -44,7 +44,7 @@ namespace InventoryService.Actors
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
-            Receive<GetMetrics>(message =>
+            Receive<GetMetricsMessage>(message =>
             {
                 performanceService.PrintMetrics();
             });

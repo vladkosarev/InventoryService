@@ -82,9 +82,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
-      <Project>{d709c476-e572-470a-b948-1b05339f6c7e}</Project>
-      <Name>InventoryService</Name>
+    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
+      <Project>{0a7a978d-2bd7-4a10-9088-28c74b5aff80}</Project>
+      <Name>InventoryService.Messages</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@ namespace InventoryService.Storage
     public class Esent : IInventoryStorage
     {
         [Serializable]
-        struct Inventory
+        private struct Inventory
         {
             public Inventory(int quantity, int reservations)
             {
@@ -19,7 +19,7 @@ namespace InventoryService.Storage
             public readonly int Reservations;
         }
 
-        private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("esent");
+        private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("InventoryStorageDB");
 
         public async Task<Tuple<int, int>> ReadInventory(string productId)
         {
@@ -35,7 +35,7 @@ namespace InventoryService.Storage
 
         public async Task Flush(string productId)
         {
-            throw new NotImplementedException();
+            _data.Flush();
         }
 
         public void Dispose()

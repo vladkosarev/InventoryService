@@ -89,6 +89,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
+      <Project>{0a7a978d-2bd7-4a10-9088-28c74b5aff80}</Project>
+      <Name>InventoryService.Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj">
       <Project>{d7108c47-df6c-47c6-a3fe-dfcef066e6a6}</Project>
       <Name>InventoryService.Storage.FileSystem</Name>

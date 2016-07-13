@@ -1,6 +1,6 @@
 ﻿namespace InventoryService.Messages
 {
-    public class GetMetrics
+    public class GetMetricsMessage
     {
     }
 }
