@@ -10,7 +10,9 @@ namespace InventoryService.Actors
     {
         private readonly string _id;
         private int _quantity;
-        private int _reservedQuantity;
+        private int _reservations;
+        private int _holds;
+
         private readonly bool _withCache;
 
         private readonly IInventoryStorage _inventoryStorage;
@@ -23,7 +25,8 @@ namespace InventoryService.Actors
 
             var inventory = _inventoryStorage.ReadInventory(id).Result;
             _quantity = inventory.Item1;
-            _reservedQuantity = inventory.Item2;
+            _reservations = inventory.Item2;
+            _holds = inventory.Item3;
 
             Become(Running);
 
@@ -37,32 +40,34 @@ namespace InventoryService.Actors
 
         private async Task<bool> Reserve(string productId, int reservationQuantity)
         {
-            var newReservedQuantity = _reservedQuantity + reservationQuantity;
-            if (newReservedQuantity > _quantity) return false;
+            var newReserved = _reservations + reservationQuantity;
+            if (newReserved > _quantity - _holds) return false;
             var result = await _inventoryStorage.WriteInventory(
                 productId
                 , _quantity
-                , newReservedQuantity);
+                , newReserved
+                , _holds);
 
             if (!result) return false;
-            _reservedQuantity = newReservedQuantity;
+            _reservations = newReserved;
             return true;
         }
 
         private async Task<bool> Purchase(string productId, int quantity)
         {
             var newQuantity = _quantity - quantity;
-            var newReservedQuantity = Math.Max(0, _reservedQuantity - quantity);
+            var newReserved = Math.Max(0, _reservations - quantity);
 
-            if (newQuantity < 0) return false;
+            if (newQuantity - _holds < 0) return false;
             var result = await _inventoryStorage.WriteInventory(
                 productId
                 , newQuantity
-                , newReservedQuantity);
+                , newReserved
+                , _holds);
 
             if (!result) return false;
             _quantity = newQuantity;
-            _reservedQuantity = newReservedQuantity;
+            _reservations = newReserved;
             return true;
         }
 
@@ -74,9 +79,10 @@ namespace InventoryService.Actors
                 {
                     var inventory = await _inventoryStorage.ReadInventory(message.ProductId);
                     _quantity = inventory.Item1;
-                    _reservedQuantity = inventory.Item2;
+                    _reservations = inventory.Item2;
+                    _holds = inventory.Item3;
                 }
-                Sender.Tell(new RetrievedInventoryMessage(message.ProductId, _quantity, _reservedQuantity));
+                Sender.Tell(new RetrievedInventoryMessage(message.ProductId, _quantity, _reservations));
             });
 
             ReceiveAsync<ReserveMessage>(async message =>

@@ -15,15 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{6008
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage", "InventoryService.Storage\InventoryService.Storage.csproj", "{69C4264A-CB21-47F8-A467-6072172DA842}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.FileSystem", "InventoryService.Storage.FileSystem\InventoryService.Storage.FileSystem.csproj", "{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.InMemory", "InventoryService.Storage.InMemory\InventoryService.Storage.InMemory.csproj", "{94389D22-92E0-4933-A1C9-41CAB38FFD7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.AzureTable", "InventoryService.Storage.AzureTable\InventoryService.Storage.AzureTable.csproj", "{C850EA74-43D7-439F-9F61-76C233141290}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.Esent", "InventoryService.Storage.Esent\InventoryService.Storage.Esent.csproj", "{5515E3D0-E58F-4637-8044-48E05EE35B96}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.RavenDB", "InventoryService.Storage.RavenDB\InventoryService.Storage.RavenDB.csproj", "{E2380752-99E6-493A-B7BC-108896F5D71C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Messages", "InventoryService.Messages\InventoryService.Messages.csproj", "{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}"
 EndProject
@@ -53,26 +47,14 @@ Global
 		{69C4264A-CB21-47F8-A467-6072172DA842}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C4264A-CB21-47F8-A467-6072172DA842}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C4264A-CB21-47F8-A467-6072172DA842}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C850EA74-43D7-439F-9F61-76C233141290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C850EA74-43D7-439F-9F61-76C233141290}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C850EA74-43D7-439F-9F61-76C233141290}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C850EA74-43D7-439F-9F61-76C233141290}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5515E3D0-E58F-4637-8044-48E05EE35B96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5515E3D0-E58F-4637-8044-48E05EE35B96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5515E3D0-E58F-4637-8044-48E05EE35B96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5515E3D0-E58F-4637-8044-48E05EE35B96}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2380752-99E6-493A-B7BC-108896F5D71C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2380752-99E6-493A-B7BC-108896F5D71C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2380752-99E6-493A-B7BC-108896F5D71C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2380752-99E6-493A-B7BC-108896F5D71C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -83,10 +65,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{69C4264A-CB21-47F8-A467-6072172DA842} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
-		{D7108C47-DF6C-47C6-A3FE-DFCEF066E6A6} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
-		{C850EA74-43D7-439F-9F61-76C233141290} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
 		{5515E3D0-E58F-4637-8044-48E05EE35B96} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
-		{E2380752-99E6-493A-B7BC-108896F5D71C} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
 	EndGlobalSection
 EndGlobal

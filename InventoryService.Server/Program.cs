@@ -25,10 +25,10 @@ namespace InventoryService.Server
             const int productCount = 3000;
             const int initialQuantity = 10000;
 
-            IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
+            var products = new List<Tuple<string, int, int, int>>();
             for (var product = 0; product < productCount; product++)
             {
-                products.Add(new Tuple<string, int, int>("products" + product, initialQuantity, 0));
+                products.Add(new Tuple<string, int, int, int>("products" + product, initialQuantity, 0, 0));
             }
 
             var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
@@ -37,7 +37,7 @@ namespace InventoryService.Server
             //{
             Task.WaitAll(
                 products
-                .Select(p => inventoryService.WriteInventory(p.Item1, p.Item2, p.Item3))
+                .Select(p => inventoryService.WriteInventory(p.Item1, p.Item2, p.Item3, p.Item4))
                 .ToArray());
             //}
 

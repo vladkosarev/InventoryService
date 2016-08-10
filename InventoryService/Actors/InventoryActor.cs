@@ -52,14 +52,14 @@ namespace InventoryService.Actors
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {
-            if (!_products.ContainsKey(productId))
-            {
-                var productActorRef = Context.ActorOf(
-                    Props.Create(() =>
-                        new ProductInventoryActor(inventoryStorage, productId, _withCache))
-                        , productId);
-                _products.Add(productId, productActorRef);
-            }
+            if (_products.ContainsKey(productId)) return _products[productId];
+
+            var productActorRef = Context.ActorOf(
+                Props.Create(() =>
+                    new ProductInventoryActor(inventoryStorage, productId, _withCache))
+                , productId);
+
+            _products.Add(productId, productActorRef);
 
             return _products[productId];
         }

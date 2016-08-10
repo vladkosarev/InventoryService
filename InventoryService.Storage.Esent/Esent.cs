@@ -9,27 +9,29 @@ namespace InventoryService.Storage
         [Serializable]
         private struct Inventory
         {
-            public Inventory(int quantity, int reservations)
+            public Inventory(int quantity, int reservations, int holds)
             {
                 Quantity = quantity;
                 Reservations = reservations;
+                Holds = holds;
             }
 
             public readonly int Quantity;
             public readonly int Reservations;
+            public readonly int Holds;
         }
 
         private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("InventoryStorageDB");
 
-        public async Task<Tuple<int, int>> ReadInventory(string productId)
+        public async Task<Tuple<int, int, int>> ReadInventory(string productId)
         {
             var value = _data[productId];
-            return new Tuple<int, int>(value.Quantity, value.Reservations);
+            return new Tuple<int, int, int>(value.Quantity, value.Reservations, value.Holds);
         }
 
-        public async Task<bool> WriteInventory(string productId, int quantity, int reservationQuantity)
+        public async Task<bool> WriteInventory(string productId, int quantity, int reservations, int holds)
         {
-            _data[productId] = new Inventory(quantity, reservationQuantity);
+            _data[productId] = new Inventory(quantity, reservations, holds);
             return true;
         }
 
