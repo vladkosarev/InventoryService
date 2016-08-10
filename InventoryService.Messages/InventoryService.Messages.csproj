@@ -42,9 +42,13 @@
   <ItemGroup>
     <Compile Include="GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PurchasedFromHoldsMessage.cs" />
     <Compile Include="PurchasedMessage.cs" />
+    <Compile Include="PurchaseFromHoldsMessage.cs" />
     <Compile Include="PurchaseMessage.cs" />
+    <Compile Include="PlacedHoldMessage.cs" />
     <Compile Include="ReservedMessage.cs" />
+    <Compile Include="PlaceHoldMessage.cs" />
     <Compile Include="ReserveMessage.cs" />
     <Compile Include="RetrievedInventoryMessage.cs" />
   </ItemGroup>

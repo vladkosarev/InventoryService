@@ -53,6 +53,21 @@ namespace InventoryService.Actors
             return true;
         }
 
+        private async Task<bool> PlaceHold(string productId, int toHold)
+        {
+            var newHolds = _holds + toHold;
+            if (newHolds > _quantity) return false;
+            var result = await _inventoryStorage.WriteInventory(
+                productId
+                , _quantity
+                , _reservations
+                , newHolds);
+
+            if (!result) return false;
+            _holds = newHolds;
+            return true;
+        }
+
         private async Task<bool> Purchase(string productId, int quantity)
         {
             var newQuantity = _quantity - quantity;
@@ -68,6 +83,24 @@ namespace InventoryService.Actors
             if (!result) return false;
             _quantity = newQuantity;
             _reservations = newReserved;
+            return true;
+        }
+
+        private async Task<bool> PurchaseFromHolds(string productId, int quantity)
+        {
+            var newQuantity = _quantity - quantity;
+            var newHolds = _holds - quantity;
+
+            if (newQuantity < 0 || newHolds < 0) return false;
+            var result = await _inventoryStorage.WriteInventory(
+                productId
+                , newQuantity
+                , _reservations
+                , newHolds);
+
+            if (!result) return false;
+            _quantity = newQuantity;
+            _holds = newHolds;
             return true;
         }
 
@@ -94,6 +127,15 @@ namespace InventoryService.Actors
                         , await Reserve(message.ProductId, message.ReservationQuantity)));
             });
 
+            ReceiveAsync<PlaceHoldMessage>(async message =>
+            {
+                Sender.Tell(
+                    new PlacedHoldMessage(
+                        message.ProductId
+                        , message.Holds
+                        , await PlaceHold(message.ProductId, message.Holds)));
+            });
+
             ReceiveAsync<PurchaseMessage>(async message =>
             {
                 Sender.Tell(
@@ -101,6 +143,15 @@ namespace InventoryService.Actors
                         message.ProductId
                         , message.Quantity
                         , await Purchase(message.ProductId, message.Quantity)));
+            });
+
+            ReceiveAsync<PurchaseFromHoldsMessage>(async message =>
+            {
+                Sender.Tell(
+                    new PurchasedFromHoldsMessage(
+                        message.ProductId
+                        , message.Quantity
+                        , await PurchaseFromHolds(message.ProductId, message.Quantity)));
             });
 
             Receive<FlushStreamsMessage>(message => { _inventoryStorage.Flush(_id); });

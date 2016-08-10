@@ -15,20 +15,6 @@ namespace InventoryService.Tests
 {
     public class PropertyTests : TestKit
     {
-        [Property]
-        public void Should_be_able_to_reserve_max_for_multiple_products(IList<Tuple<Guid, int, int, int>> l)
-        {
-            var initialInventory =
-                l.Select(i => new Tuple<string, int, int, int>(i.Item1.ToString(), i.Item2, i.Item3, i.Item4)).ToList();
-
-            var inventoryActor = InitializeInventoryServiceRepository(initialInventory);
-
-            foreach (var item in l)
-            {
-                Assert.True(Reserve(inventoryActor, item.Item2 - item.Item3, item.Item1.ToString()));
-            }
-        }
-
         public class Inventory
         {
             public Inventory(string name, int quantity, int reservations, int holds)
@@ -50,109 +36,104 @@ namespace InventoryService.Tests
             public static Arbitrary<Inventory> Inventories()
             {
                 var genInventories = from name in Arb.Generate<Guid>()
-                                     from quantity in Arb.Generate<int>()
-                                     from reservations in Arb.Generate<int>()
-                                     from holds in Arb.Generate<int>()
-                                     select new Inventory(name.ToString(), quantity, reservations, holds);
+                                     from quantity in Arb.Generate<uint>()
+                                     from reservations in Gen.Choose(0, (int)quantity)
+                                     from holds in Gen.Choose(0, (int)quantity)
+                                     select new Inventory(name.ToString(), (int)quantity, reservations, holds);
                 return genInventories.ToArbitrary();
             }
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void Should_not_be_able_to_reserve_more_than_max2(Inventory inventory)
+        public void Reservation_Test (Inventory inventory, uint toReserve)
         {
-            var l = new List<Inventory> {inventory};
+            var l = new List<Inventory> { inventory };
             var inventoryActor = InitializeInventoryServiceRepository(l);
 
             foreach (var item in l)
             {
-                Assert.False(Reserve(inventoryActor, item.Quantity - item.Reservations, item.Name));
+                var r = Reserve(inventoryActor, (int)toReserve, item.Name);
+
+                if (item.Quantity - item.Holds - item.Reservations - toReserve >= 0)
+                {
+                    Assert.True(r.Successful);
+                    Assert.Equal(r.ReservationQuantity, (int)toReserve);
+                }
+                else
+                {
+                    Assert.False(r.Successful);
+                    Assert.Equal(r.ReservationQuantity, (int)toReserve);
+                }
             }
         }
 
-        //[Property]
-        //public Property Should_be_able_to_reserve_max_for_multiple_products2()
-        //{
-        //    var initialQuantities = new List<Inventory>();
-        //    Prop.ForAll(InventoryArbitrary.Inventories(), i => {
-        //        Console.WriteLine(i);
-        //        initialQuantities.Add(i);
-        //    });
-
-        //var inventoryActor = InitializeInventoryServiceRepository(initialQuantities);
-
-        //    foreach (var item in initialQuantities)
-        //    {
-        //        Assert.True(Reserve(inventoryActor, item.Reservations - item.Quantity, item.Name));
-        //    }
-        //}
-
-        [Property]
-        public void Should_not_be_able_to_reserve_over_max_for_multiple_products(IList<Tuple<Guid, int, int, int, uint>> l)
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        public void Purchase_Test(Inventory inventory, uint toPurchase)
         {
-            var initialInventory =
-                l.Select(i => new Tuple<string, int, int, int>(i.Item1.ToString(), i.Item2, i.Item3, i.Item4)).ToList();
-
-            var inventoryActor = InitializeInventoryServiceRepository(initialInventory);
+            var l = new List<Inventory> { inventory };
+            var inventoryActor = InitializeInventoryServiceRepository(l);
 
             foreach (var item in l)
             {
-                Assert.False(Reserve(inventoryActor, (int)(item.Item2 - item.Item3 + item.Item5 + 1), item.Item1.ToString()));
-            }
-        }
+                var r = Purchase(inventoryActor, (int)toPurchase, item.Name);
 
-        [Property(Verbose = true)]
-        public void test1()
-        {
-            var x = Gen.Choose(0, 10);
-            
-            Assert.True(true);
-        }
-
-        [Property]
-        public void Should_not_be_able_to_reserve_more_than_max()
-        {
-            Prop.ForAll(
-                Arb.From<int>()
-                , Arb.From(Gen.Choose(1, int.MaxValue))
-                , (total, overflow) =>
+                if (item.Quantity - item.Holds - toPurchase >= 0)
                 {
-                    var inventoryActor = InitializeInventoryServiceRepository(
-                        new List<Tuple<string, int, int, int>>() { new Tuple<string, int, int, int>("product1", total, 0, 0) });
-                    // [("product1", total, 0)]
-                    return !Reserve(inventoryActor, total + overflow);
-                })
-                .QuickCheckThrowOnFailure();
-        }
-
-        [Property]
-        public void Should_be_able_to_purchase_max(int i)
-        {
-            Purchase(i, 0, 0, i);
-        }
-
-        [Property]
-        public void Should_not_be_able_to_purchase_more_than_max()
-        {
-            Prop.ForAll(
-                Arb.From<int>()
-                , Arb.From(Gen.Choose(1, int.MaxValue))
-                , (total, overflow) => !Purchase(total, 0, 0, total + overflow))
-                .QuickCheckThrowOnFailure();
-        }
-
-        public IActorRef InitializeInventoryServiceRepository(IList<Tuple<string, int, int, int>> productInventory)
-        {
-            var inventoryService = new InMemory();
-
-            //improve this with parallel
-            foreach (var product in productInventory)
-            {
-                Task.Run(() => inventoryService.WriteInventory(product.Item1, product.Item2, product.Item3, product.Item4)).Wait();
+                    Assert.True(r.Successful);
+                    Assert.Equal(r.Quantity, (int)toPurchase);
+                }
+                else
+                {
+                    Assert.False(r.Successful);
+                    Assert.Equal(r.Quantity, (int)toPurchase);
+                }
             }
+        }
 
-            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
-            return inventoryActor;
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        public void Holds_Test(Inventory inventory, uint toHold)
+        {
+            var l = new List<Inventory> { inventory };
+            var inventoryActor = InitializeInventoryServiceRepository(l);
+
+            foreach (var item in l)
+            {
+                var r = Hold(inventoryActor, (int)toHold, item.Name);
+
+                if (item.Quantity - item.Holds - toHold >= 0)
+                {
+                    Assert.True(r.Successful);
+                    Assert.Equal(r.Holds, (int)toHold);
+                }
+                else
+                {
+                    Assert.False(r.Successful);
+                    Assert.Equal(r.Holds, (int)toHold);
+                }
+            }
+        }
+
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        public void PurchaseFromHolds_Test(Inventory inventory, uint toPurchase)
+        {
+            var l = new List<Inventory> { inventory };
+            var inventoryActor = InitializeInventoryServiceRepository(l);
+
+            foreach (var item in l)
+            {
+                var r = PurchaseFromHolds(inventoryActor, (int)toPurchase, item.Name);
+
+                if (item.Holds >= toPurchase && item.Quantity - toPurchase >= 0)
+                {
+                    Assert.True(r.Successful);
+                    Assert.Equal(r.Quantity, (int)toPurchase);
+                }
+                else
+                {
+                    Assert.False(r.Successful);
+                    Assert.Equal(r.Quantity, (int)toPurchase);
+                }
+            }
         }
 
         public IActorRef InitializeInventoryServiceRepository(IList<Inventory> productInventory)
@@ -169,24 +150,26 @@ namespace InventoryService.Tests
             return inventoryActor;
         }
 
-        public bool Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
+        public ReservedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
         {
-            var result = inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
-
-            return result.Successful;
+            return inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
         }
 
-        public bool Purchase(int initialQuantity, int initialReservations, int initialHolds, int purchaseQuantity, string productId = "product1")
+        public PurchasedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            var inventoryService = new InMemory();
-            inventoryService.WriteInventory(productId, initialQuantity, initialReservations, initialHolds).Wait();
-
-            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
-
-            var result = inventoryActor.Ask<PurchasedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
-
-            return result.Successful;
+            return inventoryActor.Ask<PurchasedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
         }
+
+        public PlacedHoldMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
+        {
+            return inventoryActor.Ask<PlacedHoldMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(1)).Result;
+        }
+
+        public PurchasedFromHoldsMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
+        {
+            return inventoryActor.Ask<PurchasedFromHoldsMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
+        }
+
     }
 }
 

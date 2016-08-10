@@ -38,9 +38,21 @@ namespace InventoryService.Actors
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
+            Receive<PlaceHoldMessage>(message =>
+            {
+                performanceService.Increment("placedHoldMessageCount");
+                GetActorRef(inventoryStorage, message.ProductId).Forward(message);
+            });
+
             Receive<PurchaseMessage>(message =>
             {
                 performanceService.Increment("purchaseMessageCount");
+                GetActorRef(inventoryStorage, message.ProductId).Forward(message);
+            });
+
+            Receive<PurchaseFromHoldsMessage>(message =>
+            {
+                performanceService.Increment("purchasedFromHoldsMessageCount");
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
 
