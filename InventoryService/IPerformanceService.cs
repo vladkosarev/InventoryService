@@ -30,26 +30,33 @@ namespace InventoryService
 
         public void PrintMetrics()
         {
-            _stopwatch.Stop();
-            var width = Console.WindowWidth;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.SetCursorPosition(0, 0);
-            foreach (var counter in _counters.Where(k => !k.Key.EndsWith("Last")))
+            try
             {
-                var lastKey = counter.Key + "Last";
-                var lastValue = 0;
-
-                if (_counters.ContainsKey(lastKey))
+                _stopwatch.Stop();
+              //  var width = Console.WindowWidth;
+                Console.ForegroundColor = ConsoleColor.Green;
+               // Console.SetCursorPosition(0, 0);
+                foreach (var counter in _counters.Where(k => !k.Key.EndsWith("Last")))
                 {
-                    lastValue = _counters[lastKey];
+                    var lastKey = counter.Key + "Last";
+                    var lastValue = 0;
+
+                    if (_counters.ContainsKey(lastKey))
+                    {
+                        lastValue = _counters[lastKey];
+                    }
+
+                    var value = (counter.Value - lastValue) / _stopwatch.Elapsed.TotalSeconds;
+                    _counters.AddOrUpdate(lastKey, 0, (id, count) => counter.Value);
+                    Console.Write($"\r\n{counter.Key} - {(int)value} m/s {counter.Value} total");
+
                 }
-
-                var value = (counter.Value - lastValue) / _stopwatch.Elapsed.TotalSeconds;
-                _counters.AddOrUpdate(lastKey, 0, (id, count) => counter.Value);
-                Console.Write($"\r\n{counter.Key} - {(int)value} m/s {counter.Value} total".PadRight(width));
-
+                _stopwatch.Restart();
             }
-            _stopwatch.Restart();
+            catch (Exception e)
+            {
+               Console.WriteLine(e.Message+" "+e);
+            }
         }
     }
 

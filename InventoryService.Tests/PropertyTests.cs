@@ -10,6 +10,7 @@ using Akka.TestKit.Xunit2;
 using InventoryService.Actors;
 using InventoryService.Messages;
 using InventoryService.Storage;
+using InventoryService.Storage.InMemoryLib;
 
 namespace InventoryService.Tests
 {
@@ -113,6 +114,31 @@ namespace InventoryService.Tests
             }
         }
 
+
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        public void UpdateQuantity_Test(Inventory inventory, int toUpdate)
+        {
+            var l = new List<Inventory> { inventory };
+            var inventoryActor = InitializeInventoryServiceRepository(l);
+
+            foreach (var item in l)
+            {
+                var r = UpdateQuantity(inventoryActor, toUpdate, item.Name);
+
+                Assert.True(r.Successful);
+                //if (item.Quantity - item.Holds - toHold >= 0)
+                //{
+                //    Assert.True(r.Successful);
+                //    Assert.Equal(r.Holds, (int)toHold);
+                //}
+                //else
+                //{
+                //    Assert.False(r.Successful);
+                //    Assert.Equal(r.Holds, (int)toHold);
+                //}
+            }
+        }
+
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void PurchaseFromHolds_Test(Inventory inventory, uint toPurchase)
         {
@@ -143,31 +169,34 @@ namespace InventoryService.Tests
             //improve this with parallel
             foreach (var product in productInventory)
             {
-                Task.Run(() => inventoryService.WriteInventory(product.Name, product.Quantity, product.Reservations, product.Holds)).Wait();
+                Task.Run(() => inventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity, product.Reservations, product.Holds))).Wait();
             }
 
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
             return inventoryActor;
         }
-
-        public ReservedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
+        public UpdateQuantityCompletedMessage UpdateQuantity(IActorRef inventoryActor, int quantity, string productId = "product1")
         {
-            return inventoryActor.Ask<ReservedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<UpdateQuantityCompletedMessage>(new UpdateQuantityMessage(productId, quantity), TimeSpan.FromSeconds(1)).Result;
+        }
+        public ReserveCompletedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
+        {
+            return inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
         }
 
-        public PurchasedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
+        public PurchaseCompletedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PurchasedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<PurchaseCompletedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
         }
 
-        public PlacedHoldMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
+        public PlaceHoldCompletedMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PlacedHoldMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<PlaceHoldCompletedMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(1)).Result;
         }
 
-        public PurchasedFromHoldsMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
+        public PurchaseFromHoldsCompletedMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PurchasedFromHoldsMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
         }
 
     }

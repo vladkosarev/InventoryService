@@ -5,9 +5,10 @@ namespace InventoryService.Storage
 {
     public interface IInventoryStorage : IDisposable
     {
-        // Quantity, Reservations, Holds
-        Task<Tuple<int, int, int>> ReadInventory(string productId);
-        Task<bool> WriteInventory(string productId, int quantity, int reservations, int holds);
-        Task Flush(string productId);
+        Task<RealTimeInventory> ReadInventory(string productId);
+
+        Task<bool> WriteInventory(RealTimeInventory inventoryObject);
+
+        Task<bool> Flush(string productId);
     }
 }
