@@ -13,7 +13,7 @@ open System.Xml.Linq
 open System.Collections.Generic
 open Fake.Testing
 
-
+let buildParam = getBuildParamOrDefault  "buildType" "release" 
 // Directories
 let root="./.build/build-"+buildParam
 let buildDir  = root+"/app/"
@@ -22,7 +22,7 @@ let deployDir = root+"/deploy/"
 let nugetWorkingDir =root+ "/packaging/"
 let allPackageFiles = [(buildDir+"InventoryService.Messages.dll")]
 
-let buildParam = getBuildParamOrDefault  "buildType" "release" 
+
 let nugetDeployPath = getBuildParamOrDefault  "nugetDeployPath" deployDir 
 
 //let testOutput = FullName (root+ "-TestResults")
