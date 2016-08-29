@@ -37,7 +37,7 @@ let testOutput = FullName "./.build/TestResults"
 
 let product = "InventoryService"
 let authors = [ "Officialcomminity" ]
-let copyright = "Copyright © Officialcomminity 2016"
+let copyright = "Copyright Â© Officialcomminity 2016"
 let company = "Officialcomminity"
 let description = "Prototyping some things for real-time inventory service"
 let tags = ["InventoryService";"occ";]
@@ -63,7 +63,7 @@ let NugetDeployPath= match nugetDeployPath with
 let version =
   match buildServer with
   | TeamCity -> (buildVersion+BuildVersionType)
-  | _        -> ("0.0.6"+BuildVersionType)
+  | _        -> ("0.0.7"+BuildVersionType)
 
 // Targets
 Target "Clean" (fun _ -> 
