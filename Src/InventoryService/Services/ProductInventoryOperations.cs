@@ -1,63 +1,9 @@
-﻿using InventoryService.Messages.Response;
-using InventoryService.Storage;
+﻿using InventoryService.Storage;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InventoryService.Services
 {
-    public static class RealTimeInventoryOPerationalResultExtensions
-    {
-        public static void ThrowIfFailedOperationResult(
-            this OperationResult<RealTimeInventory> realTimeInventoryOperationResult)
-        {
-            if (realTimeInventoryOperationResult.IsSuccessful) return;
-            if (realTimeInventoryOperationResult.Exception != null)
-            {
-                throw realTimeInventoryOperationResult.Exception;
-            }
-            var inventoryProductId = realTimeInventoryOperationResult?.Result?.ProductId;
-            throw new Exception("Inventory operation failed" + (string.IsNullOrEmpty(inventoryProductId) ? "" : inventoryProductId));
-        }
-
-        public static OperationResult<RealTimeInventory> ToSuccessOperationResult(
-            this RealTimeInventory realTimeInventory)
-        {
-            return new OperationResult<RealTimeInventory>()
-            {
-                Result = realTimeInventory,
-                IsSuccessful = true
-            };
-        }
-
-        public static OperationResult<RealTimeInventory> ToFailedOperationResult(
-            this Exception exception, string message = "Inventory operation failed")
-        {
-            return new OperationResult<RealTimeInventory>()
-            {
-                Result = null,
-                IsSuccessful = true,
-                Exception = new Exception(message, exception)
-            };
-        }
-
-        public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
-           this Exception exception, string productId, string message = "Inventory operation failed")
-        {
-            return new InventoryOperationErrorMessage(productId, new List<Exception>()
-            {
-                new Exception(message, exception)
-            });
-        }
-    }
-
-    public class OperationResult<T>
-    {
-        public bool IsSuccessful { set; get; }
-        public T Result { set; get; }
-        public Exception Exception { get; set; }
-    }
-
     public class ProductInventoryOperations : IProductInventoryOperations
     {
         private int _quantity;
@@ -70,7 +16,12 @@ namespace InventoryService.Services
             _inventoryStorage = inventoryStorage;
             var initTask = _inventoryStorage.ReadInventory(id);
             Task.WaitAll(initTask);
-            var inventory = initTask.Result;
+            var inventory = initTask.Result.Result;
+
+            if(!initTask.Result.IsSuccessful)
+            {
+                throw initTask.Result.Errors.Flatten();
+            }
             _quantity = inventory.Quantity;
             _reservations = inventory.Reservations;
             _holds = inventory.Holds;
@@ -81,7 +32,7 @@ namespace InventoryService.Services
             try
             {
                 var result = await _inventoryStorage.ReadInventory(productId);
-                return result.ToSuccessOperationResult();
+                return result.Result.ToSuccessOperationResult();
             }
             catch (Exception e)
             {
@@ -100,10 +51,10 @@ namespace InventoryService.Services
             try
             {
                 var newReserved = _reservations + reservationQuantity;
-                if (newReserved > _quantity - _holds) return null;
+                if (newReserved > _quantity - _holds) throw new Exception("What to reserve must be less than quantity - holds for product " + productId);
                 var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _quantity, newReserved, _holds));
 
-                if (!result) return null;
+                if (!result.IsSuccessful) throw new Exception("Could not load inventory for product " + productId, result.Errors);
                 _reservations = newReserved;
                 return await ReadInventory(productId);
             }
@@ -121,7 +72,7 @@ namespace InventoryService.Services
 
                 var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, _holds));
 
-                if (!result) return null;
+                if (!result.IsSuccessful) throw result.Errors.Flatten();
                 _quantity = newQuantity;
                 return await ReadInventory(productId);
             }
@@ -136,12 +87,13 @@ namespace InventoryService.Services
             try
             {
                 var newHolds = _holds + toHold;
-                if (newHolds > _quantity) return null;
+                if (newHolds+ _reservations > _quantity) throw new Exception("The new hold is larger than available unreserved items for product " + productId);
                 var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _quantity, _reservations, newHolds));
 
-                if (!result) return null;
+                if (!result.IsSuccessful) throw result.Errors.Flatten();
                 _holds = newHolds;
-                return await ReadInventory(productId);
+                var inventory= await ReadInventory(productId);
+                return inventory;
             }
             catch (Exception e)
             {
@@ -156,10 +108,10 @@ namespace InventoryService.Services
                 var newQuantity = _quantity - quantity;
                 var newReserved = Math.Max(0, _reservations - quantity);
 
-                if (newQuantity - _holds < 0) return null;
+                if (newQuantity - _holds < 0) throw new Exception("New holds must be less than or equal to quantity for product " + productId);
                 var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, newReserved, _holds));
 
-                if (!result) return null;
+                if (!result.IsSuccessful) throw result.Errors.Flatten();
                 _quantity = newQuantity;
                 _reservations = newReserved;
                 return await ReadInventory(productId);
@@ -177,10 +129,10 @@ namespace InventoryService.Services
                 var newQuantity = _quantity - quantity;
                 var newHolds = _holds - quantity;
 
-                if (newQuantity < 0 || newHolds < 0) return null;
+                if (newQuantity < 0 || newHolds < 0) throw new Exception("Purchase from negative hold or a negative purchase is not allowed  for product " + productId);
                 var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, newHolds));
 
-                if (!result) return null;
+                if (!result.IsSuccessful) throw result.Errors.Flatten();
                 _quantity = newQuantity;
                 _holds = newHolds;
                 return await ReadInventory(productId);

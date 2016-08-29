@@ -23,16 +23,17 @@ namespace InventoryService.Storage.EsentLib
             public readonly int Holds;
         }
 
-        public async Task<RealTimeInventory> ReadInventory(string productId)
+        public async Task<StorageOperationResult<RealTimeInventory>> ReadInventory(string productId)
         {
             var value = _data.ContainsKey(productId) ? _data[productId] : new Inventory(0, 0, 0);
-            return await Task.FromResult(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds));
+            return await Task.FromResult(new StorageOperationResult<RealTimeInventory>(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds)));
         }
 
-        public async Task<bool> WriteInventory(RealTimeInventory inventoryObject)
+        public async Task<StorageOperationResult> WriteInventory(RealTimeInventory inventoryObject)
         {
+            StorageWriteCheck.Execute(inventoryObject);
             _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds);
-            return await Task.FromResult(true);
+            return await Task.FromResult(new StorageOperationResult() { IsSuccessful = false });
         }
 
         public async Task<bool> Flush(string productId)

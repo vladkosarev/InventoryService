@@ -2,7 +2,7 @@
 {
     public class ReserveCompletedMessage
     {
-        public ReserveCompletedMessage(string productId, int reservationQuantity, int quantity, int holds, bool successful)
+        public ReserveCompletedMessage(string productId, int quantity, int reservationQuantity, int holds, bool successful)
         {
             ProductId = productId;
             ReservationQuantity = reservationQuantity;

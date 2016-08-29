@@ -13,6 +13,6 @@ namespace InventoryService.Messages.Response
 
         public string ProductId { get; private set; }
         public List<Exception> Errors { get; private set; }
-        public bool IsSuccessful => Errors != null && Errors.Count > 0;
+        public bool IsSuccessful =>!(Errors != null && Errors.Count > 0);
     }
 }

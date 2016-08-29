@@ -5,9 +5,9 @@ namespace InventoryService.Storage
 {
     public interface IInventoryStorage : IDisposable
     {
-        Task<RealTimeInventory> ReadInventory(string productId);
+        Task<StorageOperationResult<RealTimeInventory>> ReadInventory(string productId);
 
-        Task<bool> WriteInventory(RealTimeInventory inventoryObject);
+        Task<StorageOperationResult> WriteInventory(RealTimeInventory inventoryObject);
 
         Task<bool> Flush(string productId);
     }

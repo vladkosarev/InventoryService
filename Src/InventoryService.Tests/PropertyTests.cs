@@ -8,7 +8,6 @@ using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using InventoryService.Storage.InMemoryLib;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -49,128 +48,132 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void Reservation_Test(Inventory inventory, uint toReserve)
         {
-            var l = new List<Inventory> { inventory };
-            var inventoryActor = InitializeInventoryServiceRepository(l);
+            bool initializationSuccess;
+            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            if (!initializationSuccess) return;
+            var alreadyReserved = inventory.Reservations;
+            var r = Reserve(inventoryActor, (int)toReserve, inventory.Name);
 
-            foreach (var item in l)
+            if (inventory.Quantity - inventory.Holds - inventory.Reservations - toReserve >= 0)
             {
-                var r = Reserve(inventoryActor, (int)toReserve, item.Name);
+                alreadyReserved += (int)toReserve;
+                Assert.True(r.Successful);
+                Assert.Equal(r.ReservationQuantity, alreadyReserved);
+            }
+            else
+            {
+                Assert.False(r.Successful);
 
-                if (item.Quantity - item.Holds - item.Reservations - toReserve >= 0)
-                {
-                    Assert.True(r.Successful);
-                    Assert.Equal(r.ReservationQuantity, (int)toReserve);
-                }
-                else
-                {
-                    Assert.False(r.Successful);
-                    Assert.Equal(r.ReservationQuantity, (int)toReserve);
-                }
+                Assert.Equal(r.ReservationQuantity, 0);
+                //-todo when there is a failure, return nothing   Assert.Equal(r.ReservationQuantity, (int)toReserve);
             }
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void Purchase_Test(Inventory inventory, uint toPurchase)
         {
-            var l = new List<Inventory> { inventory };
-            var inventoryActor = InitializeInventoryServiceRepository(l);
+            bool initializationSuccess;
+            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            if (!initializationSuccess) return;
+            var alreadyPurchased = inventory.Quantity;
 
-            foreach (var item in l)
+            var r = Purchase(inventoryActor, (int)toPurchase, inventory.Name);
+
+            if (inventory.Quantity - inventory.Holds - toPurchase >= 0)
             {
-                var r = Purchase(inventoryActor, (int)toPurchase, item.Name);
-
-                if (item.Quantity - item.Holds - toPurchase >= 0)
-                {
-                    Assert.True(r.Successful);
-                    Assert.Equal(r.Quantity, (int)toPurchase);
-                }
-                else
-                {
-                    Assert.False(r.Successful);
-                    Assert.Equal(r.Quantity, (int)toPurchase);
-                }
+                alreadyPurchased -= (int)toPurchase;
+                Assert.True(r.Successful);
+                Assert.Equal(r.Quantity, alreadyPurchased);
+            }
+            else
+            {
+                Assert.False(r.Successful);
+                Assert.Equal(r.Quantity, 0);
+                //-todo when there is a failure, return nothing      Assert.Equal(r.Quantity, (int)toPurchase);
             }
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void Holds_Test(Inventory inventory, uint toHold)
         {
-            var l = new List<Inventory> { inventory };
-            var inventoryActor = InitializeInventoryServiceRepository(l);
+            bool initializationSuccess;
+            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            if (!initializationSuccess) return;
+            var alreadyHeld = inventory.Holds;
 
-            foreach (var item in l)
+            var r = Hold(inventoryActor, (int)toHold, inventory.Name);
+
+            if (inventory.Quantity - inventory.Holds - toHold-inventory.Reservations >= 0)
             {
-                var r = Hold(inventoryActor, (int)toHold, item.Name);
-
-                if (item.Quantity - item.Holds - toHold >= 0)
-                {
-                    Assert.True(r.Successful);
-                    Assert.Equal(r.Holds, (int)toHold);
-                }
-                else
-                {
-                    Assert.False(r.Successful);
-                    Assert.Equal(r.Holds, (int)toHold);
-                }
+                alreadyHeld += (int)toHold;
+                Assert.True(r.Successful);
+                Assert.Equal(r.Holds, alreadyHeld);
+            }
+            else
+            {
+                Assert.False(r.Successful);
+                Assert.Equal(r.Holds, 0);
+                //-todo when there is a failure, return nothing   Assert.Equal(r.Holds, (int)toHold);
             }
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void UpdateQuantity_Test(Inventory inventory, int toUpdate)
         {
-            var l = new List<Inventory> { inventory };
-            var inventoryActor = InitializeInventoryServiceRepository(l);
+            bool initializationSuccess;
+            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            if (!initializationSuccess) return;
+            var r = UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
-            foreach (var item in l)
-            {
-                var r = UpdateQuantity(inventoryActor, toUpdate, item.Name);
-
-                Assert.True(r.Successful);
-                //if (item.Quantity - item.Holds - toHold >= 0)
-                //{
-                //    Assert.True(r.Successful);
-                //    Assert.Equal(r.Holds, (int)toHold);
-                //}
-                //else
-                //{
-                //    Assert.False(r.Successful);
-                //    Assert.Equal(r.Holds, (int)toHold);
-                //}
-            }
+            Assert.True(r.Successful);
+            //if (item.Quantity - item.Holds - toHold >= 0)
+            //{
+            //    Assert.True(r.Successful);
+            //    Assert.Equal(r.Holds, (int)toHold);
+            //}
+            //else
+            //{
+            //    Assert.False(r.Successful);
+            //    Assert.Equal(r.Holds, (int)toHold);
+            //}
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void PurchaseFromHolds_Test(Inventory inventory, uint toPurchase)
         {
-            var l = new List<Inventory> { inventory };
-            var inventoryActor = InitializeInventoryServiceRepository(l);
+            bool initializationSuccess;
+            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            if (!initializationSuccess) return;
+            var alreadyPurchased = inventory.Quantity;
 
-            foreach (var item in l)
+            var r = PurchaseFromHolds(inventoryActor, (int)toPurchase, inventory.Name);
+
+            if (inventory.Holds >= toPurchase && inventory.Quantity - toPurchase >= 0)
             {
-                var r = PurchaseFromHolds(inventoryActor, (int)toPurchase, item.Name);
-
-                if (item.Holds >= toPurchase && item.Quantity - toPurchase >= 0)
-                {
-                    Assert.True(r.Successful);
-                    Assert.Equal(r.Quantity, (int)toPurchase);
-                }
-                else
-                {
-                    Assert.False(r.Successful);
-                    Assert.Equal(r.Quantity, (int)toPurchase);
-                }
+                alreadyPurchased -= (int)toPurchase;
+                Assert.True(r.Successful);
+                Assert.Equal(r.Quantity, alreadyPurchased);
+            }
+            else
+            {
+                Assert.False(r.Successful);
+                Assert.Equal(r.Quantity, 0);
+                //-todo when there is a failure, return nothing     Assert.Equal(r.Quantity, (int)toPurchase);
             }
         }
 
-        public IActorRef InitializeInventoryServiceRepository(IList<Inventory> productInventory)
+        public IActorRef TryInitializeInventoryServiceRepository(Inventory product, out bool successful)
         {
             var inventoryService = new InMemory();
 
             //improve this with parallel
-            foreach (var product in productInventory)
-            {
-                Task.Run(() => inventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity, product.Reservations, product.Holds))).Wait();
-            }
+
+            var result =
+                inventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity,
+                    product.Reservations, product.Holds));
+            Task.WaitAll(result);
+
+            successful = result.Result.IsSuccessful;
 
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
             return inventoryActor;
@@ -178,27 +181,27 @@ namespace InventoryService.Tests
 
         public UpdateQuantityCompletedMessage UpdateQuantity(IActorRef inventoryActor, int quantity, string productId = "product1")
         {
-            return inventoryActor.Ask<UpdateQuantityCompletedMessage>(new UpdateQuantityMessage(productId, quantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<UpdateQuantityCompletedMessage>(new UpdateQuantityMessage(productId, quantity), TimeSpan.FromSeconds(10000)).Result;
         }
 
         public ReserveCompletedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(10000)).Result;
         }
 
         public PurchaseCompletedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PurchaseCompletedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<PurchaseCompletedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(10000)).Result;
         }
 
         public PlaceHoldCompletedMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PlaceHoldCompletedMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<PlaceHoldCompletedMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(10000)).Result;
         }
 
         public PurchaseFromHoldsCompletedMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
+            return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(10000)).Result;
         }
     }
 }

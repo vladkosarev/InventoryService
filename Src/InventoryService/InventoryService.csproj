@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Services\IProductInventoryOperations.cs" />
+    <Compile Include="Services\OperationResult.cs" />
     <Compile Include="Services\ProductInventoryOperations.cs" />
     <Compile Include="IPerformanceService.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Actors\InventoryActor.cs" />
     <Compile Include="Actors\ProductInventoryActor.cs" />
+    <Compile Include="Services\RealTimeInventoryOPerationalResultExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

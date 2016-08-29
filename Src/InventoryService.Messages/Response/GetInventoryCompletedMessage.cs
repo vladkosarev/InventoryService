@@ -4,7 +4,7 @@
     {
         public string ProductId { get; private set; }
         public int Quantity { get; private set; }
-        public int Reservations { get; private set; }
+        public int Reserved { get; private set; }
         public int Holds { get; private set; }
         public InventoryOperationErrorMessage ErrorMessage { set; get; }
 
@@ -17,7 +17,7 @@
         {
             ProductId = productId;
             Quantity = quantity;
-            Reservations = reservations;
+            Reserved = reservations;
             Holds = holds;
         }
     }
