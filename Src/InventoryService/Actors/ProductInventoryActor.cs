@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Storage;
+using System;
+using System.Threading.Tasks;
 
 namespace InventoryService.Actors
 {
@@ -43,7 +43,7 @@ namespace InventoryService.Actors
         {
             var newReserved = _reservations + reservationQuantity;
             if (newReserved > _quantity - _holds) return false;
-            var result = await _inventoryStorage.WriteInventory( new RealTimeInventory(productId, _quantity, newReserved, _holds));
+            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _quantity, newReserved, _holds));
 
             if (!result) return false;
             _reservations = newReserved;
@@ -53,7 +53,7 @@ namespace InventoryService.Actors
         private async Task<bool> UpdateQuantity(string productId, int quantity)
         {
             var newQuantity = _quantity + quantity;
-          
+
             var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, _holds));
 
             if (!result) return false;
@@ -102,63 +102,81 @@ namespace InventoryService.Actors
 
         private void Running()
         {
-            ReceiveAsync<GetInventoryMessage>(async message =>
-            {
-                if (!_withCache)
+            Receive<GetInventoryMessage>(message =>
+           {
+               if (!_withCache)
+               {
+                   _inventoryStorage.ReadInventory(message.ProductId).ContinueWith(result =>
+                   {
+                       _quantity = result.Result.Quantity;
+                       _reservations = result.Result.Reservations;
+                       _holds = result.Result.Holds;
+                       return new RetrieveInventoryCompletedMessage(message.ProductId, _quantity, _reservations);
+                   },
+                   TaskContinuationOptions.AttachedToParent
+                   & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+               }
+           });
+
+            Receive<ReserveMessage>(message =>
+           {
+               Reserve(message.ProductId, message.ReservationQuantity).ContinueWith(result =>
+               {
+                   return new ReserveCompletedMessage(
+                       message.ProductId
+                       , message.ReservationQuantity
+                       , result.Result);
+               }, TaskContinuationOptions.AttachedToParent
+                   & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+           });
+
+            Receive<UpdateQuantityMessage>(message =>
+           {
+               UpdateQuantity(message.ProductId, message.Quantity).ContinueWith(result =>
                 {
-                    var inventory = await _inventoryStorage.ReadInventory(message.ProductId);
-                    _quantity = inventory.Quantity;
-                    _reservations = inventory.Reservations;
-                    _holds = inventory.Holds;
-                }
-                Sender.Tell(new RetrieveInventoryCompletedMessage(message.ProductId, _quantity, _reservations));
-            });
+               return new UpdateQuantityCompletedMessage(
+                   message.ProductId
+                   , message.Quantity
+                   , result.Result);
+           }, TaskContinuationOptions.AttachedToParent
+                       & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+           });
 
-            ReceiveAsync<ReserveMessage>(async message =>
-            {
-                Sender.Tell(
-                    new ReserveCompletedMessage(
-                        message.ProductId
-                        , message.ReservationQuantity
-                        , await Reserve(message.ProductId, message.ReservationQuantity)));
-            });
+            Receive<PlaceHoldMessage>(message =>
+           {
+               PlaceHold(message.ProductId, message.Holds).ContinueWith(result =>
+               {
+                   return new PlaceHoldCompletedMessage(
+                       message.ProductId
+                       , message.Holds
+                       , result.Result);
+               }, TaskContinuationOptions.AttachedToParent
+                  & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+           });
 
-            
-            ReceiveAsync<UpdateQuantityMessage>(async message =>
-            {
-                Sender.Tell(
-                    new UpdateQuantityCompletedMessage(
-                        message.ProductId
-                        , message.Quantity
-                        , await UpdateQuantity(message.ProductId, message.Quantity)));
-            });
-            ReceiveAsync<PlaceHoldMessage>(async message =>
-            {
-                Sender.Tell(
-                    new PlaceHoldCompletedMessage(
-                        message.ProductId
-                        , message.Holds
-                        , await PlaceHold(message.ProductId, message.Holds)));
-            });
+            Receive<PurchaseMessage>(message =>
+           {
+               Purchase(message.ProductId, message.Quantity).ContinueWith(result =>
+               {
+                   return new PurchaseCompletedMessage(
+                       message.ProductId
+                       , message.Quantity
+                       , result.Result);
+               }, TaskContinuationOptions.AttachedToParent
+                  & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+           });
 
-            ReceiveAsync<PurchaseMessage>(async message =>
-            {
-                Sender.Tell(
-                    new PurchaseCompletedMessage(
-                        message.ProductId
-                        , message.Quantity
-                        , await Purchase(message.ProductId, message.Quantity)));
-            });
-
-            ReceiveAsync<PurchaseFromHoldsMessage>(async message =>
-            {
-                Sender.Tell(
-                    new PurchaseFromHoldsCompletedMessage(
-                        message.ProductId
-                        , message.Quantity
-                        , await PurchaseFromHolds(message.ProductId, message.Quantity)));
-            });
-
+            Receive<PurchaseFromHoldsMessage>(message =>
+           {
+               PurchaseFromHolds(message.ProductId, message.Quantity).ContinueWith(result =>
+               {
+                   return new PurchaseFromHoldsCompletedMessage(
+                       message.ProductId
+                       , message.Quantity
+                       , result.Result);
+               }, TaskContinuationOptions.AttachedToParent
+                  & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+           });
             Receive<FlushStreamsMessage>(message => { _inventoryStorage.Flush(_id); });
         }
     }
