@@ -4,10 +4,8 @@
     {
         public static void Main(string[] args)
         {
-           new SampleClientClass(). StartSampleClientAsync();
+            new SampleClientClass().StartSampleClientAsync();
             System.Console.ReadLine();
         }
-
-     
     }
 }

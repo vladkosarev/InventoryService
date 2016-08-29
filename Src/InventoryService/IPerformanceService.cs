@@ -8,7 +8,9 @@ namespace InventoryService
     public interface IPerformanceService
     {
         void Init();
+
         void PrintMetrics();
+
         void Increment(string counter);
     }
 
@@ -33,9 +35,9 @@ namespace InventoryService
             try
             {
                 _stopwatch.Stop();
-              //  var width = Console.WindowWidth;
+                //  var width = Console.WindowWidth;
                 Console.ForegroundColor = ConsoleColor.Green;
-               // Console.SetCursorPosition(0, 0);
+                // Console.SetCursorPosition(0, 0);
                 foreach (var counter in _counters.Where(k => !k.Key.EndsWith("Last")))
                 {
                     var lastKey = counter.Key + "Last";
@@ -49,13 +51,12 @@ namespace InventoryService
                     var value = (counter.Value - lastValue) / _stopwatch.Elapsed.TotalSeconds;
                     _counters.AddOrUpdate(lastKey, 0, (id, count) => counter.Value);
                     Console.Write($"\r\n{counter.Key} - {(int)value} m/s {counter.Value} total");
-
                 }
                 _stopwatch.Restart();
             }
             catch (Exception e)
             {
-               Console.WriteLine(e.Message+" "+e);
+                Console.WriteLine(e.Message + " " + e);
             }
         }
     }
@@ -64,17 +65,14 @@ namespace InventoryService
     {
         public void Init()
         {
-
         }
 
         public void PrintMetrics()
         {
-
         }
 
         public void Increment(string counter)
         {
-
         }
     }
 }

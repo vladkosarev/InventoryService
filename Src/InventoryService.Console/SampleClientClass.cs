@@ -1,13 +1,12 @@
+using Akka.Actor;
+using InventoryService.Messages.Request;
+using InventoryService.Messages.Response;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Akka.Actor;
-using InventoryService.Messages;
-using InventoryService.Messages.Request;
-using InventoryService.Messages.Response;
 
 namespace InventoryService.Console
 {
@@ -72,8 +71,6 @@ namespace InventoryService.Console
 
                 System.Console.WriteLine("Elapsed: {0}", stopwatch.Elapsed.TotalSeconds);
                 System.Console.WriteLine("Speed: {0} per second", productCount * initialQuantity / stopwatch.Elapsed.TotalSeconds);
-
-
             }
         }
     }

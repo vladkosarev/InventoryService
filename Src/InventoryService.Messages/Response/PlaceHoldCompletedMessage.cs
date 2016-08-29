@@ -1,16 +1,27 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Messages.Response
 {
     public class PlaceHoldCompletedMessage
     {
-        public PlaceHoldCompletedMessage(string productId, int holds, bool successful)
+        public PlaceHoldCompletedMessage(string productId, int quantity, int reservations, int holds, bool successful)
         {
             ProductId = productId;
             Holds = holds;
             Successful = successful;
+            Quantity = quantity;
+            Reservations = reservations;
         }
 
-        public string ProductId { get; private set; }
+        public InventoryOperationErrorMessage ErrorMessage { set; get; }
+
+        public PlaceHoldCompletedMessage(InventoryOperationErrorMessage message)
+        {
+            ErrorMessage = message;
+        }
+
+        public int Quantity { get; private set; }
+        public int Reservations { get; private set; }
         public int Holds { get; private set; }
+        public string ProductId { get; private set; }
         public bool Successful { get; private set; }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.Isam.Esent.Collections.Generic;
+using System;
 using System.Threading.Tasks;
-using Microsoft.Isam.Esent.Collections.Generic;
 
 namespace InventoryService.Storage.EsentLib
 {
     public class Esent : IInventoryStorage
     {
-
         private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("InventoryStorageDBNew2");
 
         [Serializable]
@@ -23,7 +22,6 @@ namespace InventoryService.Storage.EsentLib
             public readonly int Reservations;
             public readonly int Holds;
         }
-
 
         public async Task<RealTimeInventory> ReadInventory(string productId)
         {

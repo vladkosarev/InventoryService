@@ -2,9 +2,9 @@
 
 namespace InventoryService.ServiceClientDeployment
 {
-  public  class Program
+    public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             HostFactory.Run(x =>                                 //1
             {

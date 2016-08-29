@@ -12,22 +12,20 @@ namespace InventoryService.Storage.InMemoryLib
         {
             if (_productInventories.ContainsKey(productId))
             {
-               return await Task.FromResult(_productInventories[productId]);
+                return await Task.FromResult(_productInventories[productId]);
             }
             else
             {
-                return await Task.FromResult(new RealTimeInventory(productId,0, 0,0));
+                return await Task.FromResult(new RealTimeInventory(productId, 0, 0, 0));
             }
-   
         }
 
         public async Task<bool> WriteInventory(RealTimeInventory inventoryObject)
         {
-            _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId,inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds),
+            _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds),
                 (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds));
             return await Task.FromResult(true);
         }
-
 
         public async Task<bool> Flush(string productId)
         {

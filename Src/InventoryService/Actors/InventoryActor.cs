@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Akka.Actor;
+﻿using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Messages.Request;
 using InventoryService.Storage;
+using System;
+using System.Collections.Generic;
 
 namespace InventoryService.Actors
 {
@@ -65,7 +65,7 @@ namespace InventoryService.Actors
             {
                 performanceService.PrintMetrics();
             });
-        }        
+        }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {
@@ -82,4 +82,3 @@ namespace InventoryService.Actors
         }
     }
 }
-

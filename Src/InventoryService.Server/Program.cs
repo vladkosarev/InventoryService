@@ -12,8 +12,6 @@ namespace InventoryService.Server
             }
             catch (Exception)
             {
-                
-              
             }
             Console.ReadLine();
         }

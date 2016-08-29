@@ -1,18 +1,17 @@
-﻿using System;
-using Xunit;
+﻿using Akka.Actor;
+using Akka.TestKit.Xunit2;
 using FsCheck;
 using FsCheck.Xunit;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Akka.Actor;
-using Akka.TestKit.Xunit2;
 using InventoryService.Actors;
-using InventoryService.Messages;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using InventoryService.Storage.InMemoryLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace InventoryService.Tests
 {
@@ -48,7 +47,7 @@ namespace InventoryService.Tests
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void Reservation_Test (Inventory inventory, uint toReserve)
+        public void Reservation_Test(Inventory inventory, uint toReserve)
         {
             var l = new List<Inventory> { inventory };
             var inventoryActor = InitializeInventoryServiceRepository(l);
@@ -116,7 +115,6 @@ namespace InventoryService.Tests
             }
         }
 
-
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void UpdateQuantity_Test(Inventory inventory, int toUpdate)
         {
@@ -177,10 +175,12 @@ namespace InventoryService.Tests
             var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
             return inventoryActor;
         }
+
         public UpdateQuantityCompletedMessage UpdateQuantity(IActorRef inventoryActor, int quantity, string productId = "product1")
         {
             return inventoryActor.Ask<UpdateQuantityCompletedMessage>(new UpdateQuantityMessage(productId, quantity), TimeSpan.FromSeconds(1)).Result;
         }
+
         public ReserveCompletedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
         {
             return inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(1)).Result;
@@ -200,7 +200,5 @@ namespace InventoryService.Tests
         {
             return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(1)).Result;
         }
-
     }
 }
-

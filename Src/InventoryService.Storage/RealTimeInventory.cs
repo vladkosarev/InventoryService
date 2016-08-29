@@ -14,6 +14,5 @@
         public int Reservations { private set; get; }
         public int Holds { private set; get; }
         public string ProductId { private set; get; }
-
     }
 }
