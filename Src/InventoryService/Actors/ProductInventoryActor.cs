@@ -9,27 +9,21 @@ namespace InventoryService.Actors
     public class ProductInventoryActor : ReceiveActor
     {
         private readonly string _id;
-        private int _quantity;
-        private int _reservations;
-        private int _holds;
+       
 
         private readonly bool _withCache;
-
-        private readonly IInventoryStorage _inventoryStorage;
+        
+        private readonly IProductInventoryOperations _productInventoryOperations;
 
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
-            _inventoryStorage = inventoryStorage;
+          
             _withCache = withCache;
-            var initTask = _inventoryStorage.ReadInventory(id);
-            Task.WaitAll(initTask);
-            var inventory = initTask.Result;
-            _quantity = inventory.Quantity;
-            _reservations = inventory.Reservations;
-            _holds = inventory.Holds;
+          
 
             Become(Running);
+            _productInventoryOperations = new ProductInventoryOperations(inventoryStorage,id);
 
             //Context.System.Scheduler.ScheduleTellRepeatedly(
             //    TimeSpan.Zero
@@ -39,79 +33,18 @@ namespace InventoryService.Actors
             //    , ActorRefs.Nobody);
         }
 
-        private async Task<bool> Reserve(string productId, int reservationQuantity)
-        {
-            var newReserved = _reservations + reservationQuantity;
-            if (newReserved > _quantity - _holds) return false;
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _quantity, newReserved, _holds));
-
-            if (!result) return false;
-            _reservations = newReserved;
-            return true;
-        }
-
-        private async Task<bool> UpdateQuantity(string productId, int quantity)
-        {
-            var newQuantity = _quantity + quantity;
-
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, _holds));
-
-            if (!result) return false;
-            _quantity = newQuantity;
-            return true;
-        }
-
-        private async Task<bool> PlaceHold(string productId, int toHold)
-        {
-            var newHolds = _holds + toHold;
-            if (newHolds > _quantity) return false;
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _quantity, _reservations, newHolds));
-
-            if (!result) return false;
-            _holds = newHolds;
-            return true;
-        }
-
-        private async Task<bool> Purchase(string productId, int quantity)
-        {
-            var newQuantity = _quantity - quantity;
-            var newReserved = Math.Max(0, _reservations - quantity);
-
-            if (newQuantity - _holds < 0) return false;
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, newReserved, _holds));
-
-            if (!result) return false;
-            _quantity = newQuantity;
-            _reservations = newReserved;
-            return true;
-        }
-
-        private async Task<bool> PurchaseFromHolds(string productId, int quantity)
-        {
-            var newQuantity = _quantity - quantity;
-            var newHolds = _holds - quantity;
-
-            if (newQuantity < 0 || newHolds < 0) return false;
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, newHolds));
-
-            if (!result) return false;
-            _quantity = newQuantity;
-            _holds = newHolds;
-            return true;
-        }
-
         private void Running()
         {
             Receive<GetInventoryMessage>(message =>
            {
                if (!_withCache)
                {
-                   _inventoryStorage.ReadInventory(message.ProductId).ContinueWith(result =>
+                   _productInventoryOperations.ReadInventory(message.ProductId).ContinueWith(result =>
                    {
-                       _quantity = result.Result.Quantity;
-                       _reservations = result.Result.Reservations;
-                       _holds = result.Result.Holds;
-                       return new RetrieveInventoryCompletedMessage(message.ProductId, _quantity, _reservations);
+                       var quantity = result.Result.Quantity;
+                       var reservations = result.Result.Reservations;
+                       var holds = result.Result.Holds;
+                       return new RetrieveInventoryCompletedMessage(message.ProductId, quantity, reservations,holds);
                    },
                    TaskContinuationOptions.AttachedToParent
                    & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
@@ -120,7 +53,7 @@ namespace InventoryService.Actors
 
             Receive<ReserveMessage>(message =>
            {
-               Reserve(message.ProductId, message.ReservationQuantity).ContinueWith(result =>
+               _productInventoryOperations.Reserve(message.ProductId, message.ReservationQuantity).ContinueWith(result =>
                {
                    return new ReserveCompletedMessage(
                        message.ProductId
@@ -132,19 +65,19 @@ namespace InventoryService.Actors
 
             Receive<UpdateQuantityMessage>(message =>
            {
-               UpdateQuantity(message.ProductId, message.Quantity).ContinueWith(result =>
+               _productInventoryOperations.UpdateQuantity(message.ProductId, message.Quantity).ContinueWith(result =>
                 {
-               return new UpdateQuantityCompletedMessage(
-                   message.ProductId
-                   , message.Quantity
-                   , result.Result);
-           }, TaskContinuationOptions.AttachedToParent
+                    return new UpdateQuantityCompletedMessage(
+                        message.ProductId
+                        , message.Quantity
+                        , result.Result);
+                }, TaskContinuationOptions.AttachedToParent
                        & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
            });
 
             Receive<PlaceHoldMessage>(message =>
            {
-               PlaceHold(message.ProductId, message.Holds).ContinueWith(result =>
+               _productInventoryOperations.PlaceHold(message.ProductId, message.Holds).ContinueWith(result =>
                {
                    return new PlaceHoldCompletedMessage(
                        message.ProductId
@@ -156,7 +89,7 @@ namespace InventoryService.Actors
 
             Receive<PurchaseMessage>(message =>
            {
-               Purchase(message.ProductId, message.Quantity).ContinueWith(result =>
+               _productInventoryOperations.Purchase(message.ProductId, message.Quantity).ContinueWith(result =>
                {
                    return new PurchaseCompletedMessage(
                        message.ProductId
@@ -168,7 +101,7 @@ namespace InventoryService.Actors
 
             Receive<PurchaseFromHoldsMessage>(message =>
            {
-               PurchaseFromHolds(message.ProductId, message.Quantity).ContinueWith(result =>
+               _productInventoryOperations.PurchaseFromHolds(message.ProductId, message.Quantity).ContinueWith(result =>
                {
                    return new PurchaseFromHoldsCompletedMessage(
                        message.ProductId
@@ -177,7 +110,12 @@ namespace InventoryService.Actors
                }, TaskContinuationOptions.AttachedToParent
                   & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
            });
-            Receive<FlushStreamsMessage>(message => { _inventoryStorage.Flush(_id); });
+            Receive<FlushStreamsMessage>(message =>
+            {
+                _productInventoryOperations.InventoryStorageFlush(_id).ContinueWith(
+                    result => { }, TaskContinuationOptions.AttachedToParent
+                  & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
+            });
         }
     }
 }
