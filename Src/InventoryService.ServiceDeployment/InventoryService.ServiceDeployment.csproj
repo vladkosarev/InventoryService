@@ -135,7 +135,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="InitializeContainer.ps1" />
+    <None Include="docker-publish.bat" />
+    <None Include="docker-publish.ps1" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

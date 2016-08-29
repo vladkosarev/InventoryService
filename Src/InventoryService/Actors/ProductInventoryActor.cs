@@ -3,6 +3,9 @@ using InventoryService.Messages;
 using InventoryService.Storage;
 using System;
 using System.Threading.Tasks;
+using InventoryService.Messages.Request;
+using InventoryService.Messages.Response;
+using InventoryService.Services;
 
 namespace InventoryService.Actors
 {
@@ -44,7 +47,7 @@ namespace InventoryService.Actors
                        var quantity = result.Result.Quantity;
                        var reservations = result.Result.Reservations;
                        var holds = result.Result.Holds;
-                       return new RetrieveInventoryCompletedMessage(message.ProductId, quantity, reservations,holds);
+                       return new GetInventoryCompletedMessage(message.ProductId, quantity, reservations,holds);
                    },
                    TaskContinuationOptions.AttachedToParent
                    & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);

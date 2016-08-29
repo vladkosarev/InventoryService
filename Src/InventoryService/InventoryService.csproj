@@ -43,8 +43,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actors\IProductInventoryOperations.cs" />
-    <Compile Include="Actors\ProductInventoryOperations.cs" />
+    <Compile Include="Services\IProductInventoryOperations.cs" />
+    <Compile Include="Services\ProductInventoryOperations.cs" />
     <Compile Include="IPerformanceService.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
     <Compile Include="Messages\GetMetricsMessage.cs" />

@@ -9,5 +9,7 @@ namespace InventoryService.ServiceDeployment
         {
             new InventoryServiceServer().StartServer();
         }
+ 
     }
+
 }

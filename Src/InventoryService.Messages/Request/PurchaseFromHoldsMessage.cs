@@ -1,8 +1,8 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Messages.Request
 {
-    public class UpdateQuantityMessage
+    public class PurchaseFromHoldsMessage
     {
-        public UpdateQuantityMessage(string productId, int quantity)
+        public PurchaseFromHoldsMessage(string productId, int quantity)
         {
             ProductId = productId;
             Quantity = quantity;

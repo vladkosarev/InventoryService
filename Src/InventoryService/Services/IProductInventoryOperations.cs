@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using InventoryService.Storage;
 
-namespace InventoryService.Actors
+namespace InventoryService.Services
 {
     public interface IProductInventoryOperations
     {

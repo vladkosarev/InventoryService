@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Akka.Actor;
 using InventoryService.Messages;
+using InventoryService.Messages.Request;
 using InventoryService.Storage;
 
 namespace InventoryService.Actors

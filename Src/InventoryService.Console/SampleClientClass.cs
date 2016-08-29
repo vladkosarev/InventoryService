@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
 using InventoryService.Messages;
+using InventoryService.Messages.Request;
+using InventoryService.Messages.Response;
 
 namespace InventoryService.Console
 {

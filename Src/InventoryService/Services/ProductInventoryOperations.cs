@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using InventoryService.Actors;
 using InventoryService.Storage;
 
-namespace InventoryService.Actors
+namespace InventoryService.Services
 {
     public class ProductInventoryOperations : IProductInventoryOperations
     {

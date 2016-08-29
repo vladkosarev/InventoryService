@@ -1,4 +1,4 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Messages.Response
 {
     public class ReserveCompletedMessage
     {

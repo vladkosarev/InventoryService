@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Owin.Hosting;
+using System;
 using System.Configuration;
-using Microsoft.Owin.Hosting;
 
 namespace InventoryService.ServiceDeployment
 {
@@ -8,18 +8,18 @@ namespace InventoryService.ServiceDeployment
     {
         public void Start()
         {
-            var address = ConfigurationManager.AppSettings["ServerEndPoint"]; 
+            var address = ConfigurationManager.AppSettings["ServerEndPoint"];
             // Start OWIN host
-            using (WebApp.Start<Startup>(url: address))
-            {
-                Console.WriteLine("Server started ...");
-                Console.ReadKey();
-            }
+            OwinRef = WebApp.Start<Startup>(url: address);
+            Console.WriteLine("Server started ...");
+            Console.ReadKey();
         }
+
+        public IDisposable OwinRef { get; set; }
 
         public void Stop()
         {
-
+            OwinRef?.Dispose();
         }
     }
 }

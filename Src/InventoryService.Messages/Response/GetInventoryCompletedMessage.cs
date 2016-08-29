@@ -1,13 +1,13 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Messages.Response
 {
-    public class RetrieveInventoryCompletedMessage
+    public class GetInventoryCompletedMessage
     {
         public string ProductId { get; private set; }
         public int Quantity { get; private set; }
         public int Reservations { get; private set; }
         public int Holds { get; private set; }
 
-        public RetrieveInventoryCompletedMessage(string productId, int quantity, int reservations, int holds)
+        public GetInventoryCompletedMessage(string productId, int quantity, int reservations, int holds)
         {
             ProductId = productId;
             Quantity = quantity;

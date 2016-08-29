@@ -40,19 +40,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GetInventoryMessage.cs" />
+    <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PurchaseFromHoldsCompletedMessage.cs" />
-    <Compile Include="PurchasedMessage.cs" />
-    <Compile Include="PurchaseFromHoldsMessage.cs" />
-    <Compile Include="PurchaseMessage.cs" />
-    <Compile Include="PlaceHoldCompletedMessage.cs" />
-    <Compile Include="UpdateQuantityCompletedMessage.cs" />
-    <Compile Include="ReserveCompletedMessage.cs" />
-    <Compile Include="PlaceHoldMessage.cs" />
-    <Compile Include="UpdateQuantityMessage.cs" />
-    <Compile Include="ReserveMessage.cs" />
-    <Compile Include="RetrieveInventoryCompletedMessage.cs" />
+    <Compile Include="Response\PurchaseFromHoldsCompletedMessage.cs" />
+    <Compile Include="Response\PurchaseCompletedMessage.cs" />
+    <Compile Include="Request\PurchaseFromHoldsMessage.cs" />
+    <Compile Include="Request\PurchaseMessage.cs" />
+    <Compile Include="Response\PlaceHoldCompletedMessage.cs" />
+    <Compile Include="Response\UpdateQuantityCompletedMessage.cs" />
+    <Compile Include="Response\ReserveCompletedMessage.cs" />
+    <Compile Include="Request\PlaceHoldMessage.cs" />
+    <Compile Include="Request\UpdateQuantityMessage.cs" />
+    <Compile Include="Request\ReserveMessage.cs" />
+    <Compile Include="Response\GetInventoryCompletedMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

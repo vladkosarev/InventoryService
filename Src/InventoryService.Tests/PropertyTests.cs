@@ -9,6 +9,8 @@ using Akka.Actor;
 using Akka.TestKit.Xunit2;
 using InventoryService.Actors;
 using InventoryService.Messages;
+using InventoryService.Messages.Request;
+using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using InventoryService.Storage.InMemoryLib;
 

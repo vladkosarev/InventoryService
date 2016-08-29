@@ -1,8 +1,8 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Messages.Response
 {
-    public class PurchaseCompletedMessage
+    public class UpdateQuantityCompletedMessage
     {
-        public PurchaseCompletedMessage(string productId, int quantity, bool successful)
+        public UpdateQuantityCompletedMessage(string productId, int quantity, bool successful)
         {
             ProductId = productId;
             Quantity = quantity;

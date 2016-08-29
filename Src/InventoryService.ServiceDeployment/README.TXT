@@ -48,3 +48,23 @@ docker-compose ps shows running containers.
 
 docker-compose stop && docker-compose rm -v 
 stops and removes all containers
+
+
+
+
+
+
+
+
+push example
+
+
+
+Windows PowerShell
+Copyright (C) 2016 Microsoft Corporation. All rights reserved.
+
+PS D:\GITHUB\InventoryService\Src\InventoryService.ServiceDeployment> docker build -t inventoryservice .
+Sending build context to Docker daemon 43.17 MB
+PS InventoryService.ServiceDeployment> docker tag inventoryservice contactsamie/inventoryservice
+PS InventoryService.ServiceDeployment> docker push contactsamie/inventoryservice
+The push refers to a repository [docker.io/contactsamie/inventoryservice]

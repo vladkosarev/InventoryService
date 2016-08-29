@@ -1,4 +1,4 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Messages.Request
 {
     public class PlaceHoldMessage
     {
