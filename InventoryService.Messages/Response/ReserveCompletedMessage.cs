@@ -5,7 +5,7 @@
         public ReserveCompletedMessage(string productId, int quantity, int reservationQuantity, int holds, bool successful)
         {
             ProductId = productId;
-            ReservationQuantity = reservationQuantity;
+            Reserved = reservationQuantity;
             Successful = successful;
             Quantity = quantity;
             Holds = holds;
@@ -20,7 +20,7 @@
 
         public string ProductId { get; private set; }
         public int Quantity { get; private set; }
-        public int ReservationQuantity { get; private set; }
+        public int Reserved { get; private set; }
         public int Holds { get; private set; }
         public bool Successful { get; private set; }
     }

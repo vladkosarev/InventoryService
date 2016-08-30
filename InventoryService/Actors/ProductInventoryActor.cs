@@ -12,15 +12,14 @@ namespace InventoryService.Actors
     {
         private readonly string _id;
 
-        private readonly bool _withCache;
 
         private readonly IProductInventoryOperations _productInventoryOperations;
 
-        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
+        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id)
         {
             _id = id;
 
-            _withCache = withCache;
+           
 
             Become(Running);
             _productInventoryOperations = new ProductInventoryOperations(inventoryStorage, id);
@@ -30,16 +29,19 @@ namespace InventoryService.Actors
         {
             Receive<GetInventoryMessage>(message =>
            {
-               if (!_withCache)
-               {
+               //todo cache
+              // if (message.GetNonStaleResult)
+             //  {
                    _productInventoryOperations.ReadInventory(message.ProductId).ContinueWith(result =>
                    {
+                       var thatMessage = message;
                        if (!result.Result.IsSuccessful)
                        {
                            return
                                new GetInventoryCompletedMessage(
-                                   result.Result.Exception.ToInventoryOperationErrorMessage(message.ProductId));
+                                   result.Result.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to get inventory on product " + thatMessage.ProductId));
                        }
+
                        var quantity = result.Result.Result.Quantity;
                        var reservations = result.Result.Result.Reservations;
                        var holds = result.Result.Result.Holds;
@@ -47,19 +49,21 @@ namespace InventoryService.Actors
                    },
                    TaskContinuationOptions.AttachedToParent
                    & TaskContinuationOptions.ExecuteSynchronously).PipeTo(Sender);
-               }
+             //  }
            });
 
             Receive<ReserveMessage>(message =>
            {
                _productInventoryOperations.Reserve(message.ProductId, message.ReservationQuantity).ContinueWith(result =>
                {
+                   var thatMessage = message;
                    if (!result.Result.IsSuccessful)
                    {
                        return
                            new ReserveCompletedMessage(
-                               result.Result.Exception.ToInventoryOperationErrorMessage(message.ProductId));
+                               result.Result.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to do a reserve of " + thatMessage.ReservationQuantity + " on product " + thatMessage.ProductId));
                    }
+
 
                    var quantity = result.Result.Result.Quantity;
                    var reservations = result.Result.Result.Reservations;
@@ -73,12 +77,14 @@ namespace InventoryService.Actors
            {
                _productInventoryOperations.UpdateQuantity(message.ProductId, message.Quantity).ContinueWith(result =>
                 {
+                    var thatMessage = message;
                     if (!result.Result.IsSuccessful)
                     {
                         return
                             new UpdateQuantityCompletedMessage(
-                                result.Result.Exception.ToInventoryOperationErrorMessage(message.ProductId));
+                                result.Result.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to do a update quantity of " + thatMessage.Quantity + " on product " + thatMessage.ProductId));
                     }
+
 
                     var quantity = result.Result.Result.Quantity;
                     var reservations = result.Result.Result.Reservations;
@@ -92,11 +98,12 @@ namespace InventoryService.Actors
            {
                _productInventoryOperations.PlaceHold(message.ProductId, message.Holds).ContinueWith(result =>
                {
+                   var thatMessage = message;
                    if (!result.Result.IsSuccessful)
                    {
                        return
                            new PlaceHoldCompletedMessage(
-                               result.Result.Exception.ToInventoryOperationErrorMessage(message.ProductId));
+                               result.Result.ToInventoryOperationErrorMessage(thatMessage.ProductId,"Operation failed while trying to do a hold of "+ thatMessage.Holds+" on product "+ thatMessage.ProductId));
                    }
 
                    var quantity = result.Result.Result.Quantity;
@@ -111,12 +118,14 @@ namespace InventoryService.Actors
            {
                _productInventoryOperations.Purchase(message.ProductId, message.Quantity).ContinueWith(result =>
                {
+                   var thatMessage = message;
                    if (!result.Result.IsSuccessful)
                    {
                        return
                            new PurchaseCompletedMessage(
-                               result.Result.Exception.ToInventoryOperationErrorMessage(message.ProductId));
+                               result.Result.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to do a purchase of " + thatMessage.Quantity + " on product " + thatMessage.ProductId));
                    }
+
 
                    var quantity = result.Result.Result.Quantity;
                    var reservations = result.Result.Result.Reservations;
@@ -130,12 +139,14 @@ namespace InventoryService.Actors
            {
                _productInventoryOperations.PurchaseFromHolds(message.ProductId, message.Quantity).ContinueWith(result =>
                {
+                   var thatMessage = message;
                    if (!result.Result.IsSuccessful)
                    {
                        return
                            new PurchaseFromHoldsCompletedMessage(
-                               result.Result.Exception.ToInventoryOperationErrorMessage(message.ProductId));
+                               result.Result.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to do a purchase from hold of " + thatMessage.Quantity + " on product " + thatMessage.ProductId));
                    }
+
 
                    var quantity = result.Result.Result.Quantity;
                    var reservations = result.Result.Result.Reservations;

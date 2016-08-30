@@ -8,11 +8,10 @@ namespace InventoryService.Messages.Response
         public InventoryOperationErrorMessage(string productId = null, List<Exception> errors = null)
         {
             ProductId = productId;
-            Errors = Errors ?? new List<Exception>();
+            Errors = errors ?? new List<Exception>();
         }
 
         public string ProductId { get; private set; }
         public List<Exception> Errors { get; private set; }
-        public bool IsSuccessful =>!(Errors != null && Errors.Count > 0);
     }
 }

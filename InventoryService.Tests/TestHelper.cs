@@ -1,31 +1,30 @@
-﻿using System;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿using Akka.Actor;
 using InventoryService.Actors;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using InventoryService.Storage.InMemoryLib;
+using System;
+using System.Threading.Tasks;
 
 namespace InventoryService.Tests
 {
     public class TestHelper
     {
-      
-       
-        public IActorRef TryInitializeInventoryServiceRepository(PropertyTests.Inventory product,ActorSystem sys, out bool successful)
+        public IActorRef TryInitializeInventoryServiceRepository(PropertyTests.Inventory product, ActorSystem sys, out bool successful)
         {
             var inventoryService = new InMemory();
-
-            //improve this with parallel
-
-            var result =
-                inventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity,
-                    product.Reservations, product.Holds));
-            Task.WaitAll(result);
-
-            successful = result.Result.IsSuccessful;
-
+            try
+            {
+                //improve this with parallel
+                var result =inventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity,product.Reserved, product.Holds));
+                Task.WaitAll(result);
+                successful = result.Result.IsSuccessful;
+            }
+            catch (Exception)
+            {
+                successful = false;
+            }
             var inventoryActor = sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
             return inventoryActor;
         }
@@ -53,6 +52,11 @@ namespace InventoryService.Tests
         public PurchaseFromHoldsCompletedMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
             return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(10000)).Result;
+        }
+
+        public GetInventoryCompletedMessage GetInventory(IActorRef inventoryActor, string inventoryName)
+        {
+            return inventoryActor.Ask<GetInventoryCompletedMessage>(new GetInventoryMessage(inventoryName,true), TimeSpan.FromSeconds(10000)).Result;
         }
     }
 }

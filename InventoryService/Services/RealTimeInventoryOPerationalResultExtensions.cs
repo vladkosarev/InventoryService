@@ -16,7 +16,7 @@ namespace InventoryService.Services
                 throw realTimeInventoryOperationResult.Exception;
             }
             var inventoryProductId = realTimeInventoryOperationResult?.Result?.ProductId;
-            throw new Exception("Inventory operation failed" + (string.IsNullOrEmpty(inventoryProductId) ? "" : inventoryProductId));
+            throw new Exception("Inventory operation failed" + (string.IsNullOrEmpty(inventoryProductId) ? " and did not find inventoryProductId" : inventoryProductId));
         }
 
         public static OperationResult<RealTimeInventory> ToSuccessOperationResult(
@@ -45,7 +45,16 @@ namespace InventoryService.Services
         {
             return new InventoryOperationErrorMessage(productId, new List<Exception>()
             {
-                new Exception(message, exception)
+                new Exception(message+" - "+exception, exception)
+            });
+        }
+
+        public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
+          this OperationResult<RealTimeInventory> operationResult, string productId, string message = "Inventory operation failed")
+        {
+            return new InventoryOperationErrorMessage(productId, new List<Exception>()
+            {
+                new Exception(message+" - "+operationResult.Exception.Message, operationResult.Exception)
             });
         }
     }
