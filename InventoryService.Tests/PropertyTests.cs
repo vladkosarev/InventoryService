@@ -16,6 +16,13 @@ namespace InventoryService.Tests
 {
     public class PropertyTests : TestKit
     {
+        private readonly TestHelper _testHelper;
+
+        public PropertyTests()
+        {
+            _testHelper = new TestHelper();
+        }
+
         public class Inventory
         {
             public Inventory(string name, int quantity, int reservations, int holds)
@@ -45,14 +52,14 @@ namespace InventoryService.Tests
             }
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void Reservation_Test(Inventory inventory, uint toReserve)
+        [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
+        public void Reservation_Test(PropertyTests.Inventory inventory, uint toReserve)
         {
             bool initializationSuccess;
-            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory,Sys, out initializationSuccess);
             if (!initializationSuccess) return;
             var alreadyReserved = inventory.Reservations;
-            var r = Reserve(inventoryActor, (int)toReserve, inventory.Name);
+            var r = _testHelper.Reserve(inventoryActor, (int)toReserve, inventory.Name);
 
             if (inventory.Quantity - inventory.Holds - inventory.Reservations - toReserve >= 0)
             {
@@ -69,15 +76,15 @@ namespace InventoryService.Tests
             }
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void Purchase_Test(Inventory inventory, uint toPurchase)
+        [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
+        public void Purchase_Test(PropertyTests.Inventory inventory, uint toPurchase)
         {
             bool initializationSuccess;
-            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
             var alreadyPurchased = inventory.Quantity;
 
-            var r = Purchase(inventoryActor, (int)toPurchase, inventory.Name);
+            var r = _testHelper.Purchase(inventoryActor, (int)toPurchase, inventory.Name);
 
             if (inventory.Quantity - inventory.Holds - toPurchase >= 0)
             {
@@ -93,15 +100,15 @@ namespace InventoryService.Tests
             }
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void Holds_Test(Inventory inventory, uint toHold)
+        [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
+        public void Holds_Test(PropertyTests.Inventory inventory, uint toHold)
         {
             bool initializationSuccess;
-            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
             var alreadyHeld = inventory.Holds;
 
-            var r = Hold(inventoryActor, (int)toHold, inventory.Name);
+            var r = _testHelper.Hold(inventoryActor, (int)toHold, inventory.Name);
 
             if (inventory.Quantity - inventory.Holds - toHold-inventory.Reservations >= 0)
             {
@@ -117,13 +124,13 @@ namespace InventoryService.Tests
             }
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void UpdateQuantity_Test(Inventory inventory, int toUpdate)
+        [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
+        public void UpdateQuantity_Test(PropertyTests.Inventory inventory, int toUpdate)
         {
             bool initializationSuccess;
-            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
-            var r = UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+            var r = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
             Assert.True(r.Successful);
             //if (item.Quantity - item.Holds - toHold >= 0)
@@ -138,15 +145,15 @@ namespace InventoryService.Tests
             //}
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
-        public void PurchaseFromHolds_Test(Inventory inventory, uint toPurchase)
+        [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
+        public void PurchaseFromHolds_Test(PropertyTests.Inventory inventory, uint toPurchase)
         {
             bool initializationSuccess;
-            var inventoryActor = TryInitializeInventoryServiceRepository(inventory, out initializationSuccess);
+            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
             var alreadyPurchased = inventory.Quantity;
 
-            var r = PurchaseFromHolds(inventoryActor, (int)toPurchase, inventory.Name);
+            var r = _testHelper.PurchaseFromHolds(inventoryActor, (int)toPurchase, inventory.Name);
 
             if (inventory.Holds >= toPurchase && inventory.Quantity - toPurchase >= 0)
             {
@@ -160,48 +167,6 @@ namespace InventoryService.Tests
                 Assert.Equal(r.Quantity, 0);
                 //-todo when there is a failure, return nothing     Assert.Equal(r.Quantity, (int)toPurchase);
             }
-        }
-
-        public IActorRef TryInitializeInventoryServiceRepository(Inventory product, out bool successful)
-        {
-            var inventoryService = new InMemory();
-
-            //improve this with parallel
-
-            var result =
-                inventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity,
-                    product.Reservations, product.Holds));
-            Task.WaitAll(result);
-
-            successful = result.Result.IsSuccessful;
-
-            var inventoryActor = Sys.ActorOf(Props.Create(() => new InventoryActor(inventoryService, new TestPerformanceService(), true)));
-            return inventoryActor;
-        }
-
-        public UpdateQuantityCompletedMessage UpdateQuantity(IActorRef inventoryActor, int quantity, string productId = "product1")
-        {
-            return inventoryActor.Ask<UpdateQuantityCompletedMessage>(new UpdateQuantityMessage(productId, quantity), TimeSpan.FromSeconds(10000)).Result;
-        }
-
-        public ReserveCompletedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
-        {
-            return inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(10000)).Result;
-        }
-
-        public PurchaseCompletedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
-        {
-            return inventoryActor.Ask<PurchaseCompletedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(10000)).Result;
-        }
-
-        public PlaceHoldCompletedMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
-        {
-            return inventoryActor.Ask<PlaceHoldCompletedMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(10000)).Result;
-        }
-
-        public PurchaseFromHoldsCompletedMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
-        {
-            return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(10000)).Result;
         }
     }
 }
