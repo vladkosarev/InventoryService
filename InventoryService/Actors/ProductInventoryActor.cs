@@ -19,7 +19,7 @@ namespace InventoryService.Actors
         {
             _id = id;
             Become(Running);
-             // Become(Experimenting);
+            // Become(Experimenting);
             _productInventoryOperations = new ProductInventoryOperations(inventoryStorage, id);
         }
 

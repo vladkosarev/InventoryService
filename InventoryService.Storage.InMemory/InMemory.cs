@@ -7,6 +7,7 @@ namespace InventoryService.Storage.InMemoryLib
     {
         private readonly ConcurrentDictionary<string, RealTimeInventory> _productInventories =
             new ConcurrentDictionary<string, RealTimeInventory>();
+
         public async Task<StorageOperationResult<RealTimeInventory>> ReadInventory(string productId)
         {
             if (_productInventories.ContainsKey(productId))

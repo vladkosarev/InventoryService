@@ -2,20 +2,16 @@
 using FsCheck;
 using FsCheck.Xunit;
 using InventoryService.Messages.Response;
+using InventoryService.Storage.InMemoryLib;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using InventoryService.Storage.InMemoryLib;
 using Xunit;
 
 namespace InventoryService.Tests
 {
     public class PropertyTests : TestKit
     {
-    
-
-       
-
         public class Inventory
         {
             public Inventory(string name, int quantity, int reservations, int holds)
@@ -48,7 +44,7 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Reservation_Test(PropertyTests.Inventory inventory, uint toReserve)
         {
-           var testHelper = new TestHelper(new InMemory());
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
             var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
                 out initializationSuccess);
@@ -380,48 +376,48 @@ namespace InventoryService.Tests
             var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
             GetInventoryCompletedMessage currentInventory = null;
-            Parallel.ForEach(Enumerable.Range(0, Math.Abs(loopCount)*10), (i) =>
-            {
-                var halfQuantity = toUpdate / 2;
-                var secondHalfQuantity = toUpdate - halfQuantity;
+            Parallel.ForEach(Enumerable.Range(0, Math.Abs(loopCount) * 10), (i) =>
+              {
+                  var halfQuantity = toUpdate / 2;
+                  var secondHalfQuantity = toUpdate - halfQuantity;
 
-                Exception finalException = null;
-                UpdateQuantityCompletedMessage updateQuantityresult = null;
-                PlaceHoldCompletedMessage holdsResult = null;
-                ReserveCompletedMessage reservationResult = null;
-                PurchaseFromHoldsCompletedMessage purchaseFromHoldsResult = null;
-                PurchaseCompletedMessage purchaseResult = null;
+                  Exception finalException = null;
+                  UpdateQuantityCompletedMessage updateQuantityresult = null;
+                  PlaceHoldCompletedMessage holdsResult = null;
+                  ReserveCompletedMessage reservationResult = null;
+                  PurchaseFromHoldsCompletedMessage purchaseFromHoldsResult = null;
+                  PurchaseCompletedMessage purchaseResult = null;
 
-                try
-                {
-                    updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+                  try
+                  {
+                      updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
-                    holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
-                    reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
+                      holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
+                      reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
 
-                    purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
-                    purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
+                      purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
+                      purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
 
-                    Assert.True(reservationResult.Successful);
-                    Assert.True(updateQuantityresult.Successful);
-                    Assert.True(holdsResult.Successful);
-                    Assert.True(purchaseResult.Successful);
-                    Assert.True(purchaseFromHoldsResult.Successful);
-                }
-                catch (Exception e)
-                {
-                    finalException = e;
-                }
+                      Assert.True(reservationResult.Successful);
+                      Assert.True(updateQuantityresult.Successful);
+                      Assert.True(holdsResult.Successful);
+                      Assert.True(purchaseResult.Successful);
+                      Assert.True(purchaseFromHoldsResult.Successful);
+                  }
+                  catch (Exception e)
+                  {
+                      finalException = e;
+                  }
 
-                if ((toUpdate >= 0 && finalException != null))
-                {
-                    throw finalException;
-                }
-                if ((toUpdate < 0 && finalException == null))
-                {
-                    throw new Exception("One or more operation must fail if negative update is provided");
-                }
-            });
+                  if ((toUpdate >= 0 && finalException != null))
+                  {
+                      throw finalException;
+                  }
+                  if ((toUpdate < 0 && finalException == null))
+                  {
+                      throw new Exception("One or more operation must fail if negative update is provided");
+                  }
+              });
 
             currentInventory = testHelper.GetInventory(inventoryActor, inventory.Name);
 

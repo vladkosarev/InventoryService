@@ -18,7 +18,7 @@ namespace InventoryService.Services
             Task.WaitAll(initTask);
             var inventory = initTask.Result.Result;
 
-            if(!initTask.Result.IsSuccessful)
+            if (!initTask.Result.IsSuccessful)
             {
                 throw initTask.Result.Errors.Flatten();
             }
@@ -27,10 +27,9 @@ namespace InventoryService.Services
             _holds = inventory.Holds;
         }
 
-
         private string GetCurrentQuantitiesReport()
         {
-            return " [ quantity : " + _quantity + " / reservations: " + _reservations + " / holds: " + _holds+" ]";
+            return " [ quantity : " + _quantity + " / reservations: " + _reservations + " / holds: " + _holds + " ]";
         }
 
         public async Task<OperationResult<RealTimeInventory>> ReadInventory(string productId)
@@ -58,7 +57,7 @@ namespace InventoryService.Services
             {
                 if (reservationQuantity < 0)
                 {
-                    throw new Exception("Cannot reserve with a negative quantity of "+reservationQuantity+" for product " + productId+ GetCurrentQuantitiesReport());
+                    throw new Exception("Cannot reserve with a negative quantity of " + reservationQuantity + " for product " + productId + GetCurrentQuantitiesReport());
                 }
                 var newReserved = _reservations + reservationQuantity;
                 if (newReserved > _quantity - _holds) throw new Exception("What to reserve must be less than quantity - reservation for product " + productId + GetCurrentQuantitiesReport());
@@ -113,7 +112,7 @@ namespace InventoryService.Services
 
                 if (!result.IsSuccessful) throw result.Errors.Flatten();
                 _holds = newHolds;
-                var inventory= await ReadInventory(productId);
+                var inventory = await ReadInventory(productId);
                 return inventory;
             }
             catch (Exception e)

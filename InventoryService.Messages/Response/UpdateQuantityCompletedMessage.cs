@@ -1,6 +1,5 @@
 ﻿namespace InventoryService.Messages.Response
 {
-
     public class UpdateQuantityCompletedMessage
     {
         public UpdateQuantityCompletedMessage(string productId, int quantity, int reservations, int holds, bool successful)

@@ -3,7 +3,6 @@ using InventoryService.Actors;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
-using InventoryService.Storage.InMemoryLib;
 using System;
 using System.Threading.Tasks;
 
@@ -17,13 +16,14 @@ namespace InventoryService.Tests
         {
             InventoryService = inventoryService;
         }
-        public IActorRef TryInitializeInventoryServiceRepository( PropertyTests.Inventory product, ActorSystem sys, out bool successful)
+
+        public IActorRef TryInitializeInventoryServiceRepository(PropertyTests.Inventory product, ActorSystem sys, out bool successful)
         {
-          //  var inventoryService = new InMemoryDictionary();// new InMemory();
+            //  var inventoryService = new InMemoryDictionary();// new InMemory();
             try
             {
                 //improve this with parallel
-                var result = InventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity,product.Reserved, product.Holds));
+                var result = InventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity, product.Reserved, product.Holds));
                 Task.WaitAll(result);
                 successful = result.Result.IsSuccessful;
             }
@@ -62,7 +62,7 @@ namespace InventoryService.Tests
 
         public GetInventoryCompletedMessage GetInventory(IActorRef inventoryActor, string inventoryName)
         {
-            return inventoryActor.Ask<GetInventoryCompletedMessage>(new GetInventoryMessage(inventoryName,true), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<GetInventoryCompletedMessage>(new GetInventoryMessage(inventoryName, true), TimeSpan.FromSeconds(3)).Result;
         }
     }
 }

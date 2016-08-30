@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace InventoryService.Storage
 {
@@ -9,14 +8,14 @@ namespace InventoryService.Storage
         public AggregateException Errors { set; get; }
     }
 
-    public class StorageOperationResult<T>: StorageOperationResult
+    public class StorageOperationResult<T> : StorageOperationResult
     {
         public StorageOperationResult(T result)
         {
             Result = result;
             IsSuccessful = true;
-
         }
+
         public T Result { private set; get; }
     }
 }

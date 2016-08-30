@@ -4,6 +4,7 @@
     {
         public string ProductId { get; private set; }
         public bool GetNonStaleResult { get; private set; }
+
         public GetInventoryMessage(string productId, bool getNonStaleResult)
         {
             ProductId = productId;

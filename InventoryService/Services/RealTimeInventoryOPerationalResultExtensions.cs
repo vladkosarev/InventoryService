@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using InventoryService.Messages.Response;
+﻿using InventoryService.Messages.Response;
 using InventoryService.Storage;
+using System;
+using System.Collections.Generic;
 
 namespace InventoryService.Services
 {
