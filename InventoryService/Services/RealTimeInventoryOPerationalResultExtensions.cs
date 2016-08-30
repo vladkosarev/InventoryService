@@ -2,13 +2,14 @@
 using InventoryService.Storage;
 using System;
 using System.Collections.Generic;
+using InventoryService.Messages.Models;
 
 namespace InventoryService.Services
 {
     public static class RealTimeInventoryOPerationalResultExtensions
     {
         public static void ThrowIfFailedOperationResult(
-            this OperationResult<RealTimeInventory> realTimeInventoryOperationResult)
+            this OperationResult<IRealTimeInventory> realTimeInventoryOperationResult)
         {
             if (realTimeInventoryOperationResult.IsSuccessful) return;
             if (realTimeInventoryOperationResult.Exception != null)
@@ -19,20 +20,20 @@ namespace InventoryService.Services
             throw new Exception("Inventory operation failed" + (string.IsNullOrEmpty(inventoryProductId) ? " and did not find inventoryProductId" : inventoryProductId));
         }
 
-        public static OperationResult<RealTimeInventory> ToSuccessOperationResult(
-            this RealTimeInventory realTimeInventory)
+        public static OperationResult<IRealTimeInventory> ToSuccessOperationResult(
+            this IRealTimeInventory realTimeInventory)
         {
-            return new OperationResult<RealTimeInventory>()
+            return new OperationResult<IRealTimeInventory>()
             {
                 Data = realTimeInventory,
                 IsSuccessful = true
             };
         }
 
-        public static OperationResult<RealTimeInventory> ToFailedOperationResult(
+        public static OperationResult<IRealTimeInventory> ToFailedOperationResult(
             this Exception exception, string message = "Inventory operation failed")
         {
-            return new OperationResult<RealTimeInventory>()
+            return new OperationResult<IRealTimeInventory>()
             {
                 Data = null,
                 IsSuccessful = false,
@@ -50,7 +51,7 @@ namespace InventoryService.Services
         }
 
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
-          this OperationResult<RealTimeInventory> operationResult, string productId, string message = "Inventory operation failed")
+          this OperationResult<IRealTimeInventory> operationResult, string productId, string message = "Inventory operation failed")
         {
             return new InventoryOperationErrorMessage(productId, new List<Exception>()
             {

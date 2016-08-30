@@ -45,6 +45,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
+      <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
+      <Name>InventoryService.Messages</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
       <Name>InventoryService.Storage</Name>

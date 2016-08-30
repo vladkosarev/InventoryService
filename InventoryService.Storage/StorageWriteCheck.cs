@@ -1,17 +1,18 @@
 ﻿using System;
+using InventoryService.Messages.Models;
 
 namespace InventoryService.Storage
 {
     public class StorageWriteCheck
     {
-        public static void Execute(RealTimeInventory inventoryObject)
+        public static void Execute(IRealTimeInventory inventoryObject)
         {
             if (inventoryObject == null) throw new ArgumentNullException(nameof(inventoryObject));
             if (string.IsNullOrEmpty(inventoryObject.ProductId))
             {
                 throw new ArgumentNullException(nameof(inventoryObject.ProductId));
             }
-            if (inventoryObject.Quantity < inventoryObject.Holds + inventoryObject.Reservations)
+            if (inventoryObject.Quantity < inventoryObject.Holds + inventoryObject.Reserved)
             {
                 throw
                   new Exception(

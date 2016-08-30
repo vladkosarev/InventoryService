@@ -1,6 +1,7 @@
 ﻿using Microsoft.Isam.Esent.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using InventoryService.Messages.Models;
 
 namespace InventoryService.Storage.EsentLib
 {
@@ -23,16 +24,16 @@ namespace InventoryService.Storage.EsentLib
             public readonly int Holds;
         }
 
-        public async Task<StorageOperationResult<RealTimeInventory>> ReadInventory(string productId)
+        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventory(string productId)
         {
             var value = _data.ContainsKey(productId) ? _data[productId] : new Inventory(0, 0, 0);
-            return await Task.FromResult(new StorageOperationResult<RealTimeInventory>(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds)));
+            return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds)));
         }
 
-        public async Task<StorageOperationResult> WriteInventory(RealTimeInventory inventoryObject)
+        public async Task<StorageOperationResult> WriteInventory(IRealTimeInventory inventoryObject)
         {
             StorageWriteCheck.Execute(inventoryObject);
-            _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds);
+            _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds);
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = false });
         }
 

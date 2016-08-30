@@ -1,6 +1,7 @@
 ﻿using InventoryService.Storage;
 using System;
 using System.Threading.Tasks;
+using InventoryService.Messages.Models;
 
 namespace InventoryService.Services
 {
@@ -23,7 +24,7 @@ namespace InventoryService.Services
                 throw initTask.Result.Errors.Flatten();
             }
             _quantity = inventory.Quantity;
-            _reservations = inventory.Reservations;
+            _reservations = inventory.Reserved;
             _holds = inventory.Holds;
         }
 
@@ -32,7 +33,7 @@ namespace InventoryService.Services
             return " [ quantity : " + _quantity + " / reservations: " + _reservations + " / holds: " + _holds + " ]";
         }
 
-        public async Task<OperationResult<RealTimeInventory>> ReadInventory(string productId)
+        public async Task<OperationResult<IRealTimeInventory>> ReadInventory(string productId)
         {
             try
             {
@@ -45,13 +46,13 @@ namespace InventoryService.Services
             }
         }
 
-        public async Task<OperationResult<RealTimeInventory>> InventoryStorageFlush(string id)
+        public async Task<OperationResult<IRealTimeInventory>> InventoryStorageFlush(string id)
         {
             await _inventoryStorage.Flush(id);
             return await ReadInventory(id);
         }
 
-        public async Task<OperationResult<RealTimeInventory>> Reserve(string productId, int reservationQuantity)
+        public async Task<OperationResult<IRealTimeInventory>> Reserve(string productId, int reservationQuantity)
         {
             try
             {
@@ -73,7 +74,7 @@ namespace InventoryService.Services
             }
         }
 
-        public async Task<OperationResult<RealTimeInventory>> UpdateQuantity(string productId, int quantity)
+        public async Task<OperationResult<IRealTimeInventory>> UpdateQuantity(string productId, int quantity)
         {
             try
             {
@@ -95,7 +96,7 @@ namespace InventoryService.Services
             }
         }
 
-        public async Task<OperationResult<RealTimeInventory>> PlaceHold(string productId, int toHold)
+        public async Task<OperationResult<IRealTimeInventory>> PlaceHold(string productId, int toHold)
         {
             try
             {
@@ -121,7 +122,7 @@ namespace InventoryService.Services
             }
         }
 
-        public async Task<OperationResult<RealTimeInventory>> Purchase(string productId, int quantity)
+        public async Task<OperationResult<IRealTimeInventory>> Purchase(string productId, int quantity)
         {
             try
             {
@@ -146,7 +147,7 @@ namespace InventoryService.Services
             }
         }
 
-        public async Task<OperationResult<RealTimeInventory>> PurchaseFromHolds(string productId, int quantity)
+        public async Task<OperationResult<IRealTimeInventory>> PurchaseFromHolds(string productId, int quantity)
         {
             try
             {

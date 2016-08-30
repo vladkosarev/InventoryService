@@ -40,7 +40,7 @@ namespace InventoryService.Actors
                     else
                     {
                         var quantity = result.Data.Quantity;
-                        var reservations = result.Data.Reservations;
+                        var reservations = result.Data.Reserved;
                         var holds = result.Data.Holds;
 
                         GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
@@ -62,7 +62,7 @@ namespace InventoryService.Actors
                 else
                 {
                     var quantity = result.Data.Quantity;
-                    var reservations = result.Data.Reservations;
+                    var reservations = result.Data.Reserved;
                     var holds = result.Data.Holds;
                     GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                     Sender.Tell(new ReserveCompletedMessage(message.ProductId, quantity, reservations, holds, true));
@@ -83,7 +83,7 @@ namespace InventoryService.Actors
                     else
                     {
                         var quantity = result.Data.Quantity;
-                        var reservations = result.Data.Reservations;
+                        var reservations = result.Data.Reserved;
                         var holds = result.Data.Holds;
                         GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                         Sender.Tell(new UpdateQuantityCompletedMessage(message.ProductId, quantity, reservations, holds, true));
@@ -105,7 +105,7 @@ namespace InventoryService.Actors
                     else
                     {
                         var quantity = result.Data.Quantity;
-                        var reservations = result.Data.Reservations;
+                        var reservations = result.Data.Reserved;
                         var holds = result.Data.Holds;
                         GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                         Sender.Tell(new PlaceHoldCompletedMessage(message.ProductId, quantity, reservations, holds, true));
@@ -126,7 +126,7 @@ namespace InventoryService.Actors
                 else
                 {
                     var quantity = result.Data.Quantity;
-                    var reservations = result.Data.Reservations;
+                    var reservations = result.Data.Reserved;
                     var holds = result.Data.Holds;
                     GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                     Sender.Tell(new PurchaseCompletedMessage(message.ProductId, quantity, reservations, holds, true));
@@ -147,7 +147,7 @@ namespace InventoryService.Actors
                     else
                     {
                         var quantity = result.Data.Quantity;
-                        var reservations = result.Data.Reservations;
+                        var reservations = result.Data.Reserved;
                         var holds = result.Data.Holds;
                         GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                         Sender.Tell(new PurchaseFromHoldsCompletedMessage(message.ProductId, quantity, reservations, holds, true));
@@ -181,7 +181,7 @@ namespace InventoryService.Actors
                            }
 
                            var quantity = result.Result.Data.Quantity;
-                           var reservations = result.Result.Data.Reservations;
+                           var reservations = result.Result.Data.Reserved;
                            var holds = result.Result.Data.Holds;
                            return new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                        },
@@ -207,7 +207,7 @@ namespace InventoryService.Actors
                    }
 
                    var quantity = result.Result.Data.Quantity;
-                   var reservations = result.Result.Data.Reservations;
+                   var reservations = result.Result.Data.Reserved;
                    var holds = result.Result.Data.Holds;
                    return new ReserveCompletedMessage(message.ProductId, quantity, reservations, holds, true);
                }, TaskContinuationOptions.AttachedToParent
@@ -227,7 +227,7 @@ namespace InventoryService.Actors
                     }
 
                     var quantity = result.Result.Data.Quantity;
-                    var reservations = result.Result.Data.Reservations;
+                    var reservations = result.Result.Data.Reserved;
                     var holds = result.Result.Data.Holds;
                     return new UpdateQuantityCompletedMessage(message.ProductId, quantity, reservations, holds, true);
                 }, TaskContinuationOptions.AttachedToParent
@@ -247,7 +247,7 @@ namespace InventoryService.Actors
                    }
 
                    var quantity = result.Result.Data.Quantity;
-                   var reservations = result.Result.Data.Reservations;
+                   var reservations = result.Result.Data.Reserved;
                    var holds = result.Result.Data.Holds;
                    return new PlaceHoldCompletedMessage(message.ProductId, quantity, reservations, holds, true);
                }, TaskContinuationOptions.AttachedToParent
@@ -267,7 +267,7 @@ namespace InventoryService.Actors
                    }
 
                    var quantity = result.Result.Data.Quantity;
-                   var reservations = result.Result.Data.Reservations;
+                   var reservations = result.Result.Data.Reserved;
                    var holds = result.Result.Data.Holds;
                    return new PurchaseCompletedMessage(message.ProductId, quantity, reservations, holds, true);
                }, TaskContinuationOptions.AttachedToParent
@@ -287,7 +287,7 @@ namespace InventoryService.Actors
                    }
 
                    var quantity = result.Result.Data.Quantity;
-                   var reservations = result.Result.Data.Reservations;
+                   var reservations = result.Result.Data.Reserved;
                    var holds = result.Result.Data.Holds;
                    return new PurchaseFromHoldsCompletedMessage(message.ProductId, quantity, reservations, holds, true);
                }, TaskContinuationOptions.AttachedToParent
