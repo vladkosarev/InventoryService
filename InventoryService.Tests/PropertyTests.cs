@@ -1,23 +1,20 @@
 ﻿using Akka.TestKit.Xunit2;
 using FsCheck;
 using FsCheck.Xunit;
+using InventoryService.Messages.Response;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using InventoryService.Messages.Response;
-using Microsoft.FSharp.Collections;
+using InventoryService.Storage.InMemoryLib;
 using Xunit;
 
 namespace InventoryService.Tests
 {
     public class PropertyTests : TestKit
     {
-        private readonly TestHelper _testHelper;
+    
 
-        public PropertyTests()
-        {
-            _testHelper = new TestHelper();
-        }
+       
 
         public class Inventory
         {
@@ -51,12 +48,13 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Reservation_Test(PropertyTests.Inventory inventory, uint toReserve)
         {
+           var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
                 out initializationSuccess);
             if (!initializationSuccess) return;
             var alreadyReserved = inventory.Reserved;
-            var r = _testHelper.Reserve(inventoryActor, (int)toReserve, inventory.Name);
+            var r = testHelper.Reserve(inventoryActor, (int)toReserve, inventory.Name);
 
             if (inventory.Quantity - inventory.Holds - inventory.Reserved - toReserve >= 0)
             {
@@ -76,13 +74,14 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Purchase_Test(PropertyTests.Inventory inventory, uint toPurchase)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
                 out initializationSuccess);
             if (!initializationSuccess) return;
             var initialQuantity = inventory.Quantity;
 
-            var r = _testHelper.Purchase(inventoryActor, (int)toPurchase, inventory.Name);
+            var r = testHelper.Purchase(inventoryActor, (int)toPurchase, inventory.Name);
 
             if (inventory.Quantity - inventory.Holds - toPurchase >= 0)
             {
@@ -101,13 +100,14 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Holds_Test(PropertyTests.Inventory inventory, uint toHold)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
                 out initializationSuccess);
             if (!initializationSuccess) return;
             var alreadyHeld = inventory.Holds;
 
-            var r = _testHelper.Hold(inventoryActor, (int)toHold, inventory.Name);
+            var r = testHelper.Hold(inventoryActor, (int)toHold, inventory.Name);
 
             if (inventory.Quantity - inventory.Holds - toHold - inventory.Reserved >= 0)
             {
@@ -126,11 +126,12 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void UpdateQuantity_Test(PropertyTests.Inventory inventory, int toUpdate)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
                 out initializationSuccess);
             if (!initializationSuccess) return;
-            var r = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+            var r = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
             if (toUpdate < 0)
             {
@@ -156,13 +157,14 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void PurchaseFromHolds_Test(PropertyTests.Inventory inventory, uint toPurchase)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys,
                 out initializationSuccess);
             if (!initializationSuccess) return;
             var initialQuantity = inventory.Quantity;
 
-            var r = _testHelper.PurchaseFromHolds(inventoryActor, (int)toPurchase, inventory.Name);
+            var r = testHelper.PurchaseFromHolds(inventoryActor, (int)toPurchase, inventory.Name);
 
             if (inventory.Holds >= toPurchase && inventory.Quantity - toPurchase >= 0)
             {
@@ -181,8 +183,9 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Reservation_Holds_Purchase_And_PurchaseFromHold_Test(PropertyTests.Inventory inventory, int toUpdate)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
 
             var halfQuantity = toUpdate / 2;
@@ -191,13 +194,13 @@ namespace InventoryService.Tests
             Exception finalException = null;
             try
             {
-                var updateQuantityresult = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+                var updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
-                var reservationResult = _testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
-                var holdsResult = _testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
+                var reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
+                var holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
 
-                var purchaseResult = _testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
-                var purchaseFromHoldsResult = _testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
+                var purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
+                var purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
 
                 Assert.True(reservationResult.Successful);
                 Assert.True(updateQuantityresult.Successful);
@@ -205,8 +208,7 @@ namespace InventoryService.Tests
                 Assert.True(purchaseResult.Successful);
                 Assert.True(purchaseFromHoldsResult.Successful);
 
-
-                var currentInventory = _testHelper.GetInventory(inventoryActor, inventory.Name);
+                var currentInventory = testHelper.GetInventory(inventoryActor, inventory.Name);
                 Assert.Equal(currentInventory.Reserved, inventory.Reserved);
                 Assert.Equal(currentInventory.Holds, inventory.Holds);
                 Assert.Equal(currentInventory.Quantity, inventory.Quantity);
@@ -229,8 +231,9 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Reservation_Holds_PurchaseFromHold_And_Purchase_Test(PropertyTests.Inventory inventory, int toUpdate)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
 
             var halfQuantity = toUpdate / 2;
@@ -239,14 +242,13 @@ namespace InventoryService.Tests
             Exception finalException = null;
             try
             {
-                var updateQuantityresult = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+                var updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
-                var reservationResult = _testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
-                var holdsResult = _testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
+                var reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
+                var holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
 
-                var purchaseFromHoldsResult = _testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
-                var purchaseResult = _testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
-               
+                var purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
+                var purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
 
                 Assert.True(reservationResult.Successful);
                 Assert.True(updateQuantityresult.Successful);
@@ -254,8 +256,7 @@ namespace InventoryService.Tests
                 Assert.True(purchaseResult.Successful);
                 Assert.True(purchaseFromHoldsResult.Successful);
 
-
-                var currentInventory = _testHelper.GetInventory(inventoryActor, inventory.Name);
+                var currentInventory = testHelper.GetInventory(inventoryActor, inventory.Name);
                 Assert.Equal(currentInventory.Reserved, inventory.Reserved);
                 Assert.Equal(currentInventory.Holds, inventory.Holds);
                 Assert.Equal(currentInventory.Quantity, inventory.Quantity);
@@ -274,12 +275,13 @@ namespace InventoryService.Tests
                 throw new Exception("One or more operation must fail if negative update is provided");
             }
         }
-        
+
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Holds_Reservation_Purchase_And_PurchaseFromHold_Test(PropertyTests.Inventory inventory, int toUpdate)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
 
             var halfQuantity = toUpdate / 2;
@@ -288,14 +290,13 @@ namespace InventoryService.Tests
             Exception finalException = null;
             try
             {
-                var updateQuantityresult = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+                var updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
+                var holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
+                var reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
 
-                var holdsResult = _testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
-                var reservationResult = _testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
-
-                var purchaseResult = _testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
-                var purchaseFromHoldsResult = _testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
+                var purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
+                var purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
 
                 Assert.True(reservationResult.Successful);
                 Assert.True(updateQuantityresult.Successful);
@@ -303,7 +304,7 @@ namespace InventoryService.Tests
                 Assert.True(purchaseResult.Successful);
                 Assert.True(purchaseFromHoldsResult.Successful);
 
-                var currentInventory = _testHelper.GetInventory(inventoryActor, inventory.Name);
+                var currentInventory = testHelper.GetInventory(inventoryActor, inventory.Name);
                 Assert.Equal(currentInventory.Reserved, inventory.Reserved);
                 Assert.Equal(currentInventory.Holds, inventory.Holds);
                 Assert.Equal(currentInventory.Quantity, inventory.Quantity);
@@ -326,8 +327,9 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Holds_Reservation_PurchaseFromHold_And_Purchase_Test(PropertyTests.Inventory inventory, int toUpdate)
         {
+            var testHelper = new TestHelper(new InMemory());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
 
             var halfQuantity = toUpdate / 2;
@@ -336,16 +338,13 @@ namespace InventoryService.Tests
             Exception finalException = null;
             try
             {
-                var updateQuantityresult = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+                var updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
-                var holdsResult = _testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
-                var reservationResult = _testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
+                var holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
+                var reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
 
-                var purchaseFromHoldsResult = _testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
-                var purchaseResult = _testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
-
-              
-
+                var purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
+                var purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
 
                 Assert.True(reservationResult.Successful);
                 Assert.True(updateQuantityresult.Successful);
@@ -353,7 +352,7 @@ namespace InventoryService.Tests
                 Assert.True(purchaseResult.Successful);
                 Assert.True(purchaseFromHoldsResult.Successful);
 
-                var currentInventory = _testHelper.GetInventory(inventoryActor, inventory.Name);
+                var currentInventory = testHelper.GetInventory(inventoryActor, inventory.Name);
                 Assert.Equal(currentInventory.Reserved, inventory.Reserved);
                 Assert.Equal(currentInventory.Holds, inventory.Holds);
                 Assert.Equal(currentInventory.Quantity, inventory.Quantity);
@@ -365,7 +364,6 @@ namespace InventoryService.Tests
 
             if ((toUpdate >= 0 && finalException != null))
             {
-
                 throw finalException;
             }
             if ((toUpdate < 0 && finalException == null))
@@ -374,15 +372,15 @@ namespace InventoryService.Tests
             }
         }
 
-
         [Property(Arbitrary = new[] { typeof(PropertyTests.InventoryArbitrary) })]
         public void Concurrent_Holds_Reservation_PurchaseFromHold_And_Purchase_Test(PropertyTests.Inventory inventory, int toUpdate, int loopCount)
         {
+            var testHelper = new TestHelper(new InMemoryDictionary());
             bool initializationSuccess;
-            var inventoryActor = _testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
+            var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
-
-            Parallel.ForEach(Enumerable.Range(0, Math.Abs(loopCount)), (i) =>
+            GetInventoryCompletedMessage currentInventory = null;
+            Parallel.ForEach(Enumerable.Range(0, Math.Abs(loopCount)*10), (i) =>
             {
                 var halfQuantity = toUpdate / 2;
                 var secondHalfQuantity = toUpdate - halfQuantity;
@@ -393,31 +391,22 @@ namespace InventoryService.Tests
                 ReserveCompletedMessage reservationResult = null;
                 PurchaseFromHoldsCompletedMessage purchaseFromHoldsResult = null;
                 PurchaseCompletedMessage purchaseResult = null;
+
                 try
                 {
-                     updateQuantityresult = _testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
+                    updateQuantityresult = testHelper.UpdateQuantity(inventoryActor, toUpdate, inventory.Name);
 
-                     holdsResult = _testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
-                     reservationResult = _testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
+                    holdsResult = testHelper.Hold(inventoryActor, secondHalfQuantity, inventory.Name);
+                    reservationResult = testHelper.Reserve(inventoryActor, halfQuantity, inventory.Name);
 
-                     purchaseFromHoldsResult = _testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
-                     purchaseResult = _testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
-
+                    purchaseFromHoldsResult = testHelper.PurchaseFromHolds(inventoryActor, secondHalfQuantity, inventory.Name);
+                    purchaseResult = testHelper.Purchase(inventoryActor, halfQuantity, inventory.Name);
 
                     Assert.True(reservationResult.Successful);
                     Assert.True(updateQuantityresult.Successful);
                     Assert.True(holdsResult.Successful);
                     Assert.True(purchaseResult.Successful);
                     Assert.True(purchaseFromHoldsResult.Successful);
-
-                    var currentInventory = _testHelper.GetInventory(inventoryActor, inventory.Name);
-                    Assert.Equal(currentInventory.Reserved, inventory.Reserved);
-                    Assert.Equal(currentInventory.Holds, inventory.Holds);
-                    Assert.Equal(currentInventory.Quantity, inventory.Quantity);
-
-                    inventory.Quantity += currentInventory.Quantity;
-                    inventory.Reserved += currentInventory.Reserved;
-                    inventory.Holds += currentInventory.Holds;
                 }
                 catch (Exception e)
                 {
@@ -426,7 +415,6 @@ namespace InventoryService.Tests
 
                 if ((toUpdate >= 0 && finalException != null))
                 {
-                   
                     throw finalException;
                 }
                 if ((toUpdate < 0 && finalException == null))
@@ -435,10 +423,11 @@ namespace InventoryService.Tests
                 }
             });
 
+            currentInventory = testHelper.GetInventory(inventoryActor, inventory.Name);
 
-
-
-
+            Assert.Equal(currentInventory.Reserved, inventory.Reserved);
+            Assert.Equal(currentInventory.Holds, inventory.Holds);
+            Assert.Equal(currentInventory.Quantity, inventory.Quantity);
         }
     }
 }

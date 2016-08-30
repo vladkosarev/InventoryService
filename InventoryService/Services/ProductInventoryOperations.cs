@@ -159,7 +159,7 @@ namespace InventoryService.Services
                 var newHolds = _holds - quantity;
 
                 if (newQuantity < 0 || newHolds < 0) throw new Exception("Purchase from negative hold or a negative purchase is not allowed  for product " + productId + GetCurrentQuantitiesReport());
-                var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, newHolds));
+                var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _reservations, newHolds)).ConfigureAwait(false);
 
                 if (!result.IsSuccessful) throw result.Errors.Flatten();
                 _quantity = newQuantity;

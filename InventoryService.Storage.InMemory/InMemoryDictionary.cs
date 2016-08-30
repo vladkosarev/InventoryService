@@ -1,12 +1,11 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace InventoryService.Storage.InMemoryLib
 {
-    public class InMemory : IInventoryStorage
+    public class InMemoryDictionary : IInventoryStorage
     {
-        private readonly ConcurrentDictionary<string, RealTimeInventory> _productInventories =
-            new ConcurrentDictionary<string, RealTimeInventory>();
+        private readonly Dictionary<string, RealTimeInventory> _productInventories =new Dictionary<string, RealTimeInventory>();
         public async Task<StorageOperationResult<RealTimeInventory>> ReadInventory(string productId)
         {
             if (_productInventories.ContainsKey(productId))
@@ -23,8 +22,10 @@ namespace InventoryService.Storage.InMemoryLib
         {
             StorageWriteCheck.Execute(inventoryObject);
 
-            _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds),
-                (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds));
+            _productInventories[inventoryObject.ProductId] = new RealTimeInventory(inventoryObject.ProductId,
+                inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds);
+
+          //  (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reservations, inventoryObject.Holds));
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 

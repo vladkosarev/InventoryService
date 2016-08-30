@@ -15,7 +15,7 @@ namespace InventoryService.Services
             {
                 throw realTimeInventoryOperationResult.Exception;
             }
-            var inventoryProductId = realTimeInventoryOperationResult?.Result?.ProductId;
+            var inventoryProductId = realTimeInventoryOperationResult?.Data?.ProductId;
             throw new Exception("Inventory operation failed" + (string.IsNullOrEmpty(inventoryProductId) ? " and did not find inventoryProductId" : inventoryProductId));
         }
 
@@ -24,7 +24,7 @@ namespace InventoryService.Services
         {
             return new OperationResult<RealTimeInventory>()
             {
-                Result = realTimeInventory,
+                Data = realTimeInventory,
                 IsSuccessful = true
             };
         }
@@ -34,7 +34,7 @@ namespace InventoryService.Services
         {
             return new OperationResult<RealTimeInventory>()
             {
-                Result = null,
+                Data = null,
                 IsSuccessful = false,
                 Exception = new Exception(message, exception)
             };
