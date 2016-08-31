@@ -11,7 +11,6 @@
             Holds = holds;
             Successful = true;
         }
-        
 
         public string ProductId { get; private set; }
         public int Quantity { get; private set; }

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace InventoryService.Messages.Response
 {
-    public class InventoryOperationErrorMessage:IInventoryServiceCompletedMessage
+    public class InventoryOperationErrorMessage : IInventoryServiceCompletedMessage
     {
         public InventoryOperationErrorMessage(string productId = null, AggregateException error = null)
         {

@@ -11,12 +11,11 @@
             Holds = holds;
             Successful = true;
         }
-        
 
         public string ProductId { get; private set; }
         public int Quantity { get; private set; }
         public int Reserved { get; private set; }
         public int Holds { get; private set; }
-        public bool Successful { get;   }
+        public bool Successful { get; }
     }
 }
