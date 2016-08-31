@@ -1,6 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using InventoryService.Messages.Models;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using InventoryService.Messages.Models;
 
 namespace InventoryService.Storage.InMemoryLib
 {

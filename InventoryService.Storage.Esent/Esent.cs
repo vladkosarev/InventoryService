@@ -1,7 +1,7 @@
-﻿using Microsoft.Isam.Esent.Collections.Generic;
+﻿using InventoryService.Messages.Models;
+using Microsoft.Isam.Esent.Collections.Generic;
 using System;
 using System.Threading.Tasks;
-using InventoryService.Messages.Models;
 
 namespace InventoryService.Storage.EsentLib
 {

@@ -30,6 +30,25 @@ namespace InventoryService.Services
             };
         }
 
+        private static string GetCurrentQuantitiesReport(IRealTimeInventory realTimeInventory)
+        {
+            return " [ quantity : " + realTimeInventory.Quantity + " / reservations: " + realTimeInventory.Reserved + " / holds: " + realTimeInventory.Holds + " ]";
+        }
+        public static OperationResult<IRealTimeInventory> ToFailedOperationResult(
+         this Exception exception, IRealTimeInventory realTimeInventory, string message = null)
+        {
+            message = message ?? "Inventory operation failed";
+            if (realTimeInventory != null)
+            {
+                message += GetCurrentQuantitiesReport(realTimeInventory);
+            }
+            return new OperationResult<IRealTimeInventory>()
+            {
+                Data = null,
+                IsSuccessful = false,
+                Exception = new Exception(message, exception)
+            };
+        }
         public static OperationResult<IRealTimeInventory> ToFailedOperationResult(
             this Exception exception, string message = "Inventory operation failed")
         {
@@ -44,19 +63,13 @@ namespace InventoryService.Services
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
             this Exception exception, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(productId, new List<Exception>()
-            {
-                new Exception(message+" - "+exception, exception)
-            });
+            return new InventoryOperationErrorMessage(productId,new AggregateException(new Exception(message + " - " + exception, exception)));
         }
 
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
           this OperationResult<IRealTimeInventory> operationResult, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(productId, new List<Exception>()
-            {
-                new Exception(message+" - "+operationResult.Exception.Message, operationResult.Exception)
-            });
+            return new InventoryOperationErrorMessage(productId,new AggregateException(new Exception(message + " - " + operationResult.Exception.Message, operationResult.Exception)));
         }
     }
 }

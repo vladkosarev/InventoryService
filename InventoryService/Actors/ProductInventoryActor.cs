@@ -4,7 +4,6 @@ using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Services;
 using InventoryService.Storage;
-using System.Threading.Tasks;
 
 namespace InventoryService.Actors
 {
@@ -84,6 +83,38 @@ namespace InventoryService.Actors
                         var holds = result.Data.Holds;
                         GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
                         Sender.Tell(new UpdateQuantityCompletedMessage(message.ProductId, quantity, reservations, holds, true));
+                    }
+                }
+            });
+
+            ReceiveAsync<UpdateAndHoldQuantityMessage>(async message =>
+            {
+                var updateResultesult = await _productInventoryOperations.UpdateQuantity(message.ProductId, message.Quantity);
+
+                {
+                    var thatMessage = message;
+                    if (updateResultesult.IsSuccessful)
+                    {
+                        var holdResult = await _productInventoryOperations.PlaceHold(message.ProductId, message.Quantity);
+
+                        {
+                            if (!holdResult.IsSuccessful)
+                            {
+                                Sender.Tell(holdResult.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to do a hold of " + thatMessage.Quantity + " on product " + thatMessage.ProductId));
+                            }
+                            else
+                            {
+                                var quantity = holdResult.Data.Quantity;
+                                var reservations = holdResult.Data.Reserved;
+                                var holds = holdResult.Data.Holds;
+                                GetInventoryCompletedMessageCache = new GetInventoryCompletedMessage(message.ProductId, quantity, reservations, holds);
+                                Sender.Tell(new PlaceHoldCompletedMessage(message.ProductId, quantity, reservations, holds, true));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Sender.Tell(updateResultesult.ToInventoryOperationErrorMessage(thatMessage.ProductId, "Operation failed while trying to do a update for an update and hold of " + thatMessage.Quantity + " on product " + thatMessage.ProductId));
                     }
                 }
             });

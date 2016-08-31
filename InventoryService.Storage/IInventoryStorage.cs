@@ -1,6 +1,6 @@
-﻿using System;
+﻿using InventoryService.Messages.Models;
+using System;
 using System.Threading.Tasks;
-using InventoryService.Messages.Models;
 
 namespace InventoryService.Storage
 {

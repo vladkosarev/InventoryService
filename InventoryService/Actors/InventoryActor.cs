@@ -43,6 +43,11 @@ namespace InventoryService.Actors
                 performanceService.Increment("UpdateQuantityMessageCount");
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
             });
+            Receive<UpdateAndHoldQuantityMessage>(message =>
+            {
+                performanceService.Increment("UpdateAndHoldQuantityMessageCount");
+                GetActorRef(inventoryStorage, message.ProductId).Forward(message);
+            });
             Receive<PlaceHoldMessage>(message =>
             {
                 performanceService.Increment("placedHoldMessageCount");

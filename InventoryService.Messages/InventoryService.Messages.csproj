@@ -43,13 +43,15 @@
     <Compile Include="Models\RealTimeInventory.cs" />
     <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Response\ICompletedMessage.cs" />
+    <Compile Include="Request\UpdateAndHoldQuantityMessage.cs" />
+    <Compile Include="Response\IInventoryServiceCompletedMessage.cs" />
     <Compile Include="Response\InventoryOperationErrorMessage.cs" />
     <Compile Include="Response\PurchaseFromHoldsCompletedMessage.cs" />
     <Compile Include="Response\PurchaseCompletedMessage.cs" />
     <Compile Include="Request\PurchaseFromHoldsMessage.cs" />
     <Compile Include="Request\PurchaseMessage.cs" />
     <Compile Include="Response\PlaceHoldCompletedMessage.cs" />
+    <Compile Include="Response\UpdateAndHoldQuantityCompletedMessage.cs" />
     <Compile Include="Response\UpdateQuantityCompletedMessage.cs" />
     <Compile Include="Response\ReserveCompletedMessage.cs" />
     <Compile Include="Request\PlaceHoldMessage.cs" />

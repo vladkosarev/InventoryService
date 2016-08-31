@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using InventoryService.Messages.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using InventoryService.Messages.Models;
 
 namespace InventoryService.Storage.InMemoryLib
 {
