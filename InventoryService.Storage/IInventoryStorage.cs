@@ -8,7 +8,7 @@ namespace InventoryService.Storage
     {
         Task<StorageOperationResult<IRealTimeInventory>> ReadInventory(string productId);
 
-        Task<StorageOperationResult> WriteInventory(IRealTimeInventory inventoryObject);
+        Task<StorageOperationResult<IRealTimeInventory>> WriteInventory(IRealTimeInventory inventoryObject);
 
         Task<bool> Flush(string productId);
     }

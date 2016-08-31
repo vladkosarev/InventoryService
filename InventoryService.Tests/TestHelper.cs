@@ -20,12 +20,12 @@ namespace InventoryService.Tests
 
         public static TimeSpan GENERAL_WAIT_TIME = TimeSpan.FromSeconds(300);
 
-        public IActorRef TryInitializeInventoryServiceRepository(PropertyTests.Inventory product, ActorSystem sys, out bool successful)
+        public IActorRef TryInitializeInventoryServiceRepository(Inventory product, ActorSystem sys, out bool successful)
         {
             //  var inventoryService = new InMemoryDictionary();// new InMemory();
             try
             {
-                //improve this with parallel
+               
                 var result = InventoryService.WriteInventory(new RealTimeInventory(product.Name, product.Quantity, product.Reserved, product.Holds));
                 Task.WaitAll(result);
                 successful = result.Result.IsSuccessful;

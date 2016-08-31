@@ -43,7 +43,7 @@ namespace InventoryService.Services
             }
             return new OperationResult<IRealTimeInventory>()
             {
-                Data = null,
+                Data = realTimeInventory,
                 IsSuccessful = false,
                 Exception = new Exception(message, exception)
             };
@@ -63,13 +63,18 @@ namespace InventoryService.Services
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
             this Exception exception, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(productId, new AggregateException(new Exception(message + " - " + exception, exception)));
+            return new InventoryOperationErrorMessage(0,0,0, productId, new AggregateException(new Exception(message + " - " + exception, exception)));
         }
 
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
           this OperationResult<IRealTimeInventory> operationResult, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(productId, new AggregateException(new Exception(message + " - " + operationResult.Exception.Message, operationResult.Exception)));
+            return new InventoryOperationErrorMessage(operationResult.Data.Quantity, operationResult.Data.Reserved, operationResult.Data.Holds,   productId, new AggregateException(new Exception(message + " - " + operationResult.Exception.Message, operationResult.Exception)))
+            {
+               
+            };
         }
+
+      
     }
 }

@@ -23,7 +23,7 @@ namespace InventoryService.Storage.InMemoryLib
 
         public async Task<StorageOperationResult> WriteInventory(IRealTimeInventory inventoryObject)
         {
-            StorageWriteCheck.Execute(inventoryObject);
+            //StorageWriteCheck.Execute(inventoryObject);
 
             _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds),
                 (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds));

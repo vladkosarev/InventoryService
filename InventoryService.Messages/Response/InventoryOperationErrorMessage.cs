@@ -4,13 +4,14 @@ namespace InventoryService.Messages.Response
 {
     public class InventoryOperationErrorMessage : IInventoryServiceCompletedMessage
     {
-        public InventoryOperationErrorMessage(string productId = null, AggregateException error = null)
+        public InventoryOperationErrorMessage(int quantity, int reserved, int holds, string productId = null, AggregateException error = null)
         {
+            Quantity = quantity;
+            Reserved = reserved;
+            Holds = holds;
             ProductId = productId;
             Error = error ?? new AggregateException();
-            Quantity = 0;
-            Reserved = 0;
-            Holds = 0;
+           
             Successful = false;
         }
 

@@ -13,6 +13,8 @@ namespace InventoryService.Services
 
         Task<OperationResult<IRealTimeInventory>> UpdateQuantity(string productId, int quantity);
 
+        Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHold(string productId, int quantity);
+
         Task<OperationResult<IRealTimeInventory>> PlaceHold(string productId, int toHold);
 
         Task<OperationResult<IRealTimeInventory>> Purchase(string productId, int quantity);

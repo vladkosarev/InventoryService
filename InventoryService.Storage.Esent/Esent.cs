@@ -32,7 +32,7 @@ namespace InventoryService.Storage.EsentLib
 
         public async Task<StorageOperationResult> WriteInventory(IRealTimeInventory inventoryObject)
         {
-            StorageWriteCheck.Execute(inventoryObject);
+            //StorageWriteCheck.Execute(inventoryObject);
             _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds);
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = false });
         }
