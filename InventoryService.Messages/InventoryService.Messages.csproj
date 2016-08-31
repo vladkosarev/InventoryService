@@ -43,6 +43,7 @@
     <Compile Include="Models\RealTimeInventory.cs" />
     <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Response\ICompletedMessage.cs" />
     <Compile Include="Response\InventoryOperationErrorMessage.cs" />
     <Compile Include="Response\PurchaseFromHoldsCompletedMessage.cs" />
     <Compile Include="Response\PurchaseCompletedMessage.cs" />

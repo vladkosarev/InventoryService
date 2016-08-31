@@ -18,6 +18,7 @@ namespace InventoryService.Tests
             InventoryService = inventoryService;
         }
 
+        public static TimeSpan GENERAL_WAIT_TIME = TimeSpan.FromSeconds(300);
         public IActorRef TryInitializeInventoryServiceRepository(PropertyTests.Inventory product, ActorSystem sys, out bool successful)
         {
             //  var inventoryService = new InMemoryDictionary();// new InMemory();
@@ -36,34 +37,34 @@ namespace InventoryService.Tests
             return inventoryActor;
         }
 
-        public UpdateQuantityCompletedMessage UpdateQuantity(IActorRef inventoryActor, int quantity, string productId = "product1")
+        public ICompletedMessage UpdateQuantity(IActorRef inventoryActor, int quantity, string productId = "product1")
         {
-            return inventoryActor.Ask<UpdateQuantityCompletedMessage>(new UpdateQuantityMessage(productId, quantity), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<ICompletedMessage>(new UpdateQuantityMessage(productId, quantity), GENERAL_WAIT_TIME).Result;
         }
 
-        public ReserveCompletedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
+        public ICompletedMessage Reserve(IActorRef inventoryActor, int reserveQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(productId, reserveQuantity), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<ICompletedMessage>(new ReserveMessage(productId, reserveQuantity), GENERAL_WAIT_TIME).Result;
         }
 
-        public PurchaseCompletedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
+        public ICompletedMessage Purchase(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PurchaseCompletedMessage>(new PurchaseMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<ICompletedMessage>(new PurchaseMessage(productId, purchaseQuantity), GENERAL_WAIT_TIME).Result;
         }
 
-        public PlaceHoldCompletedMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
+        public ICompletedMessage Hold(IActorRef inventoryActor, int holdQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PlaceHoldCompletedMessage>(new PlaceHoldMessage(productId, holdQuantity), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<ICompletedMessage>(new PlaceHoldMessage(productId, holdQuantity), GENERAL_WAIT_TIME).Result;
         }
 
-        public PurchaseFromHoldsCompletedMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
+        public ICompletedMessage PurchaseFromHolds(IActorRef inventoryActor, int purchaseQuantity, string productId = "product1")
         {
-            return inventoryActor.Ask<PurchaseFromHoldsCompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<ICompletedMessage>(new PurchaseFromHoldsMessage(productId, purchaseQuantity), GENERAL_WAIT_TIME).Result;
         }
 
-        public GetInventoryCompletedMessage GetInventory(IActorRef inventoryActor, string inventoryName)
+        public ICompletedMessage GetInventory(IActorRef inventoryActor, string inventoryName)
         {
-            return inventoryActor.Ask<GetInventoryCompletedMessage>(new GetInventoryMessage(inventoryName, true), TimeSpan.FromSeconds(3)).Result;
+            return inventoryActor.Ask<ICompletedMessage>(new GetInventoryMessage(inventoryName, true), GENERAL_WAIT_TIME).Result;
         }
     }
 }

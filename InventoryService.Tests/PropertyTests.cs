@@ -375,18 +375,18 @@ namespace InventoryService.Tests
             bool initializationSuccess;
             var inventoryActor = testHelper.TryInitializeInventoryServiceRepository(inventory, Sys, out initializationSuccess);
             if (!initializationSuccess) return;
-            GetInventoryCompletedMessage currentInventory = null;
+            ICompletedMessage currentInventory = null;
             Parallel.ForEach(Enumerable.Range(0, Math.Abs(loopCount) * 10), (i) =>
               {
                   var halfQuantity = toUpdate / 2;
                   var secondHalfQuantity = toUpdate - halfQuantity;
 
                   Exception finalException = null;
-                  UpdateQuantityCompletedMessage updateQuantityresult = null;
-                  PlaceHoldCompletedMessage holdsResult = null;
-                  ReserveCompletedMessage reservationResult = null;
-                  PurchaseFromHoldsCompletedMessage purchaseFromHoldsResult = null;
-                  PurchaseCompletedMessage purchaseResult = null;
+                  ICompletedMessage updateQuantityresult = null;
+                  ICompletedMessage holdsResult = null;
+                  ICompletedMessage reservationResult = null;
+                  ICompletedMessage purchaseFromHoldsResult = null;
+                  ICompletedMessage purchaseResult = null;
 
                   try
                   {

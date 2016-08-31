@@ -1,6 +1,6 @@
 ﻿namespace InventoryService.Messages.Response
 {
-    public class PurchaseCompletedMessage
+    public class PurchaseCompletedMessage: ICompletedMessage
     {
         public PurchaseCompletedMessage(string productId, int quantity, int reservations, int holds, bool successful)
         {
@@ -11,12 +11,7 @@
             Holds = holds;
         }
 
-        public InventoryOperationErrorMessage ErrorMessage { set; get; }
-
-        public PurchaseCompletedMessage(InventoryOperationErrorMessage message)
-        {
-            ErrorMessage = message;
-        }
+   
 
         public string ProductId { get; private set; }
         public int Quantity { get; private set; }
