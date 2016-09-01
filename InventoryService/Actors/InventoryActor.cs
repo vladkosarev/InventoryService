@@ -78,7 +78,7 @@ namespace InventoryService.Actors
 
             var productActorRef = Context.ActorOf(
                 Props.Create(() =>
-                    new ProductInventoryActor(inventoryStorage, productId))
+                    new ProductInventoryActor(inventoryStorage, productId, _withCache))
                 , productId);
 
             _products.Add(productId, productActorRef);

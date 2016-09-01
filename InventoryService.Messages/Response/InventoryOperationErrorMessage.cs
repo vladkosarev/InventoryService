@@ -1,24 +1,21 @@
 ﻿using System;
+using InventoryService.Messages.Models;
 
 namespace InventoryService.Messages.Response
 {
     public class InventoryOperationErrorMessage : IInventoryServiceCompletedMessage
     {
-        public InventoryOperationErrorMessage(int quantity, int reserved, int holds, string productId = null, AggregateException error = null)
+        public InventoryOperationErrorMessage(IRealTimeInventory realTimeInventory, AggregateException error )
         {
-            Quantity = quantity;
-            Reserved = reserved;
-            Holds = holds;
-            ProductId = productId;
-            Error = error ?? new AggregateException();
            
+         
+            Error = error ?? new AggregateException();
+            RealTimeInventory = realTimeInventory;
             Successful = false;
         }
 
-        public string ProductId { get; private set; }
-        public int Quantity { get; }
-        public int Reserved { get; }
-        public int Holds { get; }
+      
+        public IRealTimeInventory RealTimeInventory { get; }
         public bool Successful { get; set; }
         public AggregateException Error { get; private set; }
     }

@@ -77,8 +77,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AwaitTaskExtension.cs" />
     <Compile Include="IInventoryServiceCompletedMessageExtrensions.cs" />
     <Compile Include="Inventory.cs" />
+    <Compile Include="InventoryArbitrary.cs" />
+    <Compile Include="InventoryServiceSpecHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyTests.cs" />
     <Compile Include="TestHelper.cs" />

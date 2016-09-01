@@ -1,17 +1,17 @@
-﻿using InventoryService.Messages.Models;
+﻿using InventoryService.Messages;
+using InventoryService.Messages.Models;
 using InventoryService.Storage;
 using System;
 using System.Threading.Tasks;
 
 namespace InventoryService.Services
 {
-    public static class ProductInventoryOperations 
+    //todo return the full error message
+    public static class ProductInventoryOperations
     {
-     
-        public static  RealTimeInventory Initialize(IInventoryStorage inventoryStorage, string id)
+        public static RealTimeInventory InitializeFromStorage(this RealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string id)
         {
-            
-            var initTask = inventoryStorage.ReadInventory(id);
+            var initTask = inventoryStorage.ReadInventoryAsync(id);
             Task.WaitAll(initTask);
             var inventory = initTask.Result.Result;
 
@@ -22,135 +22,144 @@ namespace InventoryService.Services
             return new RealTimeInventory(id, inventory.Quantity, inventory.Reserved, inventory.Holds);
         }
 
-        private static OperationResult<IRealTimeInventory> _ReadInventory(this RealTimeInventory _realTimeInventory)
+        private static OperationResult<IRealTimeInventory> ToOperationResult(this IRealTimeInventory realTimeInventory, bool isSuccessful)
         {
             return new OperationResult<IRealTimeInventory>()
             {
-                Data = _realTimeInventory
+                Data = realTimeInventory,
+                IsSuccessful = isSuccessful
             };
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> ReadInventory(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId)
+        public static async Task<OperationResult<IRealTimeInventory>> ReadInventoryFromStorageAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId)
         {
             try
             {
-                if (string.IsNullOrEmpty(productId)) return new ArgumentNullException(nameof(productId)).ToFailedOperationResult(productId);
-                var result = await _inventoryStorage.ReadInventory(productId);
+                if (string.IsNullOrEmpty(productId)) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, 0, ErrorType.NO_PRODUCT_ID_SPECIFIED).ToFailedOperationResult(realTimeInventory);
+                var result = await inventoryStorage.ReadInventoryAsync(productId);
                 return result.Result.ToSuccessOperationResult();
             }
             catch (Exception e)
             {
-                return e.ToFailedOperationResult("Unable to read inventory for product " + productId);
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, 0, ErrorType.UNABLE_TO_READ_INV,e).ToFailedOperationResult();
             }
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> InventoryStorageFlush(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string id)
+        public static async Task<OperationResult<IRealTimeInventory>> InventoryStorageFlushAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string id)
         {
-            await _inventoryStorage.Flush(id);
-             return _ReadInventory(_realTimeInventory);
+            await inventoryStorage.FlushAsync(id);
+            return realTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> Reserve(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId, int reservationQuantity)
+        public static async Task<OperationResult<IRealTimeInventory>> ReserveAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int reservationQuantity)
         {
-            var newReserved = Math.Max(0, _realTimeInventory.Reserved + reservationQuantity);
+            var newReserved = Math.Max(0, realTimeInventory.Reserved + reservationQuantity);
 
-            if (newReserved > _realTimeInventory.Quantity - _realTimeInventory.Holds)
-                return new Exception("What to reserve must be less than quantity - reservation for product " +
-                                     productId).ToFailedOperationResult(productId);
+            if (newReserved > realTimeInventory.Quantity - realTimeInventory.Holds)
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, reservationQuantity, ErrorType.RESERVATION_EXCEED_QUANTITY).ToFailedOperationResult(realTimeInventory, productId);
 
+            var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved,
+                realTimeInventory.Holds);
             var result =
                 await
-                    _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _realTimeInventory.Quantity, newReserved, _realTimeInventory.Holds));
+                    inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
             if (!result.IsSuccessful)
-                return new Exception("Could not load inventory for product " + productId, result.Errors).ToFailedOperationResult(productId);
-          
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, reservationQuantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
-            return _ReadInventory(_realTimeInventory);
+            return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantity(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
-            var newQuantity = _realTimeInventory.Quantity + quantity;
+            var newQuantity = realTimeInventory.Quantity + quantity;
 
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _realTimeInventory.Reserved, _realTimeInventory.Holds));
+            var newRealTimeInventory = new RealTimeInventory(productId, newQuantity, realTimeInventory.Reserved, realTimeInventory.Holds);
+            var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
-            if (!result.IsSuccessful) return result.Errors.Flatten().ToFailedOperationResult(productId);
-            _realTimeInventory = result.Result as RealTimeInventory;
-
-            return _ReadInventory(_realTimeInventory);
-        }
-
-        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHold(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId, int quantity)
-        {
-            var newQuantity = _realTimeInventory.Quantity + quantity;
-            var newHolds = _realTimeInventory.Holds + quantity;
-            if (newHolds > _realTimeInventory.Quantity)
+            if (!result.IsSuccessful)
             {
-                return new Exception("Unable to update quantity and hold With the supplied hold " + quantity + ",the new hold is larger than resulting quantity for product " + productId).ToFailedOperationResult(productId);
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
             }
 
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _realTimeInventory.Reserved, _realTimeInventory.Holds));
-
-            if (!result.IsSuccessful) return result.Errors.Flatten().ToFailedOperationResult(productId);
-            _realTimeInventory = result.Result as RealTimeInventory;
-
-             return _ReadInventory(_realTimeInventory);
+            return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> PlaceHold(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId, int toHold)
+        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHoldAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
-            var newHolds = _realTimeInventory.Holds + toHold;
-            if (newHolds > _realTimeInventory.Quantity)
+            var newQuantity = realTimeInventory.Quantity + quantity;
+            var newHolds = realTimeInventory.Holds + quantity;
+            if (newHolds > newQuantity)
             {
-                return new Exception("With the supplied hold " + toHold + ",the new hold is larger than available quantity for product " + productId).ToFailedOperationResult(productId);
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.HOLD_EXCEED_QUANTITY_FOR_UPDATEQUANTITYANDHOLD).ToFailedOperationResult(realTimeInventory, productId);
             }
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, _realTimeInventory.Quantity, _realTimeInventory.Reserved, newHolds));
+            var newRealTimeInventory = new RealTimeInventory(productId, newQuantity, realTimeInventory.Reserved, newHolds);
+            var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
-            if (!result.IsSuccessful) return result.Errors.Flatten().ToFailedOperationResult(productId);
-            _realTimeInventory = result.Result as RealTimeInventory;
-             return _ReadInventory(_realTimeInventory);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+
+            return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> Purchase(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> PlaceHoldAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int toHold)
+        {
+            var newHolds = realTimeInventory.Holds + toHold;
+            if (newHolds > realTimeInventory.Quantity)
+            {
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, toHold, ErrorType.HOLD_EXCEED_QUANTITY_FOR_HOLD).ToFailedOperationResult(realTimeInventory, productId);
+            }
+            var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, realTimeInventory.Reserved, newHolds);
+
+            var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
+
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, toHold, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+
+            return newRealTimeInventory.ToOperationResult(isSuccessful: true);
+        }
+
+        public static async Task<OperationResult<IRealTimeInventory>> PurchaseAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             if (quantity < 0)
             {
-                return new Exception("Cannot purchase with a negative quantity of " + quantity + " for product " + productId).ToFailedOperationResult(productId);
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.NEGATIVE_PURCHASE_FOR_PURCHASEFROMRESERVATION).ToFailedOperationResult(realTimeInventory, productId);
             }
-            var newQuantity = _realTimeInventory.Quantity - quantity;
+            var newQuantity = realTimeInventory.Quantity - quantity;
 
-            var newReserved = Math.Max(0, _realTimeInventory.Reserved - quantity);
-            //todo we still want o sell even though there is reservation
-            //var newReserved = _realTimeInventory.Reserved - quantity;
+            var newReserved = Math.Max(0, realTimeInventory.Reserved - quantity);
+            //todo we still want to sell even though there is reservation
+            //var newReserved = realTimeInventory.Reserved - quantity;
             //if(newReserved<0) throw new Exception("provided " + quantity + ", available reservations must be less than or equal to quantity for product " + productId);
 
-            if (newQuantity - _realTimeInventory.Holds < 0) return new Exception("provided " + quantity + ", available holds must be less than or equal to quantity for product " + productId).ToFailedOperationResult(productId);
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, newReserved, _realTimeInventory.Holds));
+            if (newQuantity - realTimeInventory.Holds < 0) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMRESERVATION).ToFailedOperationResult(realTimeInventory, productId);
 
-            if (!result.IsSuccessful) return result.Errors.Flatten().ToFailedOperationResult(productId);
-            _realTimeInventory = result.Result as RealTimeInventory;
+            var newrealTimeInventory = new RealTimeInventory(productId, newQuantity, newReserved,
+                realTimeInventory.Holds);
+            var result = await inventoryStorage.WriteInventoryAsync(newrealTimeInventory);
 
-             return _ReadInventory(_realTimeInventory);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+
+            return newrealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> PurchaseFromHolds(this RealTimeInventory _realTimeInventory, IInventoryStorage _inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> PurchaseFromHoldsAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             if (quantity < 0)
             {
-                return new Exception("Cannot purchase from holds with a negative quantity of " + quantity + " for product " + productId).ToFailedOperationResult(productId);
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.NEGATIVE_PURCHASE_FOR_PURCHASEFROMHOLD).ToFailedOperationResult(realTimeInventory, productId);
             }
-            var newQuantity = _realTimeInventory.Quantity - quantity;
-            var newHolds = _realTimeInventory.Holds - quantity;
+            var newQuantity = realTimeInventory.Quantity - quantity;
+            var newHolds = realTimeInventory.Holds - quantity;
 
-            if (newQuantity < 0 || newHolds < 0) return new Exception("Purchase from negative hold or a negative purchase is not allowed  for product " + productId).ToFailedOperationResult(productId);
-            var result = await _inventoryStorage.WriteInventory(new RealTimeInventory(productId, newQuantity, _realTimeInventory.Reserved, newHolds)).ConfigureAwait(false);
+            if (newQuantity < 0 || newHolds < 0) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMHOLD).ToFailedOperationResult(realTimeInventory, productId);
 
-            if (!result.IsSuccessful) return result.Errors.Flatten().ToFailedOperationResult(productId);
-            _realTimeInventory = result.Result as RealTimeInventory;
-             return _ReadInventory(_realTimeInventory);
+            var newrealTimeInventory = new RealTimeInventory(productId, newQuantity, realTimeInventory.Reserved,
+                newHolds);
+
+            var result = await inventoryStorage.WriteInventoryAsync(newrealTimeInventory).ConfigureAwait(false);
+
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE,result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+
+            return newrealTimeInventory.ToOperationResult(isSuccessful: true);
         }
-
-    
     }
 }

@@ -1,6 +1,7 @@
 ﻿using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using System;
+using InventoryService.Messages;
 
 namespace InventoryService.Services
 {
@@ -34,7 +35,7 @@ namespace InventoryService.Services
         }
 
         public static OperationResult<IRealTimeInventory> ToFailedOperationResult(
-         this Exception exception, IRealTimeInventory realTimeInventory, string message = null)
+         this RealTimeInventoryException exception, IRealTimeInventory realTimeInventory, string message = null)
         {
             message = message ?? "Inventory operation failed";
             if (realTimeInventory != null)
@@ -50,7 +51,7 @@ namespace InventoryService.Services
         }
 
         public static OperationResult<IRealTimeInventory> ToFailedOperationResult(
-            this Exception exception, string message = "Inventory operation failed")
+            this RealTimeInventoryException exception, string message = "Inventory operation failed")
         {
             return new OperationResult<IRealTimeInventory>()
             {
@@ -61,18 +62,19 @@ namespace InventoryService.Services
         }
 
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
-            this Exception exception, string productId, string message = "Inventory operation failed")
+            this RealTimeInventoryException exception, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(0,0,0, productId, new AggregateException(new Exception(message + " - " + exception, exception)));
+            return new InventoryOperationErrorMessage(new RealTimeInventory(productId,0,0,0), new AggregateException(new Exception(message + " - " + exception, exception)));
         }
 
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
           this OperationResult<IRealTimeInventory> operationResult, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(operationResult.Data.Quantity, operationResult.Data.Reserved, operationResult.Data.Holds,   productId, new AggregateException(new Exception(message + " - " + operationResult.Exception.Message, operationResult.Exception)))
-            {
-               
-            };
+            operationResult.Data = operationResult.Data ?? new RealTimeInventory(productId, 0, 0, 0);
+
+            var exceptionMessage = operationResult?.Exception?.InnerException?.Message;
+
+            return new InventoryOperationErrorMessage(operationResult.Data, new AggregateException(exceptionMessage, new Exception(message, operationResult.Exception)));
         }
 
       

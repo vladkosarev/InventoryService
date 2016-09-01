@@ -1,20 +1,19 @@
-﻿namespace InventoryService.Messages.Response
+﻿using InventoryService.Messages.Models;
+
+namespace InventoryService.Messages.Response
 {
     public class GetInventoryCompletedMessage : IInventoryServiceCompletedMessage
     {
-        public string ProductId { get; private set; }
-        public int Quantity { get; private set; }
-        public int Reserved { get; private set; }
-        public int Holds { get; private set; }
-        public bool Successful { get; }
+       
+        public IRealTimeInventory RealTimeInventory { get; }
+     
+        public bool Successful { get;  }
 
-        public GetInventoryCompletedMessage(string productId, int quantity, int reservations, int holds)
+        public GetInventoryCompletedMessage( IRealTimeInventory realTimeInventory,bool successful)
         {
-            Successful = true;
-            ProductId = productId;
-            Quantity = quantity;
-            Reserved = reservations;
-            Holds = holds;
+            Successful = successful;
+          
+            RealTimeInventory = realTimeInventory;
         }
     }
 }
