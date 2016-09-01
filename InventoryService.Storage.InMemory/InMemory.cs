@@ -23,10 +23,9 @@ namespace InventoryService.Storage.InMemoryLib
 
         public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
-           
             _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds),
                 (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds));
-            return await Task.FromResult(new StorageOperationResult( ) { IsSuccessful = true });
+            return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
         public async Task<bool> FlushAsync(string productId)

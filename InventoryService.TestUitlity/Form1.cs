@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using InventoryService.Storage.InMemoryLib;
 using InventoryService.Tests;
@@ -6,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using InventoryService.Messages.Models;
 
 namespace InventoryService.TestUitlity
 {
@@ -77,7 +77,7 @@ namespace InventoryService.TestUitlity
                         var aggregateException = errorMessage?.Error?.Flatten();
                         if (aggregateException != null)
                             list.AddRange(from x in aggregateException?.InnerExceptions select x.Message);
-                        richTextBox1.Text = errorMessage?.Error?.Flatten().Message+ " - "+ string.Join(" ", list);
+                        richTextBox1.Text = errorMessage?.Error?.Flatten().Message + " - " + string.Join(" ", list);
                     }
                     else
                     {
@@ -106,33 +106,28 @@ namespace InventoryService.TestUitlity
 
         private void InitialReservation_TextChanged(object sender, EventArgs e)
         {
-        
         }
 
         private void InitialHold_TextChanged(object sender, EventArgs e)
         {
-           
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             var quantity = new Random().Next(5, 25);
-            var reservation= new Random().Next(5, quantity);
-            var hold= new Random().Next(0, quantity);
+            var reservation = new Random().Next(5, quantity);
+            var hold = new Random().Next(0, quantity);
 
-
-            InitialQuantity.Text= quantity.ToString();
+            InitialQuantity.Text = quantity.ToString();
             InitialReservation.Text = reservation.ToString();
-           InitialHold .Text = hold.ToString();
+            InitialHold.Text = hold.ToString();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             var quantity = new Random().Next(5, 25);
-         
 
             NewQuantity.Text = quantity.ToString();
-           
         }
     }
 }

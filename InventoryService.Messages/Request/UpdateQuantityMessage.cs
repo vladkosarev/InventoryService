@@ -1,6 +1,6 @@
 ﻿namespace InventoryService.Messages.Request
 {
-    public class UpdateQuantityMessage: IRequestMessage
+    public class UpdateQuantityMessage : IRequestMessage
     {
         public UpdateQuantityMessage(string productId, int quantity)
         {

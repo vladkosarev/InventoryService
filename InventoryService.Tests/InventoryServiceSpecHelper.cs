@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Akka.Actor;
+﻿using Akka.Actor;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace InventoryService.Tests
@@ -166,6 +166,5 @@ namespace InventoryService.Tests
                 Assert.Equal(r.RealTimeInventory.Holds, inventory.Holds);
             }
         }
-
     }
 }

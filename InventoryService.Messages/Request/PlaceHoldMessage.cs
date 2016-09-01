@@ -1,6 +1,6 @@
 ﻿namespace InventoryService.Messages.Request
 {
-    public class PlaceHoldMessage: IRequestMessage
+    public class PlaceHoldMessage : IRequestMessage
     {
         public PlaceHoldMessage(string productId, int hold)
         {

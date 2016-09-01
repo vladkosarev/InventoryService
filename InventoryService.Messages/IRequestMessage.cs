@@ -2,7 +2,7 @@
 {
     public interface IRequestMessage
     {
-        string ProductId { get;  }
+        string ProductId { get; }
         int Update { get; }
     }
 }

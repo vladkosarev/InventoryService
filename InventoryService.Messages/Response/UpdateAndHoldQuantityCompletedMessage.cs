@@ -6,14 +6,12 @@ namespace InventoryService.Messages.Response
     {
         public UpdateAndHoldQuantityCompletedMessage(IRealTimeInventory realTimeInventory, bool successful)
         {
-
             RealTimeInventory = realTimeInventory;
             Successful = successful;
-          
+
             Successful = true;
         }
 
-     
         public IRealTimeInventory RealTimeInventory { get; }
         public bool Successful { get; }
     }

@@ -4,8 +4,7 @@ namespace InventoryService.Messages.Response
 {
     public interface IInventoryServiceCompletedMessage
     {
-      
-         IRealTimeInventory RealTimeInventory { get; }
+        IRealTimeInventory RealTimeInventory { get; }
         bool Successful { get; }
     }
 }

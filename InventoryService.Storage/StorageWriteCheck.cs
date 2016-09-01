@@ -1,7 +1,4 @@
-﻿using InventoryService.Messages.Models;
-using System;
-
-namespace InventoryService.Storage
+﻿namespace InventoryService.Storage
 {
     //public class StorageWriteCheck
     //{

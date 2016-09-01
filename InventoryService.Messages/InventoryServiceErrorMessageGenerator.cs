@@ -5,7 +5,7 @@ namespace InventoryService.Messages
 {
     public class InventoryServiceErrorMessageGenerator
     {
-        public static RealTimeInventoryException Generate(IRealTimeInventory currentRealTimeInventory, int requestUpdate, ErrorType errorType,Exception exceptionThrown=null)
+        public static RealTimeInventoryException Generate(IRealTimeInventory currentRealTimeInventory, int requestUpdate, ErrorType errorType, Exception exceptionThrown = null)
         {
             string result;
 
@@ -84,7 +84,7 @@ namespace InventoryService.Messages
             }
 
             var time = DateTime.UtcNow;
-            result = errorType.ToString() + " with requested update quantity "+ requestUpdate+" : " + result +(exceptionThrown!=null? " - "+exceptionThrown.Message:"")+ " At " + time;
+            result = errorType.ToString() + " with requested update quantity " + requestUpdate + " : " + result + (exceptionThrown != null ? " - " + exceptionThrown.Message : "") + " At " + time;
             return new RealTimeInventoryException(result, errorType, time, exceptionThrown);
         }
     }

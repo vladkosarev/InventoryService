@@ -1,7 +1,7 @@
-﻿using InventoryService.Messages.Models;
+﻿using InventoryService.Messages;
+using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using System;
-using InventoryService.Messages;
 
 namespace InventoryService.Services
 {
@@ -64,7 +64,7 @@ namespace InventoryService.Services
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
             this RealTimeInventoryException exception, string productId, string message = "Inventory operation failed")
         {
-            return new InventoryOperationErrorMessage(new RealTimeInventory(productId,0,0,0), new AggregateException(new Exception(message + " - " + exception, exception)));
+            return new InventoryOperationErrorMessage(new RealTimeInventory(productId, 0, 0, 0), new AggregateException(new Exception(message + " - " + exception, exception)));
         }
 
         public static InventoryOperationErrorMessage ToInventoryOperationErrorMessage(
@@ -76,7 +76,5 @@ namespace InventoryService.Services
 
             return new InventoryOperationErrorMessage(operationResult.Data, new AggregateException(exceptionMessage, new Exception(message, operationResult.Exception)));
         }
-
-      
     }
 }

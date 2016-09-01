@@ -61,7 +61,7 @@ namespace InventoryService.Tests
 
         public IInventoryServiceCompletedMessage GetInventory(IActorRef inventoryActor, string inventoryName)
         {
-            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(new GetInventoryMessage(inventoryName, true), GENERAL_WAIT_TIME).WaitAndGetOperationResult();
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(new GetInventoryMessage(inventoryName), GENERAL_WAIT_TIME).WaitAndGetOperationResult();
         }
     }
 }

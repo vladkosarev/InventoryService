@@ -1,11 +1,11 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Services;
 using InventoryService.Storage;
+using System;
 
 namespace InventoryService.Actors
 {
@@ -29,11 +29,12 @@ namespace InventoryService.Actors
         {
             ReceiveAsync<GetInventoryMessage>(async message =>
             {
-                if (message.GetNonStaleResult)
+                if (_withCache == false)
                 {
                     var result = await RealTimeInventory.ReadInventoryFromStorageAsync(InventoryStorage, message.ProductId);
                     ProcessAndSendResult(result, message, (rti) => new GetInventoryCompletedMessage(rti, true));
                 }
+                ProcessAndSendResult(RealTimeInventory.ToSuccessOperationResult(), message, (rti) => new GetInventoryCompletedMessage(rti, true));
             });
 
             ReceiveAsync<ReserveMessage>(async message =>
@@ -69,7 +70,7 @@ namespace InventoryService.Actors
             ReceiveAsync<PurchaseFromHoldsMessage>(async message =>
             {
                 var result = await RealTimeInventory.PurchaseFromHoldsAsync(InventoryStorage, message.ProductId, message.Update).ConfigureAwait(false);
-                ProcessAndSendResult(result, message,(rti)=> new PurchaseFromHoldsCompletedMessage(rti, true));
+                ProcessAndSendResult(result, message, (rti) => new PurchaseFromHoldsCompletedMessage(rti, true));
             });
 
             ReceiveAsync<FlushStreamsMessage>(async message =>
@@ -83,11 +84,11 @@ namespace InventoryService.Actors
         {
             if (!result.IsSuccessful)
             {
-           
+                //todo move this message into common error message
 
                 Sender.Tell(result.ToInventoryOperationErrorMessage(
                     requestMessage.ProductId
-                    ,"Operation failed while trying to " + requestMessage.GetType() + " with update " + requestMessage.Update + " on product " + requestMessage.ProductId));
+                    , "Operation failed while trying to " + requestMessage.GetType() + " with update " + requestMessage.Update + " on product " + requestMessage.ProductId));
             }
             else
             {

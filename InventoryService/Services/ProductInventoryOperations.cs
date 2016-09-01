@@ -41,7 +41,7 @@ namespace InventoryService.Services
             }
             catch (Exception e)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, 0, ErrorType.UNABLE_TO_READ_INV,e).ToFailedOperationResult();
+                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, 0, ErrorType.UNABLE_TO_READ_INV, e).ToFailedOperationResult();
             }
         }
 
@@ -157,7 +157,7 @@ namespace InventoryService.Services
 
             var result = await inventoryStorage.WriteInventoryAsync(newrealTimeInventory).ConfigureAwait(false);
 
-            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE,result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
             return newrealTimeInventory.ToOperationResult(isSuccessful: true);
         }

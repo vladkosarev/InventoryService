@@ -2,7 +2,7 @@
 {
     public enum ErrorType
     {
-        Unknown=0,
+        Unknown = 0,
         NO_PRODUCT_ID_SPECIFIED,
         UNABLE_TO_READ_INV,
         RESERVATION_EXCEED_QUANTITY,

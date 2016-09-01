@@ -1,6 +1,6 @@
 ﻿namespace InventoryService.Messages.Request
 {
-    public class ReserveMessage: IRequestMessage
+    public class ReserveMessage : IRequestMessage
     {
         public ReserveMessage(string productId, int reservationQuantity)
         {
