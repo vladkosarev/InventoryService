@@ -62,6 +62,6 @@ namespace InventoryService.Server
             ActorSystem.Dispose();
         }
 
-        public ActorSystem ActorSystem { get; set; }
+        public static ActorSystem ActorSystem { get; set; }
     }
 }

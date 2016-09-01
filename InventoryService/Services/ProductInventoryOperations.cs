@@ -35,13 +35,13 @@ namespace InventoryService.Services
         {
             try
             {
-                if (string.IsNullOrEmpty(productId)) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, 0, ErrorType.NO_PRODUCT_ID_SPECIFIED).ToFailedOperationResult(realTimeInventory);
+                if (string.IsNullOrEmpty(productId)) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.NO_PRODUCT_ID_SPECIFIED, realTimeInventory, 0).ToFailedOperationResult(realTimeInventory);
                 var result = await inventoryStorage.ReadInventoryAsync(productId);
                 return result.Result.ToSuccessOperationResult();
             }
             catch (Exception e)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, 0, ErrorType.UNABLE_TO_READ_INV, e).ToFailedOperationResult();
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_READ_INV, realTimeInventory, 0, e).ToFailedOperationResult();
             }
         }
 
@@ -56,7 +56,7 @@ namespace InventoryService.Services
             var newReserved = Math.Max(0, realTimeInventory.Reserved + reservationQuantity);
 
             if (newReserved > realTimeInventory.Quantity - realTimeInventory.Holds)
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, reservationQuantity, ErrorType.RESERVATION_EXCEED_QUANTITY).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.RESERVATION_EXCEED_QUANTITY, realTimeInventory, reservationQuantity).ToFailedOperationResult(realTimeInventory, productId);
 
             var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved,
                 realTimeInventory.Holds);
@@ -65,7 +65,7 @@ namespace InventoryService.Services
                     inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
             if (!result.IsSuccessful)
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, reservationQuantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, reservationQuantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
@@ -79,7 +79,7 @@ namespace InventoryService.Services
 
             if (!result.IsSuccessful)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, quantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
             }
 
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
@@ -91,12 +91,12 @@ namespace InventoryService.Services
             var newHolds = realTimeInventory.Holds + quantity;
             if (newHolds > newQuantity)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.HOLD_EXCEED_QUANTITY_FOR_UPDATEQUANTITYANDHOLD).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.HOLD_EXCEED_QUANTITY_FOR_UPDATEQUANTITYANDHOLD, realTimeInventory, quantity).ToFailedOperationResult(realTimeInventory, productId);
             }
             var newRealTimeInventory = new RealTimeInventory(productId, newQuantity, realTimeInventory.Reserved, newHolds);
             var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
-            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, quantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
@@ -106,13 +106,13 @@ namespace InventoryService.Services
             var newHolds = realTimeInventory.Holds + toHold;
             if (newHolds > realTimeInventory.Quantity)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, toHold, ErrorType.HOLD_EXCEED_QUANTITY_FOR_HOLD).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.HOLD_EXCEED_QUANTITY_FOR_HOLD, realTimeInventory, toHold).ToFailedOperationResult(realTimeInventory, productId);
             }
             var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, realTimeInventory.Reserved, newHolds);
 
             var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
-            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, toHold, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, toHold, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
@@ -121,7 +121,7 @@ namespace InventoryService.Services
         {
             if (quantity < 0)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.NEGATIVE_PURCHASE_FOR_PURCHASEFROMRESERVATION).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.NEGATIVE_PURCHASE_FOR_PURCHASEFROMRESERVATION, realTimeInventory, quantity).ToFailedOperationResult(realTimeInventory, productId);
             }
             var newQuantity = realTimeInventory.Quantity - quantity;
 
@@ -130,13 +130,13 @@ namespace InventoryService.Services
             //var newReserved = realTimeInventory.Reserved - quantity;
             //if(newReserved<0) throw new Exception("provided " + quantity + ", available reservations must be less than or equal to quantity for product " + productId);
 
-            if (newQuantity - realTimeInventory.Holds < 0) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMRESERVATION).ToFailedOperationResult(realTimeInventory, productId);
+            if (newQuantity - realTimeInventory.Holds < 0) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMRESERVATION, realTimeInventory, quantity).ToFailedOperationResult(realTimeInventory, productId);
 
             var newrealTimeInventory = new RealTimeInventory(productId, newQuantity, newReserved,
                 realTimeInventory.Holds);
             var result = await inventoryStorage.WriteInventoryAsync(newrealTimeInventory);
 
-            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, quantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
             return newrealTimeInventory.ToOperationResult(isSuccessful: true);
         }
@@ -145,19 +145,19 @@ namespace InventoryService.Services
         {
             if (quantity < 0)
             {
-                return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.NEGATIVE_PURCHASE_FOR_PURCHASEFROMHOLD).ToFailedOperationResult(realTimeInventory, productId);
+                return InventoryServiceErrorMessageGenerator.Generate(ErrorType.NEGATIVE_PURCHASE_FOR_PURCHASEFROMHOLD, realTimeInventory, quantity).ToFailedOperationResult(realTimeInventory, productId);
             }
             var newQuantity = realTimeInventory.Quantity - quantity;
             var newHolds = realTimeInventory.Holds - quantity;
 
-            if (newQuantity < 0 || newHolds < 0) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMHOLD).ToFailedOperationResult(realTimeInventory, productId);
+            if (newQuantity < 0 || newHolds < 0) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMHOLD, realTimeInventory, quantity).ToFailedOperationResult(realTimeInventory, productId);
 
             var newrealTimeInventory = new RealTimeInventory(productId, newQuantity, realTimeInventory.Reserved,
                 newHolds);
 
             var result = await inventoryStorage.WriteInventoryAsync(newrealTimeInventory).ConfigureAwait(false);
 
-            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(realTimeInventory, quantity, ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
+            if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, quantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);
 
             return newrealTimeInventory.ToOperationResult(isSuccessful: true);
         }

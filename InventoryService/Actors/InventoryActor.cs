@@ -9,8 +9,7 @@ namespace InventoryService.Actors
 {
     public class InventoryActor : ReceiveActor
     {
-        private readonly Dictionary<string, IActorRef> _products =
-            new Dictionary<string, IActorRef>();
+        private readonly Dictionary<string, IActorRef> _products =new Dictionary<string, IActorRef>();
 
         private readonly bool _withCache;
 
