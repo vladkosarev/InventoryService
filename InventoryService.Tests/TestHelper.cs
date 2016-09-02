@@ -18,7 +18,13 @@ namespace InventoryService.Tests
             InventoryService = inventoryService;
         }
 
-        public static TimeSpan GENERAL_WAIT_TIME = TimeSpan.FromSeconds(300);
+        public static TimeSpan GENERAL_WAIT_TIME = TimeSpan.FromSeconds(5);
+
+        public ActorSelection InitializeAndGetInventoryActor( ActorSystem sys)
+        {
+            return sys.ActorSelection("akka.tcp://InventoryService-Server@localhost:8099/user/InventoryActor");
+
+        }
 
         public IActorRef InitializeAndGetInventoryActor(RealTimeInventory product, ActorSystem sys)
         {
@@ -62,6 +68,11 @@ namespace InventoryService.Tests
         public IInventoryServiceCompletedMessage GetInventory(IActorRef inventoryActor, string inventoryName)
         {
             return inventoryActor.Ask<IInventoryServiceCompletedMessage>(new GetInventoryMessage(inventoryName), GENERAL_WAIT_TIME).WaitAndGetOperationResult();
+        }
+
+        public IInventoryServiceCompletedMessage Reserve(ActorSelection inventoryActor, int reserveQuantity, string productId = "product1")
+        {
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(new ReserveMessage(productId, reserveQuantity), GENERAL_WAIT_TIME).WaitAndGetOperationResult();
         }
     }
 }

@@ -5,7 +5,7 @@ namespace InventoryService.Messages.Request
 {
     public class RemoveProductMessage
     {
-        public RemoveProductMessage(RealTimeInventory realTimeInventory, Exception reason)
+        public RemoveProductMessage(RealTimeInventory realTimeInventory, Exception reason=null)
         {
             RealTimeInventory = realTimeInventory;
             Reason = reason;

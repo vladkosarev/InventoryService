@@ -24,11 +24,12 @@ namespace InventoryService.TestUitlity
 
                 bool initializationSuccess;
                 var productName = "productName";
-                var inventoryActor = helper.InitializeAndGetInventoryActor(new RealTimeInventory(
-                        productName,
-                        Convert.ToInt32(InitialQuantity.Text),
-                        Convert.ToInt32(InitialReservation.Text),
-                        Convert.ToInt32(InitialHold.Text)), ActorSystem);
+                //var inventoryActor = helper.InitializeAndGetInventoryActor(new RealTimeInventory(
+                //        productName,
+                //        Convert.ToInt32(InitialQuantity.Text),
+                //        Convert.ToInt32(InitialReservation.Text),
+                //        Convert.ToInt32(InitialHold.Text)), ActorSystem);
+                var inventoryActor = helper.InitializeAndGetInventoryActor( ActorSystem).ResolveOne(TimeSpan.FromSeconds(5)).Result;
 
                 IInventoryServiceCompletedMessage result = null;
                 var newUpdate = Convert.ToInt32(NewQuantity.Text);
@@ -92,7 +93,8 @@ namespace InventoryService.TestUitlity
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            ActorSystem = ActorSystem.Create("Utility");
+            cmbOoperation.SelectedIndex = 1;
+            ActorSystem = ActorSystem.Create("InventoryService-Client");
             button1.PerformClick();
         }
 

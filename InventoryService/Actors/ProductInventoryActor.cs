@@ -41,6 +41,8 @@ namespace InventoryService.Actors
 
             ReceiveAsync<ReserveMessage>(async message =>
             {
+                throw  new Exception();
+
                 var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
                 ProcessAndSendResult(result, message, (rti) => new ReserveCompletedMessage(rti, true));
             });
@@ -99,15 +101,13 @@ namespace InventoryService.Actors
             }
         }
 
-        protected override SupervisorStrategy SupervisorStrategy()
+        protected override void PostStop()
         {
-            return new OneForOneStrategy(
-                x =>
-                {
-                    Logger.Error(x.Message + " - " + x.InnerException?.Message);
-                    Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory, x));
-                    return Directive.Stop;
-                });
+            Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id,0,0,0), new Exception("oh oh")));
+
+            Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory));
+          
+            base.PostStop();
         }
     }
 }

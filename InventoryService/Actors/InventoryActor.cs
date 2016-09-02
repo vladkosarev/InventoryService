@@ -6,6 +6,7 @@ using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Event;
 
 namespace InventoryService.Actors
 {
@@ -14,7 +15,7 @@ namespace InventoryService.Actors
         private readonly Dictionary<string, IActorRef> _products = new Dictionary<string, IActorRef>();
         private readonly Dictionary<string, RealTimeInventory> _realTimeInventories = new Dictionary<string, RealTimeInventory>();
         private readonly Dictionary<string, RemoveProductMessage> _removedRealTimeInventories = new Dictionary<string, RemoveProductMessage>();
-
+        public readonly ILoggingAdapter Logger = Context.GetLogger();
         private readonly bool _withCache;
 
         public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
@@ -77,6 +78,16 @@ namespace InventoryService.Actors
             _products.Add(productId, productActorRef);
             _realTimeInventories.Add(productId, new RealTimeInventory(productId, 0, 0, 0));
             return _products[productId];
+        }
+        protected override SupervisorStrategy SupervisorStrategy()
+        {
+            return new OneForOneStrategy(
+                x =>
+                {
+                    Logger.Error(x.Message + " - " + x.InnerException?.Message);
+                  
+                    return Directive.Stop;
+                });
         }
     }
 }
