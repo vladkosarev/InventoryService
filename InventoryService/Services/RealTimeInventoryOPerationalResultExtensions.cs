@@ -29,7 +29,7 @@ namespace InventoryService.Services
             };
         }
 
-        private static string GetCurrentQuantitiesReport(IRealTimeInventory realTimeInventory)
+        public static string GetCurrentQuantitiesReport(this IRealTimeInventory realTimeInventory)
         {
             return " [ quantity : " + realTimeInventory.Quantity + " / reservations: " + realTimeInventory.Reserved + " / holds: " + realTimeInventory.Holds + " ]";
         }

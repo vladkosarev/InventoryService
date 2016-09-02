@@ -14,6 +14,7 @@ namespace InventoryService.Actors
     {
         private readonly Dictionary<string, IActorRef> _products = new Dictionary<string, IActorRef>();
         private readonly Dictionary<string, RealTimeInventory> _realTimeInventories = new Dictionary<string, RealTimeInventory>();
+        private readonly Dictionary<string, RemoveProductMessage> _removedRealTimeInventories = new Dictionary<string, RemoveProductMessage>();
 
         private readonly bool _withCache;
 
@@ -23,13 +24,21 @@ namespace InventoryService.Actors
 
             performanceService.Init();
 
-            //Context.System.Scheduler.ScheduleTellRepeatedly(
-            //    TimeSpan.Zero
-            //    , TimeSpan.FromMilliseconds(1000)
-            //    , Self
-            //    , new GetMetricsMessage()
-            //    , ActorRefs.Nobody);
+            Receive<RemoveProductMessage>(message =>
+            {
+                var productId = message?.RealTimeInventory?.ProductId;
+                if (!string.IsNullOrEmpty(productId))
+                {
+                    _products.Remove(productId);
+                    _realTimeInventories.Remove(productId);
+                    _removedRealTimeInventories[productId] = message;
+                }
+            });
 
+            Receive<GetRemovedProductMessage>(message =>
+            {
+               Sender.Tell(new GetRemovedProductCompletedMessage(_removedRealTimeInventories.Select(x=>x.Value).ToList()));
+            });
 
             Receive<QueryInventoryListMessage>(message =>
             {
@@ -53,7 +62,7 @@ namespace InventoryService.Actors
                 var eventName = message.GetType().Name + "Count";
                 performanceService.Increment(eventName);
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
-                Self.Tell(new GetMetricsMessage());
+               //todo Self.Tell(new GetMetricsMessage());
             });
         }
 

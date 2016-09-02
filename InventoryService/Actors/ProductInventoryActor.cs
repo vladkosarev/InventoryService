@@ -83,16 +83,29 @@ namespace InventoryService.Actors
 
         private void ProcessAndSendResult(OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<RealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage)
         {
+            Logger.Info(requestMessage.GetType().Name+" Request was "+ (!result.IsSuccessful ? " NOT ":"") + " successful.  Current Inventory :  "+ RealTimeInventory.GetCurrentQuantitiesReport());
             if (!result.IsSuccessful)
             {
               Sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
-                Logger.Debug(result.Exception.Message);
+               Logger.Error(result.Exception.Message);
             }
             else
             {
                 RealTimeInventory = result.Data as RealTimeInventory;
-                Sender.Tell(successResponseCompletedMessage(RealTimeInventory));
+                var response = successResponseCompletedMessage(RealTimeInventory);
+                Sender.Tell(response);
+                Logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + RealTimeInventory.GetCurrentQuantitiesReport());
             }
+        }
+        protected override SupervisorStrategy SupervisorStrategy()
+        {
+            return new OneForOneStrategy( 
+                x =>
+                {
+                    Logger.Error(x.Message+" - "+ x.InnerException?.Message);
+                    Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory, x));
+                     return Directive.Stop;
+                });
         }
     }
 }

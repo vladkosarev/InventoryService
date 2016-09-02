@@ -1,0 +1,15 @@
+﻿using System.Collections.Generic;
+
+namespace InventoryService.Actors
+{
+    public class GetRemovedProductCompletedMessage
+    {
+        public GetRemovedProductCompletedMessage(List<RemoveProductMessage> removedProducts)
+        {
+            RemovedProducts = removedProducts;
+        }
+
+        public List<RemoveProductMessage> RemovedProducts { private set; get; }
+
+    }
+}
