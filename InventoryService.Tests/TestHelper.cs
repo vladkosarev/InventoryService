@@ -11,9 +11,9 @@ namespace InventoryService.Tests
 {
     public class TestHelper
     {
-        private AnInventoryStorage InventoryService { set; get; }
+        private IInventoryStorage InventoryService { set; get; }
 
-        public TestHelper(AnInventoryStorage inventoryService)
+        public TestHelper(IInventoryStorage inventoryService)
         {
             InventoryService = inventoryService;
         }

@@ -4,7 +4,18 @@ using System.Threading.Tasks;
 
 namespace InventoryService.Storage
 {
-    public abstract class AnInventoryStorage : IDisposable
+    public interface IInventoryStorage : IDisposable
+    {
+        Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId);
+
+        Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject);
+
+       Task<bool> FlushAsync(string productId);
+
+    }
+
+    /*
+       public abstract class AnInventoryStorage : IDisposable
     {
         protected abstract Task<StorageOperationResult<IRealTimeInventory>> AReadInventoryAsync(string productId);
 
@@ -21,7 +32,7 @@ namespace InventoryService.Storage
             catch (Exception)
             {
                 
-           return  new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(null,0,0,0));
+              return  new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(null,0,0,0));
             }
         }
 
@@ -47,13 +58,14 @@ namespace InventoryService.Storage
             catch (Exception)
             {
 
-                throw;
+                return false;
             }
         }
 
         public void Dispose()
         {
-            //todo
+            //todo how to dispose
         }
     }
+     */
 }

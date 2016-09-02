@@ -15,9 +15,9 @@ namespace InventoryService.Actors
         private readonly string _id;
         private RealTimeInventory RealTimeInventory { set; get; }
         private readonly bool _withCache;
-        private AnInventoryStorage InventoryStorage { set; get; }
+        private IInventoryStorage InventoryStorage { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
-        public ProductInventoryActor(AnInventoryStorage inventoryStorage, string id, bool withCache)
+        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
             _withCache = withCache;

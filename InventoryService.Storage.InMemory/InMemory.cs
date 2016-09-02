@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace InventoryService.Storage.InMemoryLib
 {
-    public class InMemory : AnInventoryStorage
+    public class InMemory : IInventoryStorage
     {
         private readonly ConcurrentDictionary<string, IRealTimeInventory> _productInventories =
             new ConcurrentDictionary<string, IRealTimeInventory>();
 
-        protected override async Task<StorageOperationResult<IRealTimeInventory>> AReadInventoryAsync(string productId)
+        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
         {
             if (_productInventories.ContainsKey(productId))
             {
@@ -21,18 +21,22 @@ namespace InventoryService.Storage.InMemoryLib
             }
         }
 
-        protected override async Task<StorageOperationResult> AWriteInventoryAsync(IRealTimeInventory inventoryObject)
+        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
             _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds),
                 (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds));
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
-        protected  override async Task<bool> AFlushAsync(string productId)
+       public async Task<bool> FlushAsync(string productId)
         {
             return await Task.FromResult(true);
         }
 
-       
+
+        public void Dispose()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

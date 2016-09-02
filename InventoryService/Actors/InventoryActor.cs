@@ -17,7 +17,7 @@ namespace InventoryService.Actors
 
         private readonly bool _withCache;
 
-        public InventoryActor(AnInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
+        public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
         {
             _withCache = withCache;
 
@@ -57,7 +57,7 @@ namespace InventoryService.Actors
             });
         }
 
-        private IActorRef GetActorRef(AnInventoryStorage inventoryStorage, string productId)
+        private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {
             if (_products.ContainsKey(productId)) return _products[productId];
 

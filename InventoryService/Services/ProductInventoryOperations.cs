@@ -9,7 +9,7 @@ namespace InventoryService.Services
     //todo return the full error message
     public static class ProductInventoryOperations
     {
-        public static RealTimeInventory InitializeFromStorage(this RealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string id)
+        public static RealTimeInventory InitializeFromStorage(this RealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string id)
         {
             var initTask = inventoryStorage.ReadInventoryAsync(id);
             Task.WaitAll(initTask);
@@ -31,7 +31,7 @@ namespace InventoryService.Services
             };
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> ReadInventoryFromStorageAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId)
+        public static async Task<OperationResult<IRealTimeInventory>> ReadInventoryFromStorageAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId)
         {
             try
             {
@@ -45,13 +45,13 @@ namespace InventoryService.Services
             }
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> InventoryStorageFlushAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string id)
+        public static async Task<OperationResult<IRealTimeInventory>> InventoryStorageFlushAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string id)
         {
             await inventoryStorage.FlushAsync(id);
             return realTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> ReserveAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId, int reservationQuantity)
+        public static async Task<OperationResult<IRealTimeInventory>> ReserveAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int reservationQuantity)
         {
             var newReserved = Math.Max(0, realTimeInventory.Reserved + reservationQuantity);
 
@@ -70,7 +70,7 @@ namespace InventoryService.Services
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             var newQuantity = realTimeInventory.Quantity + quantity;
 
@@ -85,7 +85,7 @@ namespace InventoryService.Services
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHoldAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHoldAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             var newQuantity = realTimeInventory.Quantity + quantity;
             var newHolds = realTimeInventory.Holds + quantity;
@@ -101,7 +101,7 @@ namespace InventoryService.Services
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> PlaceHoldAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId, int toHold)
+        public static async Task<OperationResult<IRealTimeInventory>> PlaceHoldAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int toHold)
         {
             var newHolds = realTimeInventory.Holds + toHold;
             if (newHolds > realTimeInventory.Quantity)
@@ -117,7 +117,7 @@ namespace InventoryService.Services
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> PurchaseAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> PurchaseAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             if (quantity < 0)
             {
@@ -141,7 +141,7 @@ namespace InventoryService.Services
             return newrealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-        public static async Task<OperationResult<IRealTimeInventory>> PurchaseFromHoldsAsync(this IRealTimeInventory realTimeInventory, AnInventoryStorage inventoryStorage, string productId, int quantity)
+        public static async Task<OperationResult<IRealTimeInventory>> PurchaseFromHoldsAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             if (quantity < 0)
             {

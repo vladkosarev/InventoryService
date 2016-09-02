@@ -38,7 +38,7 @@ namespace InventoryService.Server
                 throw new Exception(message);
             }
 
-            var inventoryService = (AnInventoryStorage)Activator.CreateInstance(storageType);
+            var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
 
             Console.WriteLine("Starting Server");
 
