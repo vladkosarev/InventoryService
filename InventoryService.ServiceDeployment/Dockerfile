@@ -11,3 +11,4 @@ WORKDIR /app
 CMD [ "mono",  "./InventoryService.ServiceDeployment.exe" ]
  
 EXPOSE 8099
+EXPOSE 9200

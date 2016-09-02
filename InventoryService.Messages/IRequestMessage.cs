@@ -1,4 +1,4 @@
-﻿namespace InventoryService.Messages.Request
+﻿namespace InventoryService.Messages
 {
     public interface IRequestMessage
     {

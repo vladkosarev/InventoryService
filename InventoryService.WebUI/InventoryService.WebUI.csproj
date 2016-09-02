@@ -58,7 +58,6 @@
     <Content Include="web\js\angular.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="web\js\freelancer.js" />
     <Content Include="web\js\freelancer.min.js" />
     <Content Include="web\js\jquery.signalr-2.2.0.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

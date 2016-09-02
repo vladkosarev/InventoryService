@@ -12,7 +12,7 @@ namespace InventoryService.ServiceDeployment
         {
             new InventoryServiceServer().StartServer();
             appBuilder.MapSignalR();
-            InventoryServiceSignalRContext.Push();
+           
             var fileSystem = new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory + "/web");
             var options = new FileServerOptions
             {
@@ -22,6 +22,8 @@ namespace InventoryService.ServiceDeployment
             };
 
             appBuilder.UseFileServer(options);
+
+            InventoryServiceSignalRContext.Push();
         }
     }
 }

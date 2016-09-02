@@ -14,12 +14,8 @@ namespace InventoryService.ServiceDeployment
         {
             Task.Delay(TimeSpan.FromSeconds(1)).ContinueWith(c =>
             {
-                var product = "product";
                 var actor = InventoryServiceServer.ActorSystem.ActorSelection("akka.tcp://InventoryService-Server@localhost:8099/user/InventoryActor");
-
-                actor.Tell(new UpdateQuantityMessage(product, 1));
-
-                actor.Ask<IInventoryServiceCompletedMessage>(new GetInventoryMessage(product))
+                actor.Ask<QueryInventoryListCompletedMessage>(new QueryInventoryListMessage())
                                .ContinueWith(
                                    x =>
                                    {
