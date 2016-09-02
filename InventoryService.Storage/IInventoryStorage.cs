@@ -10,8 +10,7 @@ namespace InventoryService.Storage
 
         Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject);
 
-       Task<bool> FlushAsync(string productId);
-
+        Task<bool> FlushAsync(string productId);
     }
 
     /*
@@ -31,7 +30,6 @@ namespace InventoryService.Storage
             }
             catch (Exception)
             {
-                
               return  new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(null,0,0,0));
             }
         }
@@ -44,7 +42,6 @@ namespace InventoryService.Storage
             }
             catch (Exception)
             {
-
                 return new StorageOperationResult();
             }
         }
@@ -57,7 +54,6 @@ namespace InventoryService.Storage
             }
             catch (Exception)
             {
-
                 return false;
             }
         }

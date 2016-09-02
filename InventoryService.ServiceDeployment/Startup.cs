@@ -1,8 +1,8 @@
-﻿using System;
-using InventoryService.Server;
+﻿using InventoryService.Server;
 using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
+using System;
 
 namespace InventoryService.ServiceDeployment
 {
@@ -12,7 +12,7 @@ namespace InventoryService.ServiceDeployment
         {
             new InventoryServiceServer().StartServer();
             appBuilder.MapSignalR();
-           
+
             var fileSystem = new PhysicalFileSystem(AppDomain.CurrentDomain.BaseDirectory + "/web");
             var options = new FileServerOptions
             {

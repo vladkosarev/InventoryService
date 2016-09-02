@@ -1,5 +1,5 @@
-﻿using System;
-using InventoryService.Messages.Models;
+﻿using InventoryService.Messages.Models;
+using System;
 
 namespace InventoryService.Messages.Request
 {

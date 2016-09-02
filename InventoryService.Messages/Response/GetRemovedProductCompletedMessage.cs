@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using InventoryService.Messages.Request;
+﻿using InventoryService.Messages.Request;
+using System.Collections.Generic;
 
 namespace InventoryService.Messages.Response
 {

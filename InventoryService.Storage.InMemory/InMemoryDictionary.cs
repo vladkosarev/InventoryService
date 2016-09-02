@@ -8,7 +8,7 @@ namespace InventoryService.Storage.InMemoryLib
     {
         private readonly Dictionary<string, IRealTimeInventory> _productInventories = new Dictionary<string, IRealTimeInventory>();
 
-       public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
+        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
         {
             if (_productInventories.ContainsKey(productId))
             {
@@ -20,7 +20,7 @@ namespace InventoryService.Storage.InMemoryLib
             }
         }
 
-       public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
+        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
             //StorageWriteCheck.Execute(inventoryObject);
 
@@ -31,15 +31,13 @@ namespace InventoryService.Storage.InMemoryLib
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
-       public async Task<bool> FlushAsync(string productId)
+        public async Task<bool> FlushAsync(string productId)
         {
             return await Task.FromResult(true);
         }
 
-
         public void Dispose()
         {
-          
         }
     }
 }

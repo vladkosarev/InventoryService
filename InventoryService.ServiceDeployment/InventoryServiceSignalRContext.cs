@@ -1,6 +1,5 @@
 ﻿using Akka.Actor;
 using InventoryService.Messages.Request;
-using InventoryService.Messages.Response;
 using InventoryService.Server;
 using Microsoft.AspNet.SignalR;
 using System;

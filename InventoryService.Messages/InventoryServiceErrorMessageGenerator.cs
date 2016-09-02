@@ -5,7 +5,7 @@ namespace InventoryService.Messages
 {
     public class InventoryServiceErrorMessageGenerator
     {
-        public static RealTimeInventoryException Generate(ErrorType errorType,IRealTimeInventory currentRealTimeInventory, int requestUpdate,  Exception exceptionThrown = null)
+        public static RealTimeInventoryException Generate(ErrorType errorType, IRealTimeInventory currentRealTimeInventory, int requestUpdate, Exception exceptionThrown = null)
         {
             string result;
 

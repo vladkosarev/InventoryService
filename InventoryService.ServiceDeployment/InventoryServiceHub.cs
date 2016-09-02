@@ -4,6 +4,5 @@ namespace InventoryService.ServiceDeployment
 {
     public class InventoryServiceHub : Hub
     {
-      
     }
 }

@@ -5,7 +5,6 @@ using InventoryService.Storage.InMemoryLib;
 using InventoryService.Tests;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace InventoryService.TestUitlity

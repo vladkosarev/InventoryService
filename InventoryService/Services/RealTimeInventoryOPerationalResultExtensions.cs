@@ -71,7 +71,7 @@ namespace InventoryService.Services
           this OperationResult<IRealTimeInventory> operationResult, string productId)
         {
             operationResult.Data = operationResult.Data ?? new RealTimeInventory(productId, 0, 0, 0);
-            
+
             return new InventoryOperationErrorMessage(operationResult.Data, operationResult.Exception);
         }
     }

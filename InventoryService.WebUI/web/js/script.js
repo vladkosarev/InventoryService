@@ -96,8 +96,6 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     }
     $scope.newUpdateAvailable = 0;
     hub.client("inventoryData", function (response) {
-
-
         for (var i = 0; i < response.RealTimeInventories; i++) {
             var newInventory = response.RealTimeInventories[i];
             var productId = newInventory.ProductId;

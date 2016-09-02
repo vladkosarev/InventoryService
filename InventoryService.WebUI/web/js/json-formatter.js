@@ -1,16 +1,14 @@
 ﻿/*!
  * jsonformatter
- * 
+ *
  * Version: 0.6.0 - 2016-04-29T03:24:40.672Z
  * License: Apache-2.0
  */
-
 
 "use strict";
 
 angular.module("jsonFormatter", ["RecursionHelper"])
     .provider("JSONFormatterConfig", function JSONFormatterConfigProvider() {
-
         // Default values for hover preview config
         var hoverPreviewEnabled = false;
         var hoverPreviewArrayCount = 100;
@@ -91,12 +89,10 @@ angular.module("jsonFormatter", ["RecursionHelper"])
                     value = '"' + escapeString(value) + '"';
                 }
                 if (type === "function") {
-
                     // Remove content of the function
                     return object.toString()
                         .replace(/[\r\n]/g, "")
                         .replace(/\{.*\}/, "") + "{…}";
-
                 }
                 return value;
             }
@@ -139,7 +135,6 @@ angular.module("jsonFormatter", ["RecursionHelper"])
                 };
 
                 if (scope.type === "string") {
-
                     // Add custom type for date
                     if ((new Date(scope.json)).toString() !== "Invalid Date") {
                         scope.isDate = true;
@@ -155,7 +150,6 @@ angular.module("jsonFormatter", ["RecursionHelper"])
                     return scope.getKeys() && !scope.getKeys().length &&
                         scope.isOpen && !scope.isArray();
                 };
-
 
                 // If 'open' attribute is present
                 scope.isOpen = !!scope.open;
@@ -185,7 +179,6 @@ angular.module("jsonFormatter", ["RecursionHelper"])
 
                 scope.getThumbnail = function() {
                     if (scope.isArray()) {
-
                         // if array length is greater then 100 it shows "Array[101]"
                         if (scope.json.length > JSONFormatterConfig.hoverPreviewArrayCount) {
                             return "Array[" + scope.json.length + "]";
@@ -193,7 +186,6 @@ angular.module("jsonFormatter", ["RecursionHelper"])
                             return "[" + scope.json.map(getPreview).join(", ") + "]";
                         }
                     } else {
-
                         var keys = scope.getKeys();
 
                         // the first five keys (like Chrome Developer Tool)
@@ -221,7 +213,6 @@ angular.module("jsonFormatter", ["RecursionHelper"])
                     open: "="
                 },
                 compile: function(element) {
-
                     // Use the compile function from the RecursionHelper,
                     // And return the linking function(s) which it returns
                     return RecursionHelper.compile(element, link);

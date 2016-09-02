@@ -30,14 +30,14 @@ namespace InventoryService.Storage.EsentLib
             return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds)));
         }
 
-      public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
+        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
             //StorageWriteCheck.Execute(inventoryObject);
             _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds);
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = false });
         }
 
-       public async Task<bool> FlushAsync(string productId)
+        public async Task<bool> FlushAsync(string productId)
         {
             _data.Flush();
             return await Task.FromResult(true);
