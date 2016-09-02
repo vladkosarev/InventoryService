@@ -5,6 +5,8 @@ using InventoryService.Storage.InMemoryLib;
 using InventoryService.Tests;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace InventoryService.TestUitlity
@@ -22,45 +24,53 @@ namespace InventoryService.TestUitlity
             {
                 TestHelper helper = new TestHelper(new InMemory());
 
-                bool initializationSuccess;
+         
                 var productName = "productName";
                 //var inventoryActor = helper.InitializeAndGetInventoryActor(new RealTimeInventory(
                 //        productName,
                 //        Convert.ToInt32(InitialQuantity.Text),
                 //        Convert.ToInt32(InitialReservation.Text),
                 //        Convert.ToInt32(InitialHold.Text)), ActorSystem);
-                var inventoryActor = helper.InitializeAndGetInventoryActor( ActorSystem).ResolveOne(TimeSpan.FromSeconds(5)).Result;
+                var resmoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+
+
+             var t=   helper.Reserve(ActorSystem.ActorSelection(resmoteAddress), 1); 
+
+                var task = ActorSystem.ActorSelection(resmoteAddress).ResolveOne(TimeSpan.FromSeconds(5));
+                task.ConfigureAwait(false);
+                Task.WaitAll(task);
+                var inventoryActor = task.Result;
 
                 IInventoryServiceCompletedMessage result = null;
                 var newUpdate = Convert.ToInt32(NewQuantity.Text);
                 switch (cmbOoperation.SelectedItem.ToString())
                 {
                     case "ReadInventory":
-                        result = helper.GetInventory(inventoryActor, productName);
+                        result = helper.GetInventory(inventoryActor, productName).WaitAndGetOperationResult();
                         break;
 
                     case "Reserve":
-                        result = helper.Reserve(inventoryActor, newUpdate, productName);
+                        result = helper.Reserve(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
                         break;
 
                     case "UpdateQuantity":
-                        result = helper.UpdateQuantity(inventoryActor, newUpdate, productName);
+                        result = helper.UpdateQuantity(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
                         break;
 
                     case "UpdateQuantityAndHold":
-                        result = helper.UpdateQuantityAndHold(inventoryActor, newUpdate, productName);
+                        result = helper.UpdateQuantityAndHold(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
                         break;
 
                     case "PlaceHold":
-                        result = helper.Hold(inventoryActor, newUpdate, productName);
+                        result = helper.Hold(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
                         break;
 
                     case "Purchase":
-                        result = helper.Purchase(inventoryActor, newUpdate, productName);
+                        result = helper.Purchase(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
                         break;
 
                     case "PurchaseFromHolds":
-                        result = helper.PurchaseFromHolds(inventoryActor, newUpdate, productName);
+                        result = helper.PurchaseFromHolds(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
                         break;
                 }
 
@@ -98,7 +108,7 @@ namespace InventoryService.TestUitlity
             button1.PerformClick();
         }
 
-        public ActorSystem ActorSystem { get; set; }
+        public static ActorSystem ActorSystem { get; set; }
 
         private void InitialQuantity_TextChanged(object sender, EventArgs e)
         {

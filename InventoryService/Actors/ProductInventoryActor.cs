@@ -41,7 +41,7 @@ namespace InventoryService.Actors
 
             ReceiveAsync<ReserveMessage>(async message =>
             {
-                throw  new Exception();
+               //throw  new Exception();
 
                 var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
                 ProcessAndSendResult(result, message, (rti) => new ReserveCompletedMessage(rti, true));

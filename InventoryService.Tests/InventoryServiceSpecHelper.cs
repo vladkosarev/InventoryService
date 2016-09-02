@@ -3,68 +3,111 @@ using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace InventoryService.Tests
 {
     public class InventoryServiceSpecificationHelper
     {
-        public static Dictionary<int, Func<IRealTimeInventory, int, IRealTimeInventory>> GetOperations(TestHelper testHelper, IActorRef inventoryActor)
+
+        public static Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>> GetAssertions(TestHelper testHelper, IActorRef inventoryActor)
         {
-            var operations = new Dictionary<int, Func<IRealTimeInventory, int, IRealTimeInventory>>
+            var operations = new Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>>
             {
                 {
-                    1, (initialInventory, update) =>
+                    1, (initialInventory, update,reservationResult) =>
                     {
-                        var reservationResult = testHelper.Reserve(inventoryActor, update, initialInventory.ProductId);
-
                         AssertReservations(initialInventory, update, reservationResult);
                         return reservationResult.RealTimeInventory;
                     }
                 },
                 {
-                    2, (initialInventory, update) =>
+                    2, (initialInventory, update,reservationResult) =>
                     {
-                        var reservationResult = testHelper.UpdateQuantity(inventoryActor, update, initialInventory.ProductId);
-
                         AssertUpdateQuantity(initialInventory, update, reservationResult);
                         return reservationResult.RealTimeInventory;
                     }
                 },
                 {
-                    3, (initialInventory, update) =>
+                    3, (initialInventory, update,reservationResult) =>
                     {
-                        var reservationResult = testHelper.Hold(inventoryActor,  update, initialInventory.ProductId);
-
                         AssertHolds(initialInventory, update, reservationResult);
                         return reservationResult.RealTimeInventory;
                     }
                 },
                 {
-                    4, (initialInventory, update) =>
+                    4, (initialInventory, update,reservationResult) =>
                     {
-                        var reservationResult = testHelper.UpdateQuantityAndHold(inventoryActor, update,
-                            initialInventory.ProductId);
 
                         AssertUpdateQuantityAndHold(initialInventory,(uint) update, reservationResult);
                         return reservationResult.RealTimeInventory;
                     }
                 },
                 {
-                    5, (initialInventory, update) =>
+                    5, (initialInventory, update,reservationResult) =>
                     {
-                        var reservationResult = testHelper.Purchase(inventoryActor,  update, initialInventory.ProductId);
-
                         AssertPurchase(initialInventory,(uint) update, reservationResult);
                         return reservationResult.RealTimeInventory;
                     }
                 },
                 {
-                    6, (initialInventory, update) =>
+                    6, (initialInventory, update,reservationResult) =>
                     {
-                        var reservationResult = testHelper.PurchaseFromHolds(inventoryActor,  update,initialInventory.ProductId);
                         AssertPurchaseFromHolds(initialInventory,(uint) update, reservationResult);
                         return reservationResult.RealTimeInventory;
+                    }
+                }
+            };
+            return operations;
+        }
+
+
+
+        public static Dictionary<int, Func<string, int, Task<IInventoryServiceCompletedMessage>>> GetOperations(TestHelper testHelper, IActorRef inventoryActor)
+        {
+            var operations = new Dictionary<int, Func<string, int, Task<IInventoryServiceCompletedMessage>>>
+            {
+                {
+                    1, (productId, update) =>
+                    {
+                        var reservationResult = testHelper.Reserve(inventoryActor, update, productId);
+                        return reservationResult;
+                    }
+                },
+                {
+                    2, (productId, update) =>
+                    {
+                        var reservationResult = testHelper.UpdateQuantity(inventoryActor, update,productId);
+                        return reservationResult;
+                    }
+                },
+                {
+                    3, (productId, update) =>
+                    {
+                        var reservationResult = testHelper.Hold(inventoryActor,  update, productId);
+                        return reservationResult;
+                    }
+                },
+                {
+                    4, (productId, update) =>
+                    {
+                        var reservationResult = testHelper.UpdateQuantityAndHold(inventoryActor, update,productId);
+                        return reservationResult;
+                    }
+                },
+                {
+                    5, (productId, update) =>
+                    {
+                        var reservationResult = testHelper.Purchase(inventoryActor,  update, productId);
+                        return reservationResult;
+                    }
+                },
+                {
+                    6, (productId, update) =>
+                    {
+                        var reservationResult = testHelper.PurchaseFromHolds(inventoryActor, update,productId);
+                        return reservationResult;
                     }
                 }
             };
