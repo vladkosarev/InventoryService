@@ -47,10 +47,13 @@
     <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IRequestMessage.cs" />
+    <Compile Include="Request\GetRemovedProductMessage.cs" />
     <Compile Include="Request\QueryInventoryListCompletedMessage.cs" />
     <Compile Include="Request\QueryInventoryListMessage.cs" />
+    <Compile Include="Request\RemoveProductMessage.cs" />
     <Compile Include="Request\UpdateAndHoldQuantityMessage.cs" />
     <Compile Include="IInventoryServiceCompletedMessage.cs" />
+    <Compile Include="Response\GetRemovedProductCompletedMessage.cs" />
     <Compile Include="Response\InventoryOperationErrorMessage.cs" />
     <Compile Include="Response\PurchaseFromHoldsCompletedMessage.cs" />
     <Compile Include="Response\PurchaseCompletedMessage.cs" />

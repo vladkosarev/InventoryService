@@ -1,7 +1,7 @@
 ﻿using System;
 using InventoryService.Messages.Models;
 
-namespace InventoryService.Actors
+namespace InventoryService.Messages.Request
 {
     public class RemoveProductMessage
     {

@@ -51,9 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actors\GetRemovedProductCompletedMessage.cs" />
-    <Compile Include="Actors\GetRemovedProductMessage.cs" />
-    <Compile Include="Actors\RemoveProductMessage.cs" />
     <Compile Include="Services\IProductInventoryOperations.cs" />
     <Compile Include="Services\OperationResult.cs" />
     <Compile Include="Services\ProductInventoryOperations.cs" />

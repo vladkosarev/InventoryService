@@ -1,12 +1,11 @@
 ﻿using Akka.Actor;
 using InventoryService.Messages;
+using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
+using InventoryService.Messages.Response;
 using InventoryService.Storage;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using InventoryService.Messages.Models;
-using InventoryService.Messages.Response;
 
 namespace InventoryService.Actors
 {
@@ -37,12 +36,12 @@ namespace InventoryService.Actors
 
             Receive<GetRemovedProductMessage>(message =>
             {
-               Sender.Tell(new GetRemovedProductCompletedMessage(_removedRealTimeInventories.Select(x=>x.Value).ToList()));
+                Sender.Tell(new GetRemovedProductCompletedMessage(_removedRealTimeInventories.Select(x => x.Value).ToList()));
             });
 
             Receive<QueryInventoryListMessage>(message =>
             {
-                Sender.Tell(  new QueryInventoryListCompletedMessage(_realTimeInventories.Select(x => x.Value).ToList()));   
+                Sender.Tell(new QueryInventoryListCompletedMessage(_realTimeInventories.Select(x => x.Value).ToList()));
                 foreach (var product in _products)
                 {
                     GetActorRef(inventoryStorage, product.Key).Tell(new GetInventoryMessage(product.Key));
@@ -50,7 +49,7 @@ namespace InventoryService.Actors
             });
             Receive<GetInventoryCompletedMessage>(message =>
             {
-                _realTimeInventories[message.RealTimeInventory.ProductId]=message.RealTimeInventory as RealTimeInventory;
+                _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory as RealTimeInventory;
             });
             Receive<GetMetricsMessage>(message =>
             {
@@ -62,7 +61,7 @@ namespace InventoryService.Actors
                 var eventName = message.GetType().Name + "Count";
                 performanceService.Increment(eventName);
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
-               //todo Self.Tell(new GetMetricsMessage());
+                //todo Self.Tell(new GetMetricsMessage());
             });
         }
 
@@ -76,7 +75,7 @@ namespace InventoryService.Actors
                 , productId);
 
             _products.Add(productId, productActorRef);
-            _realTimeInventories.Add(productId,new RealTimeInventory(productId, 0,0,0));
+            _realTimeInventories.Add(productId, new RealTimeInventory(productId, 0, 0, 0));
             return _products[productId];
         }
     }

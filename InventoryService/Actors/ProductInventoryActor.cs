@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Event;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
@@ -6,7 +7,6 @@ using InventoryService.Messages.Response;
 using InventoryService.Services;
 using InventoryService.Storage;
 using System;
-using Akka.Event;
 
 namespace InventoryService.Actors
 {
@@ -17,6 +17,7 @@ namespace InventoryService.Actors
         private readonly bool _withCache;
         private IInventoryStorage InventoryStorage { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
+
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
@@ -83,11 +84,11 @@ namespace InventoryService.Actors
 
         private void ProcessAndSendResult(OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<RealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage)
         {
-            Logger.Info(requestMessage.GetType().Name+" Request was "+ (!result.IsSuccessful ? " NOT ":"") + " successful.  Current Inventory :  "+ RealTimeInventory.GetCurrentQuantitiesReport());
+            Logger.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + RealTimeInventory.GetCurrentQuantitiesReport());
             if (!result.IsSuccessful)
             {
-              Sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
-               Logger.Error(result.Exception.Message);
+                Sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
+                Logger.Error(result.Exception.Message);
             }
             else
             {
@@ -97,14 +98,15 @@ namespace InventoryService.Actors
                 Logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + RealTimeInventory.GetCurrentQuantitiesReport());
             }
         }
+
         protected override SupervisorStrategy SupervisorStrategy()
         {
-            return new OneForOneStrategy( 
+            return new OneForOneStrategy(
                 x =>
                 {
-                    Logger.Error(x.Message+" - "+ x.InnerException?.Message);
+                    Logger.Error(x.Message + " - " + x.InnerException?.Message);
                     Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory, x));
-                     return Directive.Stop;
+                    return Directive.Stop;
                 });
         }
     }

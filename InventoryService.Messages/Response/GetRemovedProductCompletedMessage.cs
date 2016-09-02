@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using InventoryService.Messages.Request;
 
-namespace InventoryService.Actors
+namespace InventoryService.Messages.Response
 {
     public class GetRemovedProductCompletedMessage
     {
@@ -10,6 +11,5 @@ namespace InventoryService.Actors
         }
 
         public List<RemoveProductMessage> RemovedProducts { private set; get; }
-
     }
 }
