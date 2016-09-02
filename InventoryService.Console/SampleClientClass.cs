@@ -14,8 +14,8 @@ namespace InventoryService.Console
     {
         public async Task StartSampleClientAsync()
         {
-            const int productCount = 10;
-            const int initialQuantity = 50;
+            const int productCount = 100;
+            const int initialQuantity = 1000;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
             for (var product = 0; product < productCount; product++)

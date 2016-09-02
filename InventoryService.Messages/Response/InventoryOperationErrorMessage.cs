@@ -5,15 +5,15 @@ namespace InventoryService.Messages.Response
 {
     public class InventoryOperationErrorMessage : IInventoryServiceCompletedMessage
     {
-        public InventoryOperationErrorMessage(IRealTimeInventory realTimeInventory, AggregateException error)
+        public InventoryOperationErrorMessage(IRealTimeInventory realTimeInventory, Exception error)
         {
-            Error = error ?? new AggregateException();
+            Error = error;
             RealTimeInventory = realTimeInventory;
             Successful = false;
         }
 
         public IRealTimeInventory RealTimeInventory { get; }
         public bool Successful { get; set; }
-        public AggregateException Error { get; private set; }
+        public Exception Error { get; private set; }
     }
 }

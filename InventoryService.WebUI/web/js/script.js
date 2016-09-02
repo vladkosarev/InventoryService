@@ -71,7 +71,10 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 });
 
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
-    hub.client("inventoryData", function (response) {
+    var lastResponse = {};
+    var lastResponseDict = {};
+    var updateGrid = function () {
+        $scope.newUpdateAvailable = 0;
         $("#jsGrid1")
             .jsGrid({
                 width: "100%",
@@ -81,7 +84,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
                 sorting: true,
                 paging: false,
 
-                data: response.RealTimeInventories,
+                data: lastResponse.RealTimeInventories,
 
                 fields: [
                     { name: "ProductId", type: "text", width: 200 },
@@ -90,6 +93,24 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
                     { name: "Holds", type: "text", width: 200 }
                 ]
             });
+    }
+    $scope.newUpdateAvailable = 0;
+    hub.client("inventoryData", function (response) {
+
+
+        for (var i = 0; i < response.RealTimeInventories; i++) {
+            var newInventory = response.RealTimeInventories[i];
+            var productId = newInventory.ProductId;
+            var cachedInv = lastResponseDict[productId];
+            if (cachedInv) {
+                if ((cachedInv.Quantity !== newInventory.Quantity) || (cachedInv.Reserved !== newInventory.Reserved) || (cachedInv.Holds !== newInventory.Holds)) {
+                    $scope.newUpdateAvailable++;
+                }
+            } else {
+                $scope.newUpdateAvailable++;
+            }
+        }
+        lastResponse = response;
     });
 
     hub.ready(function () {

@@ -6,6 +6,7 @@ using InventoryService.Messages.Response;
 using InventoryService.Services;
 using InventoryService.Storage;
 using System;
+using Akka.Event;
 
 namespace InventoryService.Actors
 {
@@ -14,9 +15,9 @@ namespace InventoryService.Actors
         private readonly string _id;
         private RealTimeInventory RealTimeInventory { set; get; }
         private readonly bool _withCache;
-        private IInventoryStorage InventoryStorage { set; get; }
-
-        public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
+        private AnInventoryStorage InventoryStorage { set; get; }
+        public readonly ILoggingAdapter Logger = Context.GetLogger();
+        public ProductInventoryActor(AnInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
             _withCache = withCache;
@@ -84,11 +85,8 @@ namespace InventoryService.Actors
         {
             if (!result.IsSuccessful)
             {
-                //todo move this message into common error message
-
-                Sender.Tell(result.ToInventoryOperationErrorMessage(
-                    requestMessage.ProductId
-                    , "Operation failed while trying to " + requestMessage.GetType() + " with update " + requestMessage.Update + " on product " + requestMessage.ProductId));
+              Sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
+                Logger.Debug(result.Exception.Message);
             }
             else
             {

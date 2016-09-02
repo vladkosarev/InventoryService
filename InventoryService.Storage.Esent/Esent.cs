@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace InventoryService.Storage.EsentLib
 {
-    public class Esent : IInventoryStorage
+    public class Esent : AnInventoryStorage
     {
         private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("InventoryStorageDBNew2");
 
@@ -24,20 +24,20 @@ namespace InventoryService.Storage.EsentLib
             public readonly int Holds;
         }
 
-        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
+        protected override async Task<StorageOperationResult<IRealTimeInventory>> AReadInventoryAsync(string productId)
         {
             var value = _data.ContainsKey(productId) ? _data[productId] : new Inventory(0, 0, 0);
             return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds)));
         }
 
-        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
+        protected override async Task<StorageOperationResult> AWriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
             //StorageWriteCheck.Execute(inventoryObject);
             _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds);
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = false });
         }
 
-        public async Task<bool> FlushAsync(string productId)
+        protected override async Task<bool> AFlushAsync(string productId)
         {
             _data.Flush();
             return await Task.FromResult(true);

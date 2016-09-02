@@ -74,10 +74,10 @@ namespace InventoryService.TestUitlity
                     {
                         var errorMessage = result as InventoryOperationErrorMessage;
                         var list = new List<string>();
-                        var aggregateException = errorMessage?.Error?.Flatten();
+                        var aggregateException = errorMessage?.Error;
                         if (aggregateException != null)
-                            list.AddRange(from x in aggregateException?.InnerExceptions select x.Message);
-                        richTextBox1.Text = errorMessage?.Error?.Flatten().Message + " - " + string.Join(" ", list);
+                            list.Add(aggregateException.Message);
+                        richTextBox1.Text = errorMessage?.Error?.Message + " - " + string.Join(" ", list);
                     }
                     else
                     {

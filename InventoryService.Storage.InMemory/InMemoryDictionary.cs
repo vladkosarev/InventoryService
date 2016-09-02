@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace InventoryService.Storage.InMemoryLib
 {
-    public class InMemoryDictionary : IInventoryStorage
+    public class InMemoryDictionary : AnInventoryStorage
     {
         private readonly Dictionary<string, IRealTimeInventory> _productInventories = new Dictionary<string, IRealTimeInventory>();
 
-        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
+        protected override async Task<StorageOperationResult<IRealTimeInventory>> AReadInventoryAsync(string productId)
         {
             if (_productInventories.ContainsKey(productId))
             {
@@ -20,7 +20,7 @@ namespace InventoryService.Storage.InMemoryLib
             }
         }
 
-        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
+        protected override async Task<StorageOperationResult> AWriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
             //StorageWriteCheck.Execute(inventoryObject);
 
@@ -31,13 +31,11 @@ namespace InventoryService.Storage.InMemoryLib
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
-        public async Task<bool> FlushAsync(string productId)
+        protected override async Task<bool> AFlushAsync(string productId)
         {
             return await Task.FromResult(true);
         }
 
-        public void Dispose()
-        {
-        }
+     
     }
 }
