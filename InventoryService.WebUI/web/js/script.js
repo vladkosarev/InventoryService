@@ -73,7 +73,7 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
     var lastResponse = {};
     var lastResponseDict = {};
-    var updateGrid = function () {
+    $scope. updateGrid = function () {
         $scope.newUpdateAvailable = 0;
         $("#jsGrid1")
             .jsGrid({
@@ -96,7 +96,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     }
     $scope.newUpdateAvailable = 0;
     hub.client("inventoryData", function (response) {
-        for (var i = 0; i < response.RealTimeInventories; i++) {
+        for (var i = 0; i < response.RealTimeInventories.length; i++) {
             var newInventory = response.RealTimeInventories[i];
             var productId = newInventory.ProductId;
             var cachedInv = lastResponseDict[productId];
@@ -107,6 +107,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
             } else {
                 $scope.newUpdateAvailable++;
             }
+            lastResponseDict[productId] = newInventory;
         }
         lastResponse = response;
     });
