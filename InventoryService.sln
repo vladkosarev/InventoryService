@@ -15,11 +15,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{6008
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage", "InventoryService.Storage\InventoryService.Storage.csproj", "{69C4264A-CB21-47F8-A467-6072172DA842}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.InMemory", "InventoryService.Storage.InMemory\InventoryService.Storage.InMemory.csproj", "{94389D22-92E0-4933-A1C9-41CAB38FFD7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.InMemoryLib", "InventoryService.Storage.InMemory\InventoryService.Storage.InMemoryLib.csproj", "{94389D22-92E0-4933-A1C9-41CAB38FFD7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.Esent", "InventoryService.Storage.Esent\InventoryService.Storage.Esent.csproj", "{5515E3D0-E58F-4637-8044-48E05EE35B96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Storage.EsentLib", "InventoryService.Storage.Esent\InventoryService.Storage.EsentLib.csproj", "{5515E3D0-E58F-4637-8044-48E05EE35B96}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Messages", "InventoryService.Messages\InventoryService.Messages.csproj", "{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B3340614-BCAE-47E7-8FB9-EB8316DE7F5A}"
+	ProjectSection(SolutionItems) = preProject
+		build.bat = build.bat
+		build.fsx = build.fsx
+		InventoryService.Messages.nuspec = InventoryService.Messages.nuspec
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.ServiceDeployment", "InventoryService.ServiceDeployment\InventoryService.ServiceDeployment.csproj", "{77FBB708-8E17-4792-90F1-E79308287E09}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiExports", "ApiExports", "{3F320D97-7C57-45CC-B400-069F371D86D0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deployments", "Deployments", "{67D7C9C7-D0B6-4C17-8E5B-DA384830D311}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.ServiceClientDeployment", "InventoryService.ServiceClientDeployment\InventoryService.ServiceClientDeployment.csproj", "{04D88020-62A8-46EB-B759-ABE8DF93443C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.TestUitlity", "InventoryService.TestUitlity\InventoryService.TestUitlity.csproj", "{934CC3C6-C85E-4939-8F0E-62A367E72A6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.WebUI", "InventoryService.WebUI\InventoryService.WebUI.csproj", "{27535AD8-F451-45C1-A819-2E99E79FA202}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,13 +78,33 @@ Global
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77FBB708-8E17-4792-90F1-E79308287E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77FBB708-8E17-4792-90F1-E79308287E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77FBB708-8E17-4792-90F1-E79308287E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77FBB708-8E17-4792-90F1-E79308287E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04D88020-62A8-46EB-B759-ABE8DF93443C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04D88020-62A8-46EB-B759-ABE8DF93443C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04D88020-62A8-46EB-B759-ABE8DF93443C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04D88020-62A8-46EB-B759-ABE8DF93443C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{934CC3C6-C85E-4939-8F0E-62A367E72A6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{934CC3C6-C85E-4939-8F0E-62A367E72A6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{934CC3C6-C85E-4939-8F0E-62A367E72A6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{934CC3C6-C85E-4939-8F0E-62A367E72A6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27535AD8-F451-45C1-A819-2E99E79FA202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27535AD8-F451-45C1-A819-2E99E79FA202}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27535AD8-F451-45C1-A819-2E99E79FA202}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27535AD8-F451-45C1-A819-2E99E79FA202}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{0106E966-5A22-4406-B99A-FA33F937285E} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
 		{69C4264A-CB21-47F8-A467-6072172DA842} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
 		{5515E3D0-E58F-4637-8044-48E05EE35B96} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
+		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80} = {3F320D97-7C57-45CC-B400-069F371D86D0}
+		{77FBB708-8E17-4792-90F1-E79308287E09} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
+		{04D88020-62A8-46EB-B759-ABE8DF93443C} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
 	EndGlobalSection
 EndGlobal

@@ -1,38 +1,41 @@
-﻿using System;
+﻿using InventoryService.Messages.Models;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace InventoryService.Storage
+namespace InventoryService.Storage.InMemoryLib
 {
     public class InMemory : IInventoryStorage
     {
-        private readonly ConcurrentDictionary<string, Tuple<int, int, int>> _productInventories =
-            new ConcurrentDictionary<string, Tuple<int, int, int>>();
+        private readonly ConcurrentDictionary<string, IRealTimeInventory> _productInventories =
+            new ConcurrentDictionary<string, IRealTimeInventory>();
 
-        public async Task<Tuple<int, int, int>> ReadInventory(string productId)
+        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
         {
-            return _productInventories[productId];
+            if (_productInventories.ContainsKey(productId))
+            {
+                return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(_productInventories[productId]));
+            }
+            else
+            {
+                return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(productId, 0, 0, 0)));
+            }
         }
 
-        public async Task<bool> WriteInventory(string productId, int quantity, int reservations, int holds)
+        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
-            _productInventories.AddOrUpdate(productId, new Tuple<int, int, int>(quantity, reservations, holds),
-                (key, oldValue) => new Tuple<int, int, int>(quantity, reservations, holds));
-            return true;
+            _productInventories.AddOrUpdate(inventoryObject.ProductId, new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds),
+                (key, oldValue) => new RealTimeInventory(inventoryObject.ProductId, inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds));
+            return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
-        public async Task Flush()
+        public async Task<bool> FlushAsync(string productId)
         {
-        }
-
-        public Task Flush(string productId)
-        {
-            throw new NotImplementedException();
+            return await Task.FromResult(true);
         }
 
         public void Dispose()
         {
+            throw new System.NotImplementedException();
         }
     }
 }

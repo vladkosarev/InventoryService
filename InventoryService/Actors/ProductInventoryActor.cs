@@ -1,160 +1,113 @@
-﻿using System;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿using Akka.Actor;
+using Akka.Event;
 using InventoryService.Messages;
+using InventoryService.Messages.Models;
+using InventoryService.Messages.Request;
+using InventoryService.Messages.Response;
+using InventoryService.Services;
 using InventoryService.Storage;
+using System;
 
 namespace InventoryService.Actors
 {
     public class ProductInventoryActor : ReceiveActor
     {
         private readonly string _id;
-        private int _quantity;
-        private int _reservations;
-        private int _holds;
-
+        private RealTimeInventory RealTimeInventory { set; get; }
         private readonly bool _withCache;
-
-        private readonly IInventoryStorage _inventoryStorage;
+        private IInventoryStorage InventoryStorage { set; get; }
+        public readonly ILoggingAdapter Logger = Context.GetLogger();
 
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
-            _inventoryStorage = inventoryStorage;
             _withCache = withCache;
-
-            var inventory = _inventoryStorage.ReadInventory(id).Result;
-            _quantity = inventory.Item1;
-            _reservations = inventory.Item2;
-            _holds = inventory.Item3;
-
+            InventoryStorage = inventoryStorage;
+            RealTimeInventory = RealTimeInventory.InitializeFromStorage(InventoryStorage, id);
             Become(Running);
-
-            //Context.System.Scheduler.ScheduleTellRepeatedly(
-            //    TimeSpan.Zero
-            //    , TimeSpan.FromMilliseconds(100)
-            //    , Self
-            //    , new FlushStreamMessage(_id)
-            //    , ActorRefs.Nobody);
-        }
-
-        private async Task<bool> Reserve(string productId, int reservationQuantity)
-        {
-            var newReserved = _reservations + reservationQuantity;
-            if (newReserved > _quantity - _holds) return false;
-            var result = await _inventoryStorage.WriteInventory(
-                productId
-                , _quantity
-                , newReserved
-                , _holds);
-
-            if (!result) return false;
-            _reservations = newReserved;
-            return true;
-        }
-
-        private async Task<bool> PlaceHold(string productId, int toHold)
-        {
-            var newHolds = _holds + toHold;
-            if (newHolds > _quantity) return false;
-            var result = await _inventoryStorage.WriteInventory(
-                productId
-                , _quantity
-                , _reservations
-                , newHolds);
-
-            if (!result) return false;
-            _holds = newHolds;
-            return true;
-        }
-
-        private async Task<bool> Purchase(string productId, int quantity)
-        {
-            var newQuantity = _quantity - quantity;
-            var newReserved = Math.Max(0, _reservations - quantity);
-
-            if (newQuantity - _holds < 0) return false;
-            var result = await _inventoryStorage.WriteInventory(
-                productId
-                , newQuantity
-                , newReserved
-                , _holds);
-
-            if (!result) return false;
-            _quantity = newQuantity;
-            _reservations = newReserved;
-            return true;
-        }
-
-        private async Task<bool> PurchaseFromHolds(string productId, int quantity)
-        {
-            var newQuantity = _quantity - quantity;
-            var newHolds = _holds - quantity;
-
-            if (newQuantity < 0 || newHolds < 0) return false;
-            var result = await _inventoryStorage.WriteInventory(
-                productId
-                , newQuantity
-                , _reservations
-                , newHolds);
-
-            if (!result) return false;
-            _quantity = newQuantity;
-            _holds = newHolds;
-            return true;
         }
 
         private void Running()
         {
             ReceiveAsync<GetInventoryMessage>(async message =>
             {
-                if (!_withCache)
+                if (_withCache == false)
                 {
-                    var inventory = await _inventoryStorage.ReadInventory(message.ProductId);
-                    _quantity = inventory.Item1;
-                    _reservations = inventory.Item2;
-                    _holds = inventory.Item3;
+                    var result = await RealTimeInventory.ReadInventoryFromStorageAsync(InventoryStorage, message.ProductId);
+                    ProcessAndSendResult(result, message, (rti) => new GetInventoryCompletedMessage(rti, true));
                 }
-                Sender.Tell(new RetrievedInventoryMessage(message.ProductId, _quantity, _reservations));
+                ProcessAndSendResult(RealTimeInventory.ToSuccessOperationResult(), message, (rti) => new GetInventoryCompletedMessage(rti, true));
             });
 
             ReceiveAsync<ReserveMessage>(async message =>
             {
-                Sender.Tell(
-                    new ReservedMessage(
-                        message.ProductId
-                        , message.ReservationQuantity
-                        , await Reserve(message.ProductId, message.ReservationQuantity)));
+               //throw  new Exception();
+
+                var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
+                ProcessAndSendResult(result, message, (rti) => new ReserveCompletedMessage(rti, true));
+            });
+
+            ReceiveAsync<UpdateQuantityMessage>(async message =>
+            {
+                var result = await RealTimeInventory.UpdateQuantityAsync(InventoryStorage, message.ProductId, message.Update);
+                ProcessAndSendResult(result, message, (rti) => new UpdateQuantityCompletedMessage(rti, true));
+            });
+
+            ReceiveAsync<UpdateAndHoldQuantityMessage>(async message =>
+            {
+                var updateandHoldResultesult = await RealTimeInventory.UpdateQuantityAndHoldAsync(InventoryStorage, message.ProductId, message.Update);
+                ProcessAndSendResult(updateandHoldResultesult, message, (rti) => new PlaceHoldCompletedMessage(rti, true));
             });
 
             ReceiveAsync<PlaceHoldMessage>(async message =>
             {
-                Sender.Tell(
-                    new PlacedHoldMessage(
-                        message.ProductId
-                        , message.Holds
-                        , await PlaceHold(message.ProductId, message.Holds)));
+                var result = await RealTimeInventory.PlaceHoldAsync(InventoryStorage, message.ProductId, message.Update);
+                ProcessAndSendResult(result, message, (rti) => new PlaceHoldCompletedMessage(rti, true));
             });
 
             ReceiveAsync<PurchaseMessage>(async message =>
             {
-                Sender.Tell(
-                    new PurchasedMessage(
-                        message.ProductId
-                        , message.Quantity
-                        , await Purchase(message.ProductId, message.Quantity)));
+                var result = await RealTimeInventory.PurchaseAsync(InventoryStorage, message.ProductId, message.Update);
+                ProcessAndSendResult(result, message, (rti) => new PurchaseCompletedMessage(rti, true));
             });
 
             ReceiveAsync<PurchaseFromHoldsMessage>(async message =>
             {
-                Sender.Tell(
-                    new PurchasedFromHoldsMessage(
-                        message.ProductId
-                        , message.Quantity
-                        , await PurchaseFromHolds(message.ProductId, message.Quantity)));
+                var result = await RealTimeInventory.PurchaseFromHoldsAsync(InventoryStorage, message.ProductId, message.Update).ConfigureAwait(false);
+                ProcessAndSendResult(result, message, (rti) => new PurchaseFromHoldsCompletedMessage(rti, true));
             });
 
-            Receive<FlushStreamsMessage>(message => { _inventoryStorage.Flush(_id); });
+            ReceiveAsync<FlushStreamsMessage>(async message =>
+            {
+                var result = await RealTimeInventory.InventoryStorageFlushAsync(InventoryStorage, _id);
+                Sender.Tell(result.Data);
+            });
+        }
+
+        private void ProcessAndSendResult(OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<RealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage)
+        {
+            Logger.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + RealTimeInventory.GetCurrentQuantitiesReport());
+            if (!result.IsSuccessful)
+            {
+                Sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
+                Logger.Error(result.Exception.Message);
+            }
+            else
+            {
+                RealTimeInventory = result.Data as RealTimeInventory;
+                var response = successResponseCompletedMessage(RealTimeInventory);
+                Sender.Tell(response);
+                Logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + RealTimeInventory.GetCurrentQuantitiesReport());
+            }
+        }
+
+        protected override void PostStop()
+        {
+            Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id,0,0,0), new Exception("oh oh")));
+
+            Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory));
+          
+            base.PostStop();
         }
     }
 }

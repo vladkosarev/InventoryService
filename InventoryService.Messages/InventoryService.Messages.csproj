@@ -40,17 +40,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GetInventoryMessage.cs" />
+    <Compile Include="ErrorType.cs" />
+    <Compile Include="InventoryServiceErrorMessageGenerator.cs" />
+    <Compile Include="Models\RealTimeInventory.cs" />
+    <Compile Include="RealTimeInventoryException.cs" />
+    <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PurchasedFromHoldsMessage.cs" />
-    <Compile Include="PurchasedMessage.cs" />
-    <Compile Include="PurchaseFromHoldsMessage.cs" />
-    <Compile Include="PurchaseMessage.cs" />
-    <Compile Include="PlacedHoldMessage.cs" />
-    <Compile Include="ReservedMessage.cs" />
-    <Compile Include="PlaceHoldMessage.cs" />
-    <Compile Include="ReserveMessage.cs" />
-    <Compile Include="RetrievedInventoryMessage.cs" />
+    <Compile Include="IRequestMessage.cs" />
+    <Compile Include="Request\GetRemovedProductMessage.cs" />
+    <Compile Include="Request\QueryInventoryListCompletedMessage.cs" />
+    <Compile Include="Request\QueryInventoryListMessage.cs" />
+    <Compile Include="Request\RemoveProductMessage.cs" />
+    <Compile Include="Request\UpdateAndHoldQuantityMessage.cs" />
+    <Compile Include="IInventoryServiceCompletedMessage.cs" />
+    <Compile Include="Response\GetRemovedProductCompletedMessage.cs" />
+    <Compile Include="Response\InventoryOperationErrorMessage.cs" />
+    <Compile Include="Response\PurchaseFromHoldsCompletedMessage.cs" />
+    <Compile Include="Response\PurchaseCompletedMessage.cs" />
+    <Compile Include="Request\PurchaseFromHoldsMessage.cs" />
+    <Compile Include="Request\PurchaseMessage.cs" />
+    <Compile Include="Response\PlaceHoldCompletedMessage.cs" />
+    <Compile Include="Response\UpdateAndHoldQuantityCompletedMessage.cs" />
+    <Compile Include="Response\UpdateQuantityCompletedMessage.cs" />
+    <Compile Include="Response\ReserveCompletedMessage.cs" />
+    <Compile Include="Request\PlaceHoldMessage.cs" />
+    <Compile Include="Request\UpdateQuantityMessage.cs" />
+    <Compile Include="Request\ReserveMessage.cs" />
+    <Compile Include="Response\GetInventoryCompletedMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

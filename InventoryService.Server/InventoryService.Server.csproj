@@ -50,7 +50,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Akka.Serialization.Wire, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.Serialization.Wire.1.0.8.25-beta\lib\net45\Akka.Serialization.Wire.dll</HintPath>
+      <HintPath>..\packages\Akka.Serialization.Wire.1.1.0.26-beta\lib\net45\Akka.Serialization.Wire.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Google.ProtocolBuffers, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
@@ -91,11 +91,12 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Wire, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Wire.0.7.1\lib\net45\Wire.dll</HintPath>
+      <HintPath>..\packages\Wire.0.0.6\lib\Wire.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InventoryServiceServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -109,17 +110,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
-      <Project>{0a7a978d-2bd7-4a10-9088-28c74b5aff80}</Project>
-      <Name>InventoryService.Messages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService.Storage.Esent\InventoryService.Storage.Esent.csproj">
+    <ProjectReference Include="..\InventoryService.Storage.Esent\InventoryService.Storage.EsentLib.csproj">
       <Project>{5515e3d0-e58f-4637-8044-48e05ee35b96}</Project>
-      <Name>InventoryService.Storage.Esent</Name>
+      <Name>InventoryService.Storage.EsentLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemory.csproj">
+    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemoryLib.csproj">
       <Project>{94389d22-92e0-4933-a1c9-41cab38ffd7c}</Project>
-      <Name>InventoryService.Storage.InMemory</Name>
+      <Name>InventoryService.Storage.InMemoryLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69c4264a-cb21-47f8-a467-6072172da842}</Project>

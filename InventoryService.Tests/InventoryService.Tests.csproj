@@ -77,8 +77,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AwaitTaskExtension.cs" />
+    <Compile Include="Inventory.cs" />
+    <Compile Include="InventoryArbitrary.cs" />
+    <Compile Include="InventoryServiceSpecHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyTests.cs" />
+    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -89,12 +94,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
-      <Project>{0a7a978d-2bd7-4a10-9088-28c74b5aff80}</Project>
+      <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemory.csproj">
+    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemoryLib.csproj">
       <Project>{94389D22-92E0-4933-A1C9-41CAB38FFD7C}</Project>
-      <Name>InventoryService.Storage.InMemory</Name>
+      <Name>InventoryService.Storage.InMemoryLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69c4264a-cb21-47f8-a467-6072172da842}</Project>

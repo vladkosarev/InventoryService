@@ -42,6 +42,14 @@
   <ItemGroup>
     <Compile Include="IInventoryStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageOperationResult.cs" />
+    <Compile Include="StorageWriteCheck.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
+      <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
+      <Name>InventoryService.Messages</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

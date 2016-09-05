@@ -1,11 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using InventoryService.Messages.Models;
 using Microsoft.Isam.Esent.Collections.Generic;
+using System;
+using System.Threading.Tasks;
 
-namespace InventoryService.Storage
+namespace InventoryService.Storage.EsentLib
 {
     public class Esent : IInventoryStorage
     {
+        private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("InventoryStorageDBNew2");
+
         [Serializable]
         private struct Inventory
         {
@@ -21,23 +24,23 @@ namespace InventoryService.Storage
             public readonly int Holds;
         }
 
-        private readonly PersistentDictionary<string, Inventory> _data = new PersistentDictionary<string, Inventory>("InventoryStorageDB");
-
-        public async Task<Tuple<int, int, int>> ReadInventory(string productId)
+        public async Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
         {
-            var value = _data[productId];
-            return new Tuple<int, int, int>(value.Quantity, value.Reservations, value.Holds);
+            var value = _data.ContainsKey(productId) ? _data[productId] : new Inventory(0, 0, 0);
+            return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(productId, value.Quantity, value.Reservations, value.Holds)));
         }
 
-        public async Task<bool> WriteInventory(string productId, int quantity, int reservations, int holds)
+        public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
-            _data[productId] = new Inventory(quantity, reservations, holds);
-            return true;
+            //StorageWriteCheck.Execute(inventoryObject);
+            _data[inventoryObject.ProductId] = new Inventory(inventoryObject.Quantity, inventoryObject.Reserved, inventoryObject.Holds);
+            return await Task.FromResult(new StorageOperationResult() { IsSuccessful = false });
         }
 
-        public async Task Flush(string productId)
+        public async Task<bool> FlushAsync(string productId)
         {
             _data.Flush();
+            return await Task.FromResult(true);
         }
 
         public void Dispose()
