@@ -35,7 +35,7 @@ namespace InventoryService.Storage.InMemoryLib
 
         public void Dispose()
         {
-            throw new System.NotImplementedException();
+           
         }
     }
 }
