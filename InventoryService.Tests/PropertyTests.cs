@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using InventoryService.Storage.InMemoryLib;
 using Xunit;
 using Random = System.Random;
 
@@ -20,6 +21,8 @@ namespace InventoryService.Tests
         {
             InventoryStorageName = "Esent_DB-"+Guid.NewGuid();
             _inventoryStorage = new Esent(InventoryStorageName);
+
+            _inventoryStorage=new InMemory();
         }
 
         ~PropertyTests()
