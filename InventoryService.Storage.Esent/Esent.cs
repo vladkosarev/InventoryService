@@ -10,7 +10,15 @@ namespace InventoryService.Storage.EsentLib
         public Esent(string storageName = "InventoryStorageDB")
         {
             if (string.IsNullOrEmpty(storageName)) throw new Exception(nameof(storageName) + " cannot be null or empty");
-            Data = new PersistentDictionary<string, Inventory>(storageName);
+               
+            try
+            {
+               Data = new PersistentDictionary<string, Inventory>(storageName);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Esent storage failed to initialize - "+e.Message,e);
+            }
         }
 
         private PersistentDictionary<string, Inventory> Data { set; get; }
