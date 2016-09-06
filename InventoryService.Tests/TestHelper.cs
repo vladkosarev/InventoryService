@@ -6,6 +6,7 @@ using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using System;
 using System.Threading.Tasks;
+using InventoryService.Messages;
 
 namespace InventoryService.Tests
 {

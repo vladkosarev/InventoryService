@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using InventoryService.Messages;
 using Xunit;
 using Random = System.Random;
 

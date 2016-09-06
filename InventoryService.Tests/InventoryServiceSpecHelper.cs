@@ -4,6 +4,7 @@ using InventoryService.Messages.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using InventoryService.Messages;
 using Xunit;
 
 namespace InventoryService.Tests

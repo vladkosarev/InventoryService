@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using InventoryService.Messages;
 
 namespace InventoryService.TestUitlity
 {
