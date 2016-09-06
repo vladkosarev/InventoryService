@@ -10,7 +10,6 @@ namespace InventoryService.Tests
 {
     public class InventoryServiceSpecificationHelper
     {
-
         public static Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>> GetAssertions(TestHelper testHelper, IActorRef inventoryActor)
         {
             var operations = new Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>>
@@ -39,7 +38,6 @@ namespace InventoryService.Tests
                 {
                     4, (initialInventory, update,reservationResult) =>
                     {
-
                         AssertUpdateQuantityAndHold(initialInventory,(uint) update, reservationResult);
                         return reservationResult.RealTimeInventory;
                     }
@@ -61,8 +59,6 @@ namespace InventoryService.Tests
             };
             return operations;
         }
-
-
 
         public static Dictionary<int, Func<string, int, Task<IInventoryServiceCompletedMessage>>> GetOperations(TestHelper testHelper, IActorRef inventoryActor)
         {

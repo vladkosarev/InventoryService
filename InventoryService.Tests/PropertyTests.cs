@@ -5,11 +5,11 @@ using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using InventoryService.Storage.EsentLib;
+using InventoryService.Storage.InMemoryLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using InventoryService.Storage.InMemoryLib;
 using Xunit;
 using Random = System.Random;
 
@@ -19,10 +19,10 @@ namespace InventoryService.Tests
     {
         public PropertyTests()
         {
-            InventoryStorageName = "Esent_DB-"+Guid.NewGuid();
+            InventoryStorageName = "Esent_DB-" + Guid.NewGuid();
             _inventoryStorage = new Esent(InventoryStorageName);
 
-            _inventoryStorage=new InMemory();
+            _inventoryStorage = new InMemory();
         }
 
         ~PropertyTests()

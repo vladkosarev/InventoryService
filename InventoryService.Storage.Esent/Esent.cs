@@ -7,13 +7,13 @@ namespace InventoryService.Storage.EsentLib
 {
     public class Esent : IInventoryStorage
     {
-        public Esent(string storageName= "InventoryStorageDB")
+        public Esent(string storageName = "InventoryStorageDB")
         {
-            if (string.IsNullOrEmpty(storageName)) throw new Exception(nameof(storageName)+" cannot be null or empty");
+            if (string.IsNullOrEmpty(storageName)) throw new Exception(nameof(storageName) + " cannot be null or empty");
             Data = new PersistentDictionary<string, Inventory>(storageName);
         }
 
-        private  PersistentDictionary<string, Inventory> Data { set; get; }
+        private PersistentDictionary<string, Inventory> Data { set; get; }
 
         [Serializable]
         private struct Inventory

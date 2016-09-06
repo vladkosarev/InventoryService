@@ -20,10 +20,8 @@ namespace InventoryService.Tests
 
         public static TimeSpan GENERAL_WAIT_TIME = TimeSpan.FromSeconds(5);
 
-      
         public IActorRef InitializeAndGetInventoryActor(RealTimeInventory product, ActorSystem sys)
         {
-            
             var result = InventoryService.WriteInventoryAsync(new RealTimeInventory(product.ProductId, product.Quantity, product.Reserved, product.Holds));
             Task.WaitAll(result);
 

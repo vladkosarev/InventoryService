@@ -21,12 +21,12 @@ namespace InventoryService.ServiceDeployment
         public static void GetInventoryData()
         {
             var remoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
-            var actor =InventoryServiceServer.ActorSystem.ActorSelection(remoteAddress);
-            actor.Ask<QueryInventoryListCompletedMessage>(new QueryInventoryListMessage()) .ContinueWith(x =>
-                    {
-                        GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(x.Result);
-                        Push();
-                    });
+            var actor = InventoryServiceServer.ActorSystem.ActorSelection(remoteAddress);
+            actor.Ask<QueryInventoryListCompletedMessage>(new QueryInventoryListMessage()).ContinueWith(x =>
+                   {
+                       GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(x.Result);
+                       Push();
+                   });
         }
     }
 }

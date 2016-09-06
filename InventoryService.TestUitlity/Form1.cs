@@ -1,5 +1,4 @@
 ﻿using Akka.Actor;
-using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using InventoryService.Storage.InMemoryLib;
 using InventoryService.Tests;
@@ -24,7 +23,6 @@ namespace InventoryService.TestUitlity
             {
                 TestHelper helper = new TestHelper(new InMemory());
 
-         
                 var productName = "productName";
                 //var inventoryActor = helper.InitializeAndGetInventoryActor(new RealTimeInventory(
                 //        productName,
@@ -33,8 +31,7 @@ namespace InventoryService.TestUitlity
                 //        Convert.ToInt32(InitialHold.Text)), ActorSystem);
                 var resmoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
 
-
-             var t=   helper.Reserve(ActorSystem.ActorSelection(resmoteAddress), 1); 
+                var t = helper.Reserve(ActorSystem.ActorSelection(resmoteAddress), 1);
 
                 var task = ActorSystem.ActorSelection(resmoteAddress).ResolveOne(TimeSpan.FromSeconds(5));
                 task.ConfigureAwait(false);
