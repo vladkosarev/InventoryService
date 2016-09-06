@@ -18,7 +18,7 @@ namespace InventoryService.Tests
     {
         public PropertyTests()
         {
-            InventoryStorageName = "ESSENT_DB-"+Guid.NewGuid();
+            InventoryStorageName = "Esent_DB-"+Guid.NewGuid();
             _inventoryStorage = new Esent(InventoryStorageName);
         }
 
