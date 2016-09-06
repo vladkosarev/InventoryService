@@ -47,7 +47,7 @@ namespace InventoryService.Services
 
         public static async Task<OperationResult<IRealTimeInventory>> InventoryStorageFlushAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string id)
         {
-            await inventoryStorage.FlushAsync(id);
+            await inventoryStorage.FlushAsync();
             return realTimeInventory.ToOperationResult(isSuccessful: true);
         }
 

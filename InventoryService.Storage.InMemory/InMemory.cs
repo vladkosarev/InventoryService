@@ -28,7 +28,7 @@ namespace InventoryService.Storage.InMemoryLib
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
-        public async Task<bool> FlushAsync(string productId)
+        public async Task<bool> FlushAsync()
         {
             return await Task.FromResult(true);
         }

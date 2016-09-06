@@ -10,7 +10,7 @@ namespace InventoryService.Storage
 
         Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject);
 
-        Task<bool> FlushAsync(string productId);
+        Task<bool> FlushAsync();
     }
 
     /*
