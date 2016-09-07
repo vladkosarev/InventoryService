@@ -21,14 +21,14 @@ namespace InventoryService.Actors
         private readonly bool _withCache;
        // private bool HasUpdate { set; get; }
 
-        public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
+        public InventoryActor(IInventoryStorage inventoryStorage,  bool withCache = true)
         {
 
              NotificationActorRef = Context.ActorOf(Props.Create(() =>new NotificationsActor()));
 
             _withCache = withCache;
 
-            performanceService.Init();
+          
 
             Receive<RemoveProductMessage>(message =>
             {
@@ -61,14 +61,14 @@ namespace InventoryService.Actors
             });
             Receive<GetMetricsMessage>(message =>
             {
-                performanceService.PrintMetrics();
+              //  performanceService.PrintMetrics();
             });
 
             Receive<IRequestMessage>(message =>
             {
                //HasUpdate = true;
-                var eventName = message.GetType().Name + "Count";
-                performanceService.Increment(eventName);
+              //  var eventName = message.GetType().Name + "Count";
+              //  performanceService.Increment(eventName);
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
                 GetActorRef(inventoryStorage, message.ProductId).Tell(new GetInventoryMessage(message.ProductId));
                 //todo Self.Tell(new GetMetricsMessage());

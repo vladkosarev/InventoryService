@@ -39,7 +39,7 @@ namespace InventoryService.Server
            
             var inventoryActor =
                 ActorSystemFactory.InventoryServiceActorSystem.ActorOf(
-                    Props.Create(() => new InventoryActor(inventoryService, new ConsolePerformanceService(), true)),
+                    Props.Create(() => new InventoryActor(inventoryService,  true)),
                     typeof(InventoryActor).Name);
 
             if (inventoryActor == null || inventoryActor.IsNobody())

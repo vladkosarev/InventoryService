@@ -26,7 +26,7 @@ namespace InventoryService.Tests
             var result = InventoryService.WriteInventoryAsync(new RealTimeInventory(product.ProductId, product.Quantity, product.Reserved, product.Holds));
             Task.WaitAll(result);
 
-            var inventoryActor = sys.ActorOf(Props.Create(() => new InventoryActor(InventoryService, new TestPerformanceService(), true)), Guid.NewGuid().ToString());
+            var inventoryActor = sys.ActorOf(Props.Create(() => new InventoryActor(InventoryService,  true)), Guid.NewGuid().ToString());
             return inventoryActor;
         }
 
