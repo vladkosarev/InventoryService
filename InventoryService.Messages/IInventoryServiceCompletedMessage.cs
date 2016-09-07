@@ -1,6 +1,6 @@
 ﻿using InventoryService.Messages.Models;
 
-namespace InventoryService.Messages.Response
+namespace InventoryService.Messages
 {
     public interface IInventoryServiceCompletedMessage
     {

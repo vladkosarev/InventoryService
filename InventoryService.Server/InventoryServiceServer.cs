@@ -3,6 +3,7 @@ using InventoryService.Actors;
 using InventoryService.Storage;
 using System;
 using System.Configuration;
+using InventoryService.ActorSystemFactoryLib;
 
 namespace InventoryService.Server
 {
@@ -11,15 +12,8 @@ namespace InventoryService.Server
         public void StartServer()
         {
             Console.WriteLine("Initializing");
-            var actorSystemName = ConfigurationManager.AppSettings["ServerActorSystemName"];
-
-            if (actorSystemName == null)
-            {
-                const string message = "Invalid ActorSystemName.Please set up 'ServerActorSystemName' in the config file";
-                Console.WriteLine(message);
-
-                throw new Exception(message);
-            }
+           
+         
             var storageSettings = ConfigurationManager.AppSettings["Storage"];
             if (storageSettings == null)
             {
@@ -41,16 +35,16 @@ namespace InventoryService.Server
             var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
 
             Console.WriteLine("Starting Server");
-
-            ActorSystem = ActorSystem.Create(actorSystemName);
+            ActorSystemFactory.CreateNewActorSystem();
+           
             var inventoryActor =
-                ActorSystem.ActorOf(
-                    Props.Create(() => new InventoryActor(inventoryService, new ConsolePerformanceService(), true)),
+                ActorSystemFactory.InventoryServiceActorSystem.ActorOf(
+                    Props.Create(() => new InventoryActor(inventoryService,  true)),
                     typeof(InventoryActor).Name);
 
             if (inventoryActor == null || inventoryActor.IsNobody())
             {
-                var message = "Unable to create actor " + actorSystemName;
+                var message = "Unable to create actor " ;
                 Console.WriteLine(message);
                 throw new Exception(message);
             }
@@ -58,10 +52,9 @@ namespace InventoryService.Server
 
         public void StopServer()
         {
-            ActorSystem.Terminate();
-            ActorSystem.Dispose();
+            ActorSystemFactory.TerminateActorSystem();
         }
 
-        public static ActorSystem ActorSystem { get; set; }
+       
     }
 }

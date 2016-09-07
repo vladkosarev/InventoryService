@@ -1,13 +1,5 @@
 ﻿namespace InventoryService.Messages.Models
 {
-    public interface IRealTimeInventory
-    {
-        int Reserved { get; }
-        int Quantity { get; }
-        int Holds { get; }
-        string ProductId { get; }
-    }
-
     public class RealTimeInventory : IRealTimeInventory
     {
         public RealTimeInventory(string productId, int quantity, int reserved, int holds)
