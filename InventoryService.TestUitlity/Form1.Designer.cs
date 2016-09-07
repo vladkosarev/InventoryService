@@ -38,8 +38,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
-            this.NewQuantity = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.btnExecute = new System.Windows.Forms.Button();
+            this.NewQuantity = new System.Windows.Forms.TextBox();
+            this.cmbOoperation = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.ResultHold = new System.Windows.Forms.TextBox();
             this.ResultReservation = new System.Windows.Forms.TextBox();
@@ -47,10 +49,9 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.cmbOoperation = new System.Windows.Forms.ComboBox();
-            this.btnExecute = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -158,13 +159,6 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // NewQuantity
-            // 
-            this.NewQuantity.Location = new System.Drawing.Point(71, 23);
-            this.NewQuantity.Name = "NewQuantity";
-            this.NewQuantity.Size = new System.Drawing.Size(109, 20);
-            this.NewQuantity.TabIndex = 9;
-            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -173,6 +167,39 @@
             this.label6.Size = new System.Drawing.Size(42, 13);
             this.label6.TabIndex = 6;
             this.label6.Text = "Update";
+            // 
+            // btnExecute
+            // 
+            this.btnExecute.Location = new System.Drawing.Point(186, 79);
+            this.btnExecute.Name = "btnExecute";
+            this.btnExecute.Size = new System.Drawing.Size(118, 23);
+            this.btnExecute.TabIndex = 4;
+            this.btnExecute.Text = "Execute";
+            this.btnExecute.UseVisualStyleBackColor = true;
+            this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
+            // 
+            // NewQuantity
+            // 
+            this.NewQuantity.Location = new System.Drawing.Point(71, 23);
+            this.NewQuantity.Name = "NewQuantity";
+            this.NewQuantity.Size = new System.Drawing.Size(109, 20);
+            this.NewQuantity.TabIndex = 9;
+            // 
+            // cmbOoperation
+            // 
+            this.cmbOoperation.FormattingEnabled = true;
+            this.cmbOoperation.Items.AddRange(new object[] {
+            "ReadInventory",
+            "Reserve",
+            "UpdateQuantity",
+            "UpdateQuantityAndHold",
+            "PlaceHold",
+            "Purchase",
+            "PurchaseFromHolds"});
+            this.cmbOoperation.Location = new System.Drawing.Point(22, 52);
+            this.cmbOoperation.Name = "cmbOoperation";
+            this.cmbOoperation.Size = new System.Drawing.Size(282, 21);
+            this.cmbOoperation.TabIndex = 3;
             // 
             // groupBox3
             // 
@@ -238,32 +265,6 @@
             this.label9.TabIndex = 6;
             this.label9.Text = "Quantity";
             // 
-            // cmbOoperation
-            // 
-            this.cmbOoperation.FormattingEnabled = true;
-            this.cmbOoperation.Items.AddRange(new object[] {
-            "ReadInventory",
-            "Reserve",
-            "UpdateQuantity",
-            "UpdateQuantityAndHold",
-            "PlaceHold",
-            "Purchase",
-            "PurchaseFromHolds"});
-            this.cmbOoperation.Location = new System.Drawing.Point(22, 52);
-            this.cmbOoperation.Name = "cmbOoperation";
-            this.cmbOoperation.Size = new System.Drawing.Size(282, 21);
-            this.cmbOoperation.TabIndex = 3;
-            // 
-            // btnExecute
-            // 
-            this.btnExecute.Location = new System.Drawing.Point(186, 79);
-            this.btnExecute.Name = "btnExecute";
-            this.btnExecute.Size = new System.Drawing.Size(118, 23);
-            this.btnExecute.TabIndex = 4;
-            this.btnExecute.Text = "Execute";
-            this.btnExecute.UseVisualStyleBackColor = true;
-            this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
-            // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.richTextBox1);
@@ -284,11 +285,20 @@
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
+            // textBox1
+            // 
+            this.textBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.textBox1.Location = new System.Drawing.Point(0, 298);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(561, 20);
+            this.textBox1.TabIndex = 6;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(561, 301);
+            this.ClientSize = new System.Drawing.Size(561, 318);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -304,6 +314,7 @@
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -332,6 +343,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
 

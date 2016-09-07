@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Akka.Event;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
@@ -7,6 +8,7 @@ using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using System.Collections.Generic;
 using System.Linq;
+using InventoryService.NotificationActor;
 
 namespace InventoryService.Actors
 {
@@ -17,9 +19,13 @@ namespace InventoryService.Actors
         private readonly Dictionary<string, RemoveProductMessage> _removedRealTimeInventories = new Dictionary<string, RemoveProductMessage>();
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private readonly bool _withCache;
+       // private bool HasUpdate { set; get; }
 
         public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
         {
+
+             NotificationActorRef = Context.ActorOf(Props.Create(() =>new NotificationsActor()));
+
             _withCache = withCache;
 
             performanceService.Init();
@@ -32,25 +38,26 @@ namespace InventoryService.Actors
                     _products.Remove(productId);
                     _realTimeInventories.Remove(productId);
                     _removedRealTimeInventories[productId] = message;
+                    NotificationActorRef.Tell(productId+" Actor has died! Reason : " + message.Reason.Message);
                 }
             });
 
             Receive<GetRemovedProductMessage>(message =>
             {
                 Sender.Tell(new GetRemovedProductCompletedMessage(_removedRealTimeInventories.Select(x => x.Value).ToList()));
+            
             });
 
             Receive<QueryInventoryListMessage>(message =>
             {
                 Sender.Tell(new QueryInventoryListCompletedMessage(_realTimeInventories.Select(x => x.Value).ToList()));
-                foreach (var product in _products)
-                {
-                    GetActorRef(inventoryStorage, product.Key).Tell(new GetInventoryMessage(product.Key));
-                }
             });
+
+
             Receive<GetInventoryCompletedMessage>(message =>
             {
                 _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory as RealTimeInventory;
+              
             });
             Receive<GetMetricsMessage>(message =>
             {
@@ -59,12 +66,18 @@ namespace InventoryService.Actors
 
             Receive<IRequestMessage>(message =>
             {
+               //HasUpdate = true;
                 var eventName = message.GetType().Name + "Count";
                 performanceService.Increment(eventName);
                 GetActorRef(inventoryStorage, message.ProductId).Forward(message);
+                GetActorRef(inventoryStorage, message.ProductId).Tell(new GetInventoryMessage(message.ProductId));
                 //todo Self.Tell(new GetMetricsMessage());
             });
+
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0),TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
         }
+
+        public IActorRef NotificationActorRef { get; set; }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {
@@ -85,8 +98,9 @@ namespace InventoryService.Actors
             return new OneForOneStrategy(
                 x =>
                 {
-                    Logger.Error(x.Message + " - " + x.InnerException?.Message);
-
+                    var message = x.Message + " - " + x.InnerException?.Message;
+                    Logger.Error(message);
+                    NotificationActorRef.Tell(message);
                     return Directive.Stop;
                 });
         }

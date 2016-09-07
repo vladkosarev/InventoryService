@@ -17,7 +17,6 @@ namespace InventoryService.Actors
         private readonly bool _withCache;
         private IInventoryStorage InventoryStorage { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
-
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
@@ -103,10 +102,9 @@ namespace InventoryService.Actors
 
         protected override void PostStop()
         {
-            Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id, 0, 0, 0), new Exception("oh oh")));
+            Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id, 0, 0, 0), new Exception("Actor "+ _id+" has stopped")));
 
             Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory));
-
             base.PostStop();
         }
     }

@@ -144,8 +144,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InventoryServiceHub.cs" />
-    <Compile Include="InventoryServiceSignalRContext.cs" />
     <Compile Include="MyServiceClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

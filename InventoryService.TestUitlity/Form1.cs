@@ -30,14 +30,16 @@ namespace InventoryService.TestUitlity
                 //        Convert.ToInt32(InitialQuantity.Text),
                 //        Convert.ToInt32(InitialReservation.Text),
                 //        Convert.ToInt32(InitialHold.Text)), ActorSystem);
-                var resmoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+               
 
-                var t = helper.Reserve(ActorSystem.ActorSelection(resmoteAddress), 1);
+                var t = helper.Reserve(ActorSystem.ActorSelection(textBox1.Text), 1);
 
-                var task = ActorSystem.ActorSelection(resmoteAddress).ResolveOne(TimeSpan.FromSeconds(5));
-                task.ConfigureAwait(false);
-                Task.WaitAll(task);
-                var inventoryActor = task.Result;
+                var task = ActorSystem.ActorSelection(textBox1.Text).ResolveOne(TimeSpan.FromSeconds(5));
+               // task.ConfigureAwait(false);
+
+                task.ContinueWith(r =>
+                {
+                    var inventoryActor = r.Result;
 
                 IInventoryServiceCompletedMessage result = null;
                 var newUpdate = Convert.ToInt32(NewQuantity.Text);
@@ -92,6 +94,8 @@ namespace InventoryService.TestUitlity
                         richTextBox1.Text = "";
                     }
                 }
+
+                });
             }
             catch (Exception ex)
             {
@@ -99,10 +103,14 @@ namespace InventoryService.TestUitlity
             }
         }
 
+      
+
         private void Form1_Load(object sender, EventArgs e)
         {
             cmbOoperation.SelectedIndex = 1;
             ActorSystem = ActorSystem.Create("InventoryService-Client");
+            textBox1.Text = ConfigurationManager.AppSettings["RemoteActorAddress"];
+
             button1.PerformClick();
         }
 

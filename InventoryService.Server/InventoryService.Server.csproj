@@ -110,6 +110,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.ActorSystem\InventoryService.ActorSystemFactoryLib.csproj">
+      <Project>{EE77439B-33D6-4ACD-ABCB-00108E3D0552}</Project>
+      <Name>InventoryService.ActorSystemFactoryLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.Esent\InventoryService.Storage.EsentLib.csproj">
       <Project>{5515e3d0-e58f-4637-8044-48e05ee35b96}</Project>
       <Name>InventoryService.Storage.EsentLib</Name>
