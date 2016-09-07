@@ -151,8 +151,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="topshelf-uninstall.bat" />
-    <None Include="topshelf-install.bat" />
+    <None Include="topshelf-uninstall.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="topshelf-install.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="docker-publish.bat" />
     <None Include="docker-publish.ps1" />
     <None Include="packages.config" />
