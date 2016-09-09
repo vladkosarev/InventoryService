@@ -1,5 +1,6 @@
 ﻿using InventoryService.Messages.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InventoryService.Storage.InMemoryLib
@@ -19,7 +20,10 @@ namespace InventoryService.Storage.InMemoryLib
                 return await Task.FromResult(new StorageOperationResult<IRealTimeInventory>(new RealTimeInventory(productId, 0, 0, 0)));
             }
         }
-
+        public async Task<StorageOperationResult<List<string>>> ReadAllInventoryIdAsync()
+        {
+            return await Task.FromResult(new StorageOperationResult<List<string>>(_productInventories.Select(x => x.Key).ToList()));
+        }
         public async Task<StorageOperationResult> WriteInventoryAsync(IRealTimeInventory inventoryObject)
         {
             //StorageWriteCheck.Execute(inventoryObject);
@@ -31,7 +35,7 @@ namespace InventoryService.Storage.InMemoryLib
             return await Task.FromResult(new StorageOperationResult() { IsSuccessful = true });
         }
 
-        public async Task<bool> FlushAsync(string productId)
+        public async Task<bool> FlushAsync()
         {
             return await Task.FromResult(true);
         }

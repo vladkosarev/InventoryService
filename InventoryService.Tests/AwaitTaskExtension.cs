@@ -1,5 +1,6 @@
 ﻿using InventoryService.Messages.Response;
 using System.Threading.Tasks;
+using InventoryService.Messages;
 
 namespace InventoryService.Tests
 {

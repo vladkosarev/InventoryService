@@ -12,7 +12,7 @@ namespace InventoryService.ServiceDeployment
             // Start OWIN host
             OwinRef = WebApp.Start<Startup>(url: address);
             Console.WriteLine("Server started ...");
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
         public IDisposable OwinRef { get; set; }

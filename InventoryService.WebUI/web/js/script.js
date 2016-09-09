@@ -47,7 +47,7 @@ angular.module("InventoryServiceApp").service("service", function ($q, $http, $r
 });
 angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeout) {
     $.connection.hub.url = endpoints.hub;
-    var chat = $.connection.inventoryServiceHub;
+    var inventoryServiceHub = $.connection.inventoryServiceHub;
     return {
         ready: function (f) {
             $.connection.hub.start().done(function () {
@@ -57,10 +57,10 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
                 });
             });
         },
-        chat: chat,
-        server: chat.server,
+        inventoryServiceHub: inventoryServiceHub,
+        server: inventoryServiceHub.server,
         client: function (name, f) {
-            chat.client[name] = function (response) {
+            inventoryServiceHub.client[name] = function (response) {
                 var arg = arguments;
                 $timeout(function () {
                     f && f.apply(null, arg);
@@ -71,8 +71,10 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 });
 
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
+    var hasLoaded = false;
     var lastResponse = {};
     var lastResponseDict = {};
+    $scope.realtime = false;
     $scope. updateGrid = function () {
         $scope.newUpdateAvailable = 0;
         $("#jsGrid1")
@@ -110,8 +112,19 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
             lastResponseDict[productId] = newInventory;
         }
         lastResponse = response;
+        if ($scope.realtime || !hasLoaded) {
+             $timeout(function() {
+                 $scope.updateGrid();
+                 hasLoaded = true;
+             });
+        }
     });
-
+    $scope.serverNotificationMessages = "";
+    hub.client("serverNotificationMessages",
+        function(response) {
+            $scope.serverNotificationMessages = response;
+        });
     hub.ready(function () {
+        hub.server.getInventoryList();
     });
 });

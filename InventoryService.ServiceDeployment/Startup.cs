@@ -23,7 +23,7 @@ namespace InventoryService.ServiceDeployment
 
             appBuilder.UseFileServer(options);
 
-            InventoryServiceSignalRContext.Push();
+          //  InventoryServiceSignalRContext.Push();
         }
     }
 }

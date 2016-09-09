@@ -80,6 +80,10 @@
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService.NotificationActor\InventoryService.NotificationActor.csproj">
+      <Project>{058a90e4-0069-4606-bec1-b804a00bd2a2}</Project>
+      <Name>InventoryService.NotificationActor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
       <Name>InventoryService.Storage</Name>
