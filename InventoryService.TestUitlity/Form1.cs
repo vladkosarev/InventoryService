@@ -28,7 +28,12 @@ namespace InventoryService.TestUitlity
                     Convert.ToInt32(InitialQuantity.Text),
                     Convert.ToInt32(InitialReservation.Text),
                     Convert.ToInt32(InitialHold.Text));
-                InventoryServiceServer helper = new InventoryServiceServer(new Storage.InMemoryLib.InMemory(), inventory, ActorSystem);
+                InventoryServiceServer helper = new InventoryServiceServer(new InventoryServerOptions()
+                {
+                StorageType    = typeof(Storage.InMemoryLib.InMemory),
+                    InitialInventory = inventory,
+                    ClientActorSystem = ActorSystem
+                });
 
                 var t = helper.ReserveAsync(ActorSystem.ActorSelection(textBox1.Text), 1);
 

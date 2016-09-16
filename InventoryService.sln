@@ -24,8 +24,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B3340614-BCAE-47E7-8FB9-EB8316DE7F5A}"
 	ProjectSection(SolutionItems) = preProject
 		build-server.fsx = build-server.fsx
+		build-service.fsx = build-service.fsx
 		build.bat = build.bat
-		build.fsx = build.fsx
 		InventoryService.Messages.nuspec = InventoryService.Messages.nuspec
 		InventoryService.Server.nuspec = InventoryService.Server.nuspec
 	EndProjectSection

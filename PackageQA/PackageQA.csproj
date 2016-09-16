@@ -72,6 +72,7 @@
       <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -101,6 +102,10 @@
     <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemoryLib.csproj">
+      <Project>{94389D22-92E0-4933-A1C9-41CAB38FFD7C}</Project>
+      <Name>InventoryService.Storage.InMemoryLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69c4264a-cb21-47f8-a467-6072172da842}</Project>

@@ -9,23 +9,24 @@ namespace InventoryService.Server
 {
     public class InventoryServiceServerApp
     {
-        public void StartServer()
+        public void StartServer(Type storageType = null, string serverActorSystemName = null, ActorSystem serverActorSystem = null, string serverActorSystemConfig=null)
         {
             Console.WriteLine("Initializing");
+         
+                var storageSettings = ConfigurationManager.AppSettings["Storage"];
+                if (string.IsNullOrEmpty(storageSettings))
+                {
+                    const string message = "Could not find Storage setup in config. Now will check code ...";
+                    Console.WriteLine(message);
+                }
+                else
+                {
+                       storageType = Type.GetType(storageSettings);
+                }
 
-            var storageSettings = ConfigurationManager.AppSettings["Storage"];
-            if (storageSettings == null)
-            {
-                const string message = "Invalid storageSettings.Please set up 'Storage' in the config file";
-                Console.WriteLine(message);
-
-                throw new Exception(message);
-            }
-
-            var storageType = Type.GetType(storageSettings);
             if (storageType == null)
             {
-                var message = "Invalid Storage Type " + storageSettings;
+                var message = "Unable to initialize storage. No storage specified" ;
                 Console.WriteLine(message);
 
                 throw new Exception(message);
@@ -34,7 +35,7 @@ namespace InventoryService.Server
             var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
 
             Console.WriteLine("Starting Server");
-            ActorSystemFactory.CreateNewActorSystem();
+            ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName, actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
 
             var inventoryActor =
                 ActorSystemFactory.InventoryServiceActorSystem.ActorOf(

@@ -4,7 +4,6 @@ using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Server;
-using InventoryService.Storage;
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
@@ -13,53 +12,53 @@ namespace InventoryService.AkkaInMemoryServer
 {
     public class InventoryServiceServer : IInventoryServiceDirect, IDisposable
     {
-        private IInventoryStorage InventoryStorage { set; get; }
         private ActorSystem Sys { set; get; }
 
-        public InventoryServiceServer(RealTimeInventory product = null, ActorSystem sys = null)
+        private InventoryServerOptions Options { set; get; }
+
+        public InventoryServiceServer(InventoryServerOptions options = null)
         {
-            Sys = sys;
-            InventoryStorage = new Storage.InMemoryLib.InMemory();
-            InitializeAndGetInventoryActor(product);
+            Options = options ?? new InventoryServerOptions();
+            Sys = Options.ClientActorSystem;
+            InventoryServiceApplication = new InventoryServiceApplication();
+
+            var tmpInventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+
+            if (!string.IsNullOrEmpty(tmpInventoryActorAddress))
+            {
+                Options.InventoryActorAddress = tmpInventoryActorAddress;
+            }
+
+            InventoryServiceApplication.Start(Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName,serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options. ServerActorSystemConfig);
+
+            Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
+            inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
+
+            if (Options.InitialInventory == null) return;
+
+            InitializeWithInventorydata(Options);
         }
 
-        public InventoryServiceServer(IInventoryStorage inventoryStorage, RealTimeInventory product = null, ActorSystem sys = null)
+        private void InitializeWithInventorydata(InventoryServerOptions options)
         {
-            Sys = sys;
-            InventoryStorage = inventoryStorage;
-            InitializeAndGetInventoryActor(product);
+            UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity).Wait();
+            ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved).Wait();
+            PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds).Wait();
+            var result = GetInventoryAsync(options.InitialInventory.ProductId).Result;
+            if (!result.Successful ||
+                result.RealTimeInventory == null ||
+                result.RealTimeInventory.ProductId != options.InitialInventory.ProductId ||
+                result.RealTimeInventory.Quantity != options.InitialInventory.Quantity ||
+                result.RealTimeInventory.Reserved != options.InitialInventory.Reserved ||
+                result.RealTimeInventory.Holds != options.InitialInventory.Holds)
+            {
+                throw new Exception("Error initializing data into remote inventory actor ");
+            }
         }
 
         public IActorRef inventoryActor { get; set; }
 
         public static TimeSpan GENERAL_WAIT_TIME = TimeSpan.FromSeconds(500000);
-
-        private void InitializeAndGetInventoryActor(RealTimeInventory product = null)
-        {
-            InventoryServiceApplication = new InventoryServiceApplication();
-            var address = ConfigurationManager.AppSettings["RemoteActorAddress"];
-            InventoryServiceApplication.Start();
-
-            Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
-            inventoryActor = Sys.ActorSelection(address).ResolveOne(TimeSpan.FromSeconds(3)).Result;
-
-            if (product != null)
-            {
-                UpdateQuantityAsync(product, product.Quantity).Wait();
-                ReserveAsync(product, product.Reserved).Wait();
-                PlaceHoldAsync(product, product.Holds).Wait();
-                var result = GetInventoryAsync(product.ProductId).Result;
-                if (!result.Successful ||
-                    result.RealTimeInventory == null ||
-                    result.RealTimeInventory.ProductId != product.ProductId ||
-                    result.RealTimeInventory.Quantity != product.Quantity ||
-                    result.RealTimeInventory.Reserved != product.Reserved ||
-                    result.RealTimeInventory.Holds != product.Holds)
-                {
-                    throw new Exception("Error initializing data into remote inventory actor ");
-                }
-            }
-        }
 
         public InventoryServiceApplication InventoryServiceApplication { get; set; }
 
@@ -108,8 +107,6 @@ namespace InventoryService.AkkaInMemoryServer
             InventoryServiceApplication.Stop();
             Sys?.Terminate().Wait();
             Sys?.Dispose();
-            InventoryStorage?.FlushAsync();
-            InventoryStorage?.Dispose();
         }
     }
 }
