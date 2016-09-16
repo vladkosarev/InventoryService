@@ -47,7 +47,7 @@ namespace InventoryService.Tests
             {
                 Enumerable.Range(1, 6).ForEach(oo =>
                   {
-                      using (var testHelper = new InventoryServiceAkkaInMemory(request.Item1))
+                      using (var testHelper = new InventoryServiceServer(request.Item1))
                       {
                         //var  response = testHelper.ReserveAsync(request.Item1, request.Item2).WaitAndGetOperationResult();
                         //  response = testHelper.ReserveAsync(request.Item1, request.Item2).WaitAndGetOperationResult();
@@ -62,7 +62,7 @@ namespace InventoryService.Tests
         public void Reservation_Test(RealTimeInventory inventory, int toReserve)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 response = testHelper.ReserveAsync(inventory, toReserve).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertReservations(inventory, toReserve, response);
@@ -72,7 +72,7 @@ namespace InventoryService.Tests
         public void Purchase_Test(RealTimeInventory inventory, uint toPurchase)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 response = testHelper.PurchaseAsync(inventory, (int)toPurchase).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertPurchase(inventory, toPurchase, response);
@@ -82,7 +82,7 @@ namespace InventoryService.Tests
         public void Holds_Test(RealTimeInventory inventory, int toHold)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 response = testHelper.PlaceHoldAsync(inventory, toHold).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertHolds(inventory, toHold, response);
@@ -92,7 +92,7 @@ namespace InventoryService.Tests
         public void UpadeteQuantityAndHold_Test(RealTimeInventory inventory, uint toHold)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 response = testHelper.UpdateQuantityAndHoldAsync(inventory, (int)toHold).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertUpdateQuantityAndHold(inventory, toHold, response);
@@ -102,7 +102,7 @@ namespace InventoryService.Tests
         public void UpdateQuantity_Test(RealTimeInventory inventory, int toUpdate)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 response = testHelper.UpdateQuantityAsync(inventory, toUpdate).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertUpdateQuantity(inventory, toUpdate, response);
@@ -112,7 +112,7 @@ namespace InventoryService.Tests
         public void PurchaseFromHolds_Test(RealTimeInventory inventory, uint toPurchase)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 response = testHelper.PurchaseFromHoldsAsync(inventory, (int)toPurchase).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertPurchaseFromHolds(inventory, toPurchase, response);
@@ -121,7 +121,7 @@ namespace InventoryService.Tests
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
         public void Holds_Reservation_PurchaseFromHold_And_Purchase_Test(RealTimeInventory inventory, int toUpdate)
         {
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
             {
                 const int looplength = 5;
                 var operations = InventoryServiceSpecificationHelper.GetOperations(testHelper);
@@ -145,11 +145,11 @@ namespace InventoryService.Tests
             var events = CreateInventoryOperationEvents(inventory, toUpdate, looplength);
 
             RealTimeInventory currentInventoryAfterFirstOperation;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 currentInventoryAfterFirstOperation = RunSomeInventoryOperationUsingEventsSync(events, testHelper);
 
             RealTimeInventory currentInventoryAfterLastOperation;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 currentInventoryAfterLastOperation = RunSomeInventoryOperationUsingEventsSync(events, testHelper);
 
             Assert.Equal(currentInventoryAfterFirstOperation.Quantity, currentInventoryAfterLastOperation.Quantity);
@@ -165,11 +165,11 @@ namespace InventoryService.Tests
             var events = CreateInventoryOperationEvents(inventory, toUpdate, looplength);
 
             RealTimeInventory currentInventoryAfterFirstOperation;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 currentInventoryAfterFirstOperation = RunSomeInventoryOperationUsingEventsSync(events, testHelper);
 
             RealTimeInventory currentInventoryAfterLastOperation;
-            using (var testHelper = new InventoryServiceAkkaInMemory(inventory))
+            using (var testHelper = new InventoryServiceServer(inventory))
                 currentInventoryAfterLastOperation = RunSomeInventoryOperationUsingEventsAsync(events, testHelper);
 
             Assert.Equal(currentInventoryAfterFirstOperation.Quantity, currentInventoryAfterLastOperation.Quantity);
@@ -190,7 +190,7 @@ namespace InventoryService.Tests
             return events;
         }
 
-        private static RealTimeInventory RunSomeInventoryOperationUsingEventsSync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceAkkaInMemory testHelper)
+        private static RealTimeInventory RunSomeInventoryOperationUsingEventsSync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceServer testHelper)
         {
             var operations = InventoryServiceSpecificationHelper.GetOperations(testHelper);
 
@@ -203,7 +203,7 @@ namespace InventoryService.Tests
             return currentInventoryAfterLastOperation as RealTimeInventory;
         }
 
-        private static RealTimeInventory RunSomeInventoryOperationUsingEventsAsync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceAkkaInMemory testHelper)
+        private static RealTimeInventory RunSomeInventoryOperationUsingEventsAsync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceServer testHelper)
         {
             var operations2 = InventoryServiceSpecificationHelper.GetOperations(testHelper);
 

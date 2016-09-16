@@ -11,19 +11,19 @@ using System.Threading.Tasks;
 
 namespace InventoryService.AkkaInMemoryServer
 {
-    public class InventoryServiceAkkaInMemory : IInventoryServiceDirect, IDisposable
+    public class InventoryServiceServer : IInventoryServiceDirect, IDisposable
     {
         private IInventoryStorage InventoryStorage { set; get; }
         private ActorSystem Sys { set; get; }
 
-        public InventoryServiceAkkaInMemory(RealTimeInventory product = null, ActorSystem sys = null)
+        public InventoryServiceServer(RealTimeInventory product = null, ActorSystem sys = null)
         {
             Sys = sys;
             InventoryStorage = new Storage.InMemoryLib.InMemory();
             InitializeAndGetInventoryActor(product);
         }
 
-        public InventoryServiceAkkaInMemory(IInventoryStorage inventoryStorage, RealTimeInventory product = null, ActorSystem sys = null)
+        public InventoryServiceServer(IInventoryStorage inventoryStorage, RealTimeInventory product = null, ActorSystem sys = null)
         {
             Sys = sys;
             InventoryStorage = inventoryStorage;

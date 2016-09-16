@@ -60,7 +60,7 @@ namespace InventoryService.Tests
             return operations;
         }
 
-        public static Dictionary<int, Func<RealTimeInventory, int, Task<IInventoryServiceCompletedMessage>>> GetOperations(InventoryServiceAkkaInMemory testHelper)
+        public static Dictionary<int, Func<RealTimeInventory, int, Task<IInventoryServiceCompletedMessage>>> GetOperations(InventoryServiceServer testHelper)
         {
             var operations = new Dictionary<int, Func<RealTimeInventory, int, Task<IInventoryServiceCompletedMessage>>>
             {

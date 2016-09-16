@@ -11,7 +11,7 @@ namespace PackageQA
         [TestMethod]
         public void TestMethod1()
         {
-            using (var server = new InventoryServiceAkkaInMemory(new RealTimeInventory("sample", 10, 0, 0)))
+            using (var server = new InventoryServiceServer(new RealTimeInventory("sample", 10, 0, 0)))
             {
                 var t = server.GetInventoryAsync("sample").Result;
                 Console.WriteLine(t);
