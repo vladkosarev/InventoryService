@@ -1,9 +1,8 @@
-﻿using System.Configuration;
-using Akka.Actor;
+﻿using Akka.Actor;
 using InventoryService.ActorSystemFactoryLib;
 using InventoryService.Messages.Request;
-
 using Microsoft.AspNet.SignalR;
+using System.Configuration;
 
 namespace InventoryService.NotificationActor
 {

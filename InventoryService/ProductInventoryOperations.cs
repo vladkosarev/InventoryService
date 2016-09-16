@@ -4,7 +4,7 @@ using InventoryService.Storage;
 using System;
 using System.Threading.Tasks;
 
-namespace InventoryService.Services
+namespace InventoryService
 {
     //todo return the full error message
     public static class ProductInventoryOperations
@@ -55,7 +55,7 @@ namespace InventoryService.Services
         {
             var newReserved = Math.Max(0, realTimeInventory.Reserved + reservationQuantity);
 
-            if (newReserved > realTimeInventory.Quantity - realTimeInventory.Holds)
+            if ((reservationQuantity > 0) && (newReserved > realTimeInventory.Quantity - realTimeInventory.Holds))
                 return InventoryServiceErrorMessageGenerator.Generate(ErrorType.RESERVATION_EXCEED_QUANTITY, realTimeInventory, reservationQuantity).ToFailedOperationResult(realTimeInventory, productId);
 
             var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved,
@@ -132,8 +132,7 @@ namespace InventoryService.Services
 
             if (newQuantity - realTimeInventory.Holds < 0) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.PURCHASE_EXCEED_QUANTITY_FOR_PURCHASEFROMRESERVATION, realTimeInventory, quantity).ToFailedOperationResult(realTimeInventory, productId);
 
-            var newrealTimeInventory = new RealTimeInventory(productId, newQuantity, newReserved,
-                realTimeInventory.Holds);
+            var newrealTimeInventory = new RealTimeInventory(productId, newQuantity, newReserved, realTimeInventory.Holds);
             var result = await inventoryStorage.WriteInventoryAsync(newrealTimeInventory);
 
             if (!result.IsSuccessful) return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, quantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);

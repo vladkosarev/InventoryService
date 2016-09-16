@@ -1,7 +1,7 @@
 ﻿using InventoryService.Messages.Models;
 using System.Threading.Tasks;
 
-namespace InventoryService.Services
+namespace InventoryService
 {
     public interface IProductInventoryOperations
     {

@@ -1,13 +1,11 @@
 using Akka.Actor;
+using Akka.Util.Internal;
 using InventoryService.Messages.Request;
-using InventoryService.Messages.Response;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using Akka.Util.Internal;
 
 namespace InventoryService.Console
 {
@@ -15,14 +13,21 @@ namespace InventoryService.Console
     {
         public async Task StartSampleClientAsync()
         {
-            const int productCount = 1000;
-            const int initialQuantity = 100000;
+            const int productCount = 300;
+            const int initialQuantity = 1;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
-            for (var product = 0; product < productCount; product++)
-            {
-                products.Add(new Tuple<string, int, int>("products" + product, initialQuantity, 0));
-            }
+            products.Add(new Tuple<string, int, int>("ticketsections-216", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-217", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-218", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-219", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-215", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-214", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-213", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-212", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-211", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-210", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-209", initialQuantity, 0));
 
             System.Console.WriteLine("Starting Client");
             var actorSystem = ActorSystem.Create("InventoryService-Client");
@@ -37,13 +42,13 @@ namespace InventoryService.Console
 
                 stopwatch.Start();
 
-                    products.ForEach( p =>
+                products.ForEach(p =>
                 {
-                    for (var i = 0; i < initialQuantity; i++)
+                    for (var i = 0; i < 1; i++)
                     {
                         try
                         {
-                            inventoryActor.Tell(new UpdateQuantityMessage(p.Item1, 1));
+                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 20000)).Wait();
                         }
                         catch (Exception ex)
                         {
@@ -52,42 +57,21 @@ namespace InventoryService.Console
                                 ex.Message + " - " + ex);
                         }
 
-                        inventoryActor.Tell(new ReserveMessage(p.Item1, 1));
-                        System.Console.WriteLine("Updating  item {0}'s quantity for product {0}", i, p.Item1);
+                        //     inventoryActor.Tell(new ReserveMessage(p.Item1, 1));
+                        //    System.Console.WriteLine("Updating  item {0}'s quantity for product {0}", i, p.Item1);
 
-                        //   await Task.Delay(TimeSpan.FromSeconds(1)); 
+                        //   await Task.Delay(TimeSpan.FromSeconds(1));
                     }
                 });
-           
-                Task.WaitAll(products.Select(async p =>
-            {
-                for (var i = 0; i < initialQuantity; i++)
-                {
-                    try
-                    {
-                        var update =
-                            await
-                                inventoryActor.Ask<UpdateQuantityCompletedMessage>(
-                                    new UpdateQuantityMessage(p.Item1, 1), TimeSpan.FromSeconds(10)).ConfigureAwait(false);
-                        if (update == null) throw new Exception("remote actor returned null message");
-                        System.Console.WriteLine("Updating  item {0}'s quantity for product {0}", i, p.Item1);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Console.WriteLine("Failed on iteration {0} while updating quantity {1} : {2}", i, p.Item1,
-                            ex.Message + " - " + ex);
-                    }
 
-                    var reservation =
-                        await
-                            inventoryActor.Ask<ReserveCompletedMessage>(new ReserveMessage(p.Item1, 1),
-                                TimeSpan.FromSeconds(10)).ConfigureAwait(false);
-                    System.Console.WriteLine(
-                        !reservation.Successful ? "Failed on iteration {0}" : "Reserved item {0} successfully ", i);
-                }
+                //try
+                //{
+                //    var x = await inventoryActor.Ask<IInventoryServiceCompletedMessage>(new PurchaseMessage("ticketsection-216", 2));
+                //}
+                //catch (Exception e)
+                //{
+                //}
 
-                    // await Task.Delay(TimeSpan.FromSeconds(10));
-                }).ToArray());
                 // Task.WaitAll(actorSystem.Terminate());
                 stopwatch.Stop();
 

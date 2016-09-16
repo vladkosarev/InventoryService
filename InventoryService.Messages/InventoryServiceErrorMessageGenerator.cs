@@ -84,8 +84,11 @@ namespace InventoryService.Messages
             }
 
             var time = DateTime.UtcNow;
-            result = errorType.ToString() + " with requested update quantity " + requestUpdate + " : " + result + (exceptionThrown != null ? " - " + exceptionThrown.Message : "") + " At " + time;
-            return new RealTimeInventoryException(result, errorType, time, exceptionThrown);
+            result = errorType.ToString() + " with requested update quantity " + requestUpdate + " : " + result + (exceptionThrown != null ? " - " + exceptionThrown.Message + " - " + exceptionThrown.InnerException?.Message : "") + " At " + time;
+            return new RealTimeInventoryException()
+            {
+                ErrorMessage = result
+            };// RealTimeInventoryException(result, errorType, time, exceptionThrown);
         }
     }
 }

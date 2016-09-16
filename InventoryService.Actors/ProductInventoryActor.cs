@@ -1,12 +1,11 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using InventoryService.Actors.Messages;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
-using InventoryService.Services;
 using InventoryService.Storage;
-using System;
 
 namespace InventoryService.Actors
 {
@@ -17,6 +16,7 @@ namespace InventoryService.Actors
         private readonly bool _withCache;
         private IInventoryStorage InventoryStorage { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
+
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
             _id = id;
@@ -33,47 +33,48 @@ namespace InventoryService.Actors
                 if (_withCache == false)
                 {
                     var result = await RealTimeInventory.ReadInventoryFromStorageAsync(InventoryStorage, message.ProductId);
-                    ProcessAndSendResult(result, message, (rti) => new GetInventoryCompletedMessage(rti, true));
+                    RealTimeInventory = result.ProcessAndSendResult(message, (rti) => new GetInventoryCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
                 }
-                ProcessAndSendResult(RealTimeInventory.ToSuccessOperationResult(), message, (rti) => new GetInventoryCompletedMessage(rti, true));
+                else
+                {
+                    RealTimeInventory = RealTimeInventory.ToSuccessOperationResult().ProcessAndSendResult(message, (rti) => new GetInventoryCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
+                }
             });
 
             ReceiveAsync<ReserveMessage>(async message =>
             {
-                //throw  new Exception();
-
                 var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
-                ProcessAndSendResult(result, message, (rti) => new ReserveCompletedMessage(rti, true));
+                RealTimeInventory = result.ProcessAndSendResult(message, (rti) => new ReserveCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
             });
 
             ReceiveAsync<UpdateQuantityMessage>(async message =>
             {
                 var result = await RealTimeInventory.UpdateQuantityAsync(InventoryStorage, message.ProductId, message.Update);
-                ProcessAndSendResult(result, message, (rti) => new UpdateQuantityCompletedMessage(rti, true));
+                RealTimeInventory = result.ProcessAndSendResult(message, (rti) => new UpdateQuantityCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
             });
 
             ReceiveAsync<UpdateAndHoldQuantityMessage>(async message =>
             {
                 var updateandHoldResultesult = await RealTimeInventory.UpdateQuantityAndHoldAsync(InventoryStorage, message.ProductId, message.Update);
-                ProcessAndSendResult(updateandHoldResultesult, message, (rti) => new PlaceHoldCompletedMessage(rti, true));
+                RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, (rti) => new UpdateAndHoldQuantityCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
             });
 
             ReceiveAsync<PlaceHoldMessage>(async message =>
             {
                 var result = await RealTimeInventory.PlaceHoldAsync(InventoryStorage, message.ProductId, message.Update);
-                ProcessAndSendResult(result, message, (rti) => new PlaceHoldCompletedMessage(rti, true));
+                RealTimeInventory = result.ProcessAndSendResult(message, (rti) => new PlaceHoldCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
             });
 
             ReceiveAsync<PurchaseMessage>(async message =>
             {
                 var result = await RealTimeInventory.PurchaseAsync(InventoryStorage, message.ProductId, message.Update);
-                ProcessAndSendResult(result, message, (rti) => new PurchaseCompletedMessage(rti, true));
+                RealTimeInventory = result.ProcessAndSendResult(message, (rti) => new PurchaseCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
             });
 
             ReceiveAsync<PurchaseFromHoldsMessage>(async message =>
             {
                 var result = await RealTimeInventory.PurchaseFromHoldsAsync(InventoryStorage, message.ProductId, message.Update).ConfigureAwait(false);
-                ProcessAndSendResult(result, message, (rti) => new PurchaseFromHoldsCompletedMessage(rti, true));
+                RealTimeInventory = result.ProcessAndSendResult(message, (rti) => new PurchaseFromHoldsCompletedMessage(rti, true), Logger, RealTimeInventory, Sender);
             });
 
             ReceiveAsync<FlushStreamsMessage>(async message =>
@@ -83,26 +84,12 @@ namespace InventoryService.Actors
             });
         }
 
-        private void ProcessAndSendResult(OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<RealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage)
-        {
-            Logger.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + RealTimeInventory.GetCurrentQuantitiesReport());
-            if (!result.IsSuccessful)
-            {
-                Sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
-                Logger.Error(result.Exception.Message);
-            }
-            else
-            {
-                RealTimeInventory = result.Data as RealTimeInventory;
-                var response = successResponseCompletedMessage(RealTimeInventory);
-                Sender.Tell(response);
-                Logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + RealTimeInventory.GetCurrentQuantitiesReport());
-            }
-        }
-
         protected override void PostStop()
         {
-            Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id, 0, 0, 0), new Exception("Actor "+ _id+" has stopped")));
+            Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id, 0, 0, 0), new RealTimeInventoryException()
+            {
+                ErrorMessage = "Actor " + _id + " has stopped"
+            }));
 
             Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory));
             base.PostStop();

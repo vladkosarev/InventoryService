@@ -1,11 +1,10 @@
 ﻿using InventoryService.Messages.Models;
-using System;
 
 namespace InventoryService.Messages.Response
 {
     public class InventoryOperationErrorMessage : IInventoryServiceCompletedMessage
     {
-        public InventoryOperationErrorMessage(IRealTimeInventory realTimeInventory, Exception error)
+        public InventoryOperationErrorMessage(IRealTimeInventory realTimeInventory, RealTimeInventoryException error)
         {
             Error = error;
             RealTimeInventory = realTimeInventory;
@@ -13,7 +12,7 @@ namespace InventoryService.Messages.Response
         }
 
         public IRealTimeInventory RealTimeInventory { get; }
-        public bool Successful { get; set; }
-        public Exception Error { get; private set; }
+        public bool Successful { get; }
+        public RealTimeInventoryException Error { get; private set; }
     }
 }

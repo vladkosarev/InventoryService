@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Akka.Actor;
+using System;
 using System.Configuration;
-using Akka.Actor;
 
 namespace InventoryService.ActorSystemFactoryLib
 {
@@ -18,15 +18,7 @@ namespace InventoryService.ActorSystemFactoryLib
                 throw new Exception(message);
             }
 
-            try
-            {
-                InventoryServiceActorSystem = Akka.Actor.ActorSystem.Create(actorSystemName);
-            }
-            catch (Exception e)
-            {
-           var exception= (e as AggregateException).Flatten() ;
-                throw;
-            }
+            InventoryServiceActorSystem = Akka.Actor.ActorSystem.Create(actorSystemName);
         }
 
         public static ActorSystem InventoryServiceActorSystem { get; set; }

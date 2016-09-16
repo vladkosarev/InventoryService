@@ -63,7 +63,7 @@ let NugetDeployPath= match nugetDeployPath with
 let version =
   match buildServer with
   | TeamCity -> (buildVersion+BuildVersionType)
-  | _        -> ("0.1.4"+BuildVersionType)
+  | _        -> ("0.1.6"+BuildVersionType)
 
 // Targets
 Target "Clean" (fun _ -> 
@@ -153,8 +153,8 @@ Target "RemotePublishNuGet" (fun _ ->
 // Build order
 "Clean"
   ==> "BuildMessages"
-  ==> "BuildTest"
-  ==> "xUnitTest" 
+ // ==> "BuildTest"
+ // ==> "xUnitTest" 
   ==> "BuildService"
   ==> "CreateNuget"
   ==> "RemotePublishNuGet"

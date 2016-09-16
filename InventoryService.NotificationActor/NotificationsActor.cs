@@ -22,12 +22,10 @@ namespace InventoryService.NotificationActor
                 GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.serverNotificationMessages(LastReceivedServerMessage);
             });
 
-
             Receive<QueryInventoryListMessage>(message =>
           {
               GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(LastReceivedInventoryListMessage);
           });
-
 
             Receive<QueryInventoryListCompletedMessage>(message =>
             {

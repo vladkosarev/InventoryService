@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using InventoryService.Actors.Messages;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
@@ -27,8 +28,6 @@ namespace InventoryService.Actors
             InventoryStorage = inventoryStorage;
             _withCache = withCache;
             Become(Initializing);
-          
-
         }
 
         private void Initializing()
@@ -51,11 +50,10 @@ namespace InventoryService.Actors
                     throw new Exception("Failed to read inventories from storage " + InventoryStorage.GetType().FullName, inventoryIdsResult.Errors.Flatten());
 
                     /*
-                 TODO : 
+                 TODO :
                      Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
-          
-                 */
 
+                 */
                 }
             });
         }
@@ -97,6 +95,7 @@ namespace InventoryService.Actors
 
             Receive<IRequestMessage>(message =>
             {
+                Logger.Error(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 GetActorRef(InventoryStorage, message.ProductId).Forward(message);
                 GetActorRef(InventoryStorage, message.ProductId).Tell(new GetInventoryMessage(message.ProductId));
                 //todo Self.Tell(new GetMetricsMessage());

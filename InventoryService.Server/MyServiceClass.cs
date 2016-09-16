@@ -2,23 +2,27 @@
 using System;
 using System.Configuration;
 
-namespace InventoryService.ServiceDeployment
+namespace InventoryService.Server
 {
-    public class MyServiceClass
+    public class InventoryServiceApplication
     {
         public void Start()
         {
             var address = ConfigurationManager.AppSettings["ServerEndPoint"];
             // Start OWIN host
             OwinRef = WebApp.Start<Startup>(url: address);
-            Console.WriteLine("Server started ...");
-            //Console.ReadKey();
+            InventoryServiceServerApp = new InventoryServiceServerApp();
+            InventoryServiceServerApp.StartServer();
+            // Console.ReadLine();
         }
+
+        public InventoryServiceServerApp InventoryServiceServerApp { get; set; }
 
         public IDisposable OwinRef { get; set; }
 
         public void Stop()
         {
+            InventoryServiceServerApp.StopServer();
             OwinRef?.Dispose();
         }
     }

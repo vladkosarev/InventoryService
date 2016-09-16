@@ -1,19 +1,18 @@
 ﻿using Akka.Actor;
 using InventoryService.Actors;
+using InventoryService.ActorSystemFactoryLib;
 using InventoryService.Storage;
 using System;
 using System.Configuration;
-using InventoryService.ActorSystemFactoryLib;
 
 namespace InventoryService.Server
 {
-    public class InventoryServiceServer
+    public class InventoryServiceServerApp
     {
         public void StartServer()
         {
             Console.WriteLine("Initializing");
-           
-         
+
             var storageSettings = ConfigurationManager.AppSettings["Storage"];
             if (storageSettings == null)
             {
@@ -36,25 +35,26 @@ namespace InventoryService.Server
 
             Console.WriteLine("Starting Server");
             ActorSystemFactory.CreateNewActorSystem();
-           
+
             var inventoryActor =
                 ActorSystemFactory.InventoryServiceActorSystem.ActorOf(
-                    Props.Create(() => new InventoryActor(inventoryService,  true)),
+                    Props.Create(() => new InventoryActor(inventoryService, true)),
                     typeof(InventoryActor).Name);
 
             if (inventoryActor == null || inventoryActor.IsNobody())
             {
-                var message = "Unable to create actor " ;
+                var message = "Unable to create actor ";
                 Console.WriteLine(message);
                 throw new Exception(message);
             }
+            ActorSystem = ActorSystemFactory.InventoryServiceActorSystem;
         }
+
+        public ActorSystem ActorSystem { get; set; }
 
         public void StopServer()
         {
             ActorSystemFactory.TerminateActorSystem();
         }
-
-       
     }
 }

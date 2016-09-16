@@ -1,4 +1,4 @@
-﻿namespace InventoryService.Messages
+﻿namespace InventoryService.Actors.Messages
 {
     public class WriteInventoryMessage
     {

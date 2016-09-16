@@ -1,17 +1,16 @@
-﻿using Akka.Actor;
+﻿using InventoryService.AkkaInMemoryServer;
+using InventoryService.Messages;
 using InventoryService.Messages.Models;
-using InventoryService.Messages.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using InventoryService.Messages;
 using Xunit;
 
 namespace InventoryService.Tests
 {
     public class InventoryServiceSpecificationHelper
     {
-        public static Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>> GetAssertions(TestHelper testHelper, IActorRef inventoryActor)
+        public static Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>> GetAssertions()
         {
             var operations = new Dictionary<int, Func<IRealTimeInventory, int, IInventoryServiceCompletedMessage, IRealTimeInventory>>
             {
@@ -61,49 +60,49 @@ namespace InventoryService.Tests
             return operations;
         }
 
-        public static Dictionary<int, Func<string, int, Task<IInventoryServiceCompletedMessage>>> GetOperations(TestHelper testHelper, IActorRef inventoryActor)
+        public static Dictionary<int, Func<RealTimeInventory, int, Task<IInventoryServiceCompletedMessage>>> GetOperations(InventoryServiceAkkaInMemory testHelper)
         {
-            var operations = new Dictionary<int, Func<string, int, Task<IInventoryServiceCompletedMessage>>>
+            var operations = new Dictionary<int, Func<RealTimeInventory, int, Task<IInventoryServiceCompletedMessage>>>
             {
                 {
-                    1, (productId, update) =>
+                    1, (product, update) =>
                     {
-                        var reservationResult = testHelper.Reserve(inventoryActor, update, productId);
+                        var reservationResult = testHelper.ReserveAsync(product, update);
                         return reservationResult;
                     }
                 },
                 {
-                    2, (productId, update) =>
+                    2, (product, update) =>
                     {
-                        var reservationResult = testHelper.UpdateQuantity(inventoryActor, update,productId);
+                        var reservationResult = testHelper.UpdateQuantityAsync( product,update);
                         return reservationResult;
                     }
                 },
                 {
-                    3, (productId, update) =>
+                    3, (product, update) =>
                     {
-                        var reservationResult = testHelper.Hold(inventoryActor,  update, productId);
+                        var reservationResult = testHelper.PlaceHoldAsync(product,  update);
                         return reservationResult;
                     }
                 },
                 {
-                    4, (productId, update) =>
+                    4, (product, update) =>
                     {
-                        var reservationResult = testHelper.UpdateQuantityAndHold(inventoryActor, update,productId);
+                        var reservationResult = testHelper.UpdateQuantityAndHoldAsync(product, update);
                         return reservationResult;
                     }
                 },
                 {
-                    5, (productId, update) =>
+                    5, (product, update) =>
                     {
-                        var reservationResult = testHelper.Purchase(inventoryActor,  update, productId);
+                        var reservationResult = testHelper.PurchaseAsync(product,  update);
                         return reservationResult;
                     }
                 },
                 {
-                    6, (productId, update) =>
+                    6, (product, update) =>
                     {
-                        var reservationResult = testHelper.PurchaseFromHolds(inventoryActor, update,productId);
+                        var reservationResult = testHelper.PurchaseFromHoldsAsync(product, update);
                         return reservationResult;
                     }
                 }
@@ -111,12 +110,15 @@ namespace InventoryService.Tests
             return operations;
         }
 
-        public static void AssertReservations(IRealTimeInventory initialInventory, int toReserve, IInventoryServiceCompletedMessage result)
+        public static void AssertReservations(IRealTimeInventory initialInventory, int reservationQuantity, IInventoryServiceCompletedMessage result)
         {
-            if (initialInventory.Quantity - initialInventory.Holds - initialInventory.Reserved - toReserve >= 0)
+            if ((initialInventory.Quantity - initialInventory.Holds - initialInventory.Reserved - reservationQuantity >= 0) || reservationQuantity <= 0)
             {
                 Assert.True(result.Successful);
-                Assert.Equal(result.RealTimeInventory.Reserved, Math.Max(0, initialInventory.Reserved + toReserve));
+
+                var newReserved = Math.Max(0, initialInventory.Reserved + reservationQuantity);
+
+                Assert.Equal(result.RealTimeInventory.Reserved, newReserved);
             }
             else
             {

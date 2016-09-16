@@ -1,19 +1,53 @@
-﻿using InventoryService.Messages;
+﻿using Akka.Actor;
+using Akka.Event;
+using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
 using System;
 
-namespace InventoryService.Services
+namespace InventoryService
 {
     public static class RealTimeInventoryOPerationalResultExtensions
     {
+        public static IInventoryServiceCompletedMessage ProcessAndSendResult(this OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage, IRealTimeInventory realTimeInventory)
+        {
+            if (!result.IsSuccessful)
+            {
+                return result.ToInventoryOperationErrorMessage(requestMessage.ProductId);
+            }
+            else
+            {
+                realTimeInventory = result.Data as RealTimeInventory;
+                return successResponseCompletedMessage(realTimeInventory);
+            }
+        }
+
+        public static RealTimeInventory ProcessAndSendResult(this OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage, ILoggingAdapter logger, IRealTimeInventory realTimeInventory, IActorRef sender)
+        {
+            logger.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + realTimeInventory.GetCurrentQuantitiesReport());
+            if (!result.IsSuccessful)
+            {
+                sender.Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
+                logger.Info(result.Exception.ErrorMessage);
+            }
+            else
+            {
+                realTimeInventory = result.Data as RealTimeInventory;
+                var response = successResponseCompletedMessage(realTimeInventory);
+                sender.Tell(response);
+                logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport());
+            }
+
+            return realTimeInventory as RealTimeInventory;
+        }
+
         public static void ThrowIfFailedOperationResult(
             this OperationResult<IRealTimeInventory> realTimeInventoryOperationResult)
         {
             if (realTimeInventoryOperationResult.IsSuccessful) return;
             if (realTimeInventoryOperationResult.Exception != null)
             {
-                throw realTimeInventoryOperationResult.Exception;
+                throw new Exception(realTimeInventoryOperationResult.Exception.ErrorMessage);
             }
             var inventoryProductId = realTimeInventoryOperationResult?.Data?.ProductId;
             throw new Exception("Inventory operation failed" + (string.IsNullOrEmpty(inventoryProductId) ? " and did not find inventoryProductId" : inventoryProductId));
@@ -42,11 +76,12 @@ namespace InventoryService.Services
             {
                 message += GetCurrentQuantitiesReport(realTimeInventory);
             }
+            exception.ErrorMessage += exception.ErrorMessage + " : " + message;
             return new OperationResult<IRealTimeInventory>()
             {
                 Data = realTimeInventory,
                 IsSuccessful = false,
-                Exception = new Exception(message, exception)
+                Exception = exception
             };
         }
 
