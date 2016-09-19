@@ -241,3 +241,4 @@ _Pvt_Extensions
 .idea*
 .build
 .nuget
+dev.config

@@ -82,7 +82,6 @@
   <ItemGroup>
     <Compile Include="InventoryActor.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
-    <Compile Include="Messages\GetMetricsMessage.cs" />
     <Compile Include="Messages\LoadedInventoryMessage.cs" />
     <Compile Include="Messages\WriteInventoryMessage.cs" />
     <Compile Include="Messages\WriteReservationsMessage.cs" />

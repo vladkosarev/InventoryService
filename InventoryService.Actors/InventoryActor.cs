@@ -88,17 +88,14 @@ namespace InventoryService.Actors
             {
                 _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory as RealTimeInventory;
             });
-            Receive<GetMetricsMessage>(message =>
-            {
-                //  performanceService.PrintMetrics();
-            });
+          
 
             Receive<IRequestMessage>(message =>
             {
                 Logger.Error(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 GetActorRef(InventoryStorage, message.ProductId).Forward(message);
                 GetActorRef(InventoryStorage, message.ProductId).Tell(new GetInventoryMessage(message.ProductId));
-                //todo Self.Tell(new GetMetricsMessage());
+                NotificationActorRef.Tell(message);
             });
 
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
