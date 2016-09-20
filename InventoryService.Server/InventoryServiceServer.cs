@@ -13,23 +13,24 @@ namespace InventoryService.Server
         {
             Console.WriteLine("Initializing");
          
-                var storageSettings = ConfigurationManager.AppSettings["Storage"];
+              
+
+            if (storageType == null)
+            {
+               // var message = "Unable to initialize storage. No storage specified" ;
+              //  Console.WriteLine(message);
+  var storageSettings = ConfigurationManager.AppSettings["Storage"];
                 if (string.IsNullOrEmpty(storageSettings))
                 {
-                    const string message = "Could not find Storage setup in config. Now will check code ...";
+                    const string message = "Could not find Storage setup in config";
                     Console.WriteLine(message);
+      throw new Exception(message);
                 }
                 else
                 {
                        storageType = Type.GetType(storageSettings);
                 }
-
-            if (storageType == null)
-            {
-                var message = "Unable to initialize storage. No storage specified" ;
-                Console.WriteLine(message);
-
-                throw new Exception(message);
+          
             }
 
             var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);

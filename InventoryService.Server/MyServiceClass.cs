@@ -15,9 +15,9 @@ namespace InventoryService.Server
             ,string serverActorSystemConfig=null
            )
         {
-          var  tmpServerEndPoint = serverEndPoint ?? ConfigurationManager.AppSettings["ServerEndPoint"];
+            serverEndPoint = serverEndPoint ?? ConfigurationManager.AppSettings["ServerEndPoint"];
 
-            serverEndPoint = tmpServerEndPoint ?? serverEndPoint;
+          
            // Start OWIN host
             OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
             InventoryServiceServerApp = new InventoryServiceServerApp();

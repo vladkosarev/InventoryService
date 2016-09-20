@@ -48,7 +48,7 @@ namespace InventoryService.Console
                     {
                         try
                         {
-                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 5000)).Wait();
+                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 1000)).Wait();
                         }
                         catch (Exception ex)
                         {

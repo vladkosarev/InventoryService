@@ -104,7 +104,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         $("#jsGrid1")
             .jsGrid({
                 width: "100%",
-                height: "1000px",
+                height: "500px",
                 inserting: false,
                 editing: false,
                 sorting: true,
