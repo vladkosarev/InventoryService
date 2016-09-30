@@ -22,22 +22,20 @@ namespace InventoryService.AkkaInMemoryServer
             Sys = Options.ClientActorSystem;
             InventoryServiceApplication = new InventoryServiceApplication();
 
- 
-
             if (string.IsNullOrEmpty(Options.InventoryActorAddress))
             {
                 Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"]; 
             }
-           
+        
+                InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
+                Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
+                inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
 
-            InventoryServiceApplication.Start(Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName,serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options. ServerActorSystemConfig);
-
-            Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
-            inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
-
-            if (Options.InitialInventory == null) return;
-
-            InitializeWithInventorydata(Options);
+                if (Options.InitialInventory != null)
+                {
+                    InitializeWithInventorydata(Options);
+                }
+          
         }
 
         private void InitializeWithInventorydata(InventoryServerOptions options)

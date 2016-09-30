@@ -42,6 +42,27 @@ namespace InventoryService.Console
 
                 stopwatch.Start();
 
+//                for (var j = 0;j< 1000; j++)
+//                {
+//for (var i = 0; i < 10; i++)
+//                {
+//                    try
+//                    {
+//                        inventoryActor.Tell(new UpdateQuantityMessage("test2", 1));
+//                    }
+//                    catch (Exception ex)
+//                    {
+//                        System.Console.WriteLine("Failed on iteration {0} while updating quantity {1} : {2}", i,
+//                   "test2",
+//                            ex.Message + " - " + ex);
+//                    }
+//                }
+//                    Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+//                }
+
+                var m = inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
+                m.Wait();
+              var n=  m.Result;
                 products.ForEach(p =>
                 {
                     for (var i = 0; i < 1; i++)

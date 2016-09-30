@@ -15,6 +15,34 @@ namespace PackageQA
     [TestClass]
     public class UnitTest1
     {
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            var serverOptions = new InventoryServerOptions()
+            {
+                InventoryActorAddress = "akka.tcp://InventoryService-Server@localhost:10000/user/InventoryActor",
+                ServerEndPoint = "http://*:10088/",
+                StorageType = typeof(InMemory),
+                ServerActorSystemName = "InventoryService-Server",
+                ServerActorSystemConfig = @"
+                  akka.actor{provider= ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""}
+                  akka.remote.helios.tcp {
+                      transport-class =""Akka.Remote.Transport.Helios.HeliosTcpTransport, Akka.Remote""
+                      port = 10000
+                      transport-protocol = tcp
+                      hostname = ""localhost""
+                  }
+              "
+            };
+            var InventoryserviceServer = new InventoryServiceServer(serverOptions);
+
+            var res = InventoryserviceServer.inventoryActor.Path;
+            var res2 = InventoryserviceServer.inventoryActor.Ask(new GetInventoryMessage("sample")).Result;
+
+
+        }
+
         [TestMethod]
         public void TestMethod1()
         {

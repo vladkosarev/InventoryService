@@ -7,7 +7,7 @@ namespace InventoryService.Server
 {
     public class InventoryServiceApplication
     {
-        public void Start(
+        public void Start(Action<IActorRef, ActorSystem> onReady=null,
             Type storageType=null
             , string serverEndPoint = null
             , string serverActorSystemName = null
@@ -21,7 +21,7 @@ namespace InventoryService.Server
            // Start OWIN host
             OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
             InventoryServiceServerApp = new InventoryServiceServerApp();
-            InventoryServiceServerApp.StartServer(storageType,serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
+            InventoryServiceServerApp.StartServer(onReady, storageType,serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
             // Console.ReadLine();
         }
 

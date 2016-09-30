@@ -9,34 +9,38 @@ namespace InventoryService.Server
 {
     public class InventoryServiceServerApp
     {
-        public void StartServer(Type storageType = null, string serverActorSystemName = null, ActorSystem serverActorSystem = null, string serverActorSystemConfig=null)
+        public void StartServer(Action<IActorRef,ActorSystem> onReady=null, Type storageType = null, string serverActorSystemName = null,
+            ActorSystem serverActorSystem = null, string serverActorSystemConfig = null)
         {
             Console.WriteLine("Initializing");
-         
-              
 
             if (storageType == null)
             {
-               // var message = "Unable to initialize storage. No storage specified" ;
-              //  Console.WriteLine(message);
-  var storageSettings = ConfigurationManager.AppSettings["Storage"];
+                // var message = "Unable to initialize storage. No storage specified" ;
+                //  Console.WriteLine(message);
+                var storageSettings = ConfigurationManager.AppSettings["Storage"];
                 if (string.IsNullOrEmpty(storageSettings))
                 {
                     const string message = "Could not find Storage setup in config";
                     Console.WriteLine(message);
-      throw new Exception(message);
+                    throw new Exception(message);
                 }
                 else
                 {
-                       storageType = Type.GetType(storageSettings);
+                    storageType = Type.GetType(storageSettings);
                 }
-          
             }
-
-            var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
+            if (storageType == null)
+            {
+                const string message = "Could not create storage type";
+                Console.WriteLine(message);
+                throw new Exception(message);
+            }
+            var inventoryService = (IInventoryStorage) Activator.CreateInstance(storageType);
 
             Console.WriteLine("Starting Server");
-            ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName, actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
+            ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName,
+                actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
 
             var inventoryActor =
                 ActorSystemFactory.InventoryServiceActorSystem.ActorOf(
@@ -45,11 +49,13 @@ namespace InventoryService.Server
 
             if (inventoryActor == null || inventoryActor.IsNobody())
             {
-                var message = "Unable to create actor ";
+                const string message = "Unable to create actor";
                 Console.WriteLine(message);
                 throw new Exception(message);
             }
             ActorSystem = ActorSystemFactory.InventoryServiceActorSystem;
+
+            onReady?.Invoke(inventoryActor, ActorSystem);
         }
 
         public ActorSystem ActorSystem { get; set; }

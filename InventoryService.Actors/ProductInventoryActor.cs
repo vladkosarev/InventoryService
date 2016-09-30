@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Akka.Event;
 using InventoryService.Actors.Messages;
 using InventoryService.Messages;
@@ -82,6 +83,10 @@ namespace InventoryService.Actors
                 var result = await RealTimeInventory.InventoryStorageFlushAsync(InventoryStorage, _id);
                 Sender.Tell(result.Data);
             });
+
+#if DEBUG
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5),Nobody.Instance, RealTimeInventory, Self);
+#endif
         }
 
         protected override void PostStop()

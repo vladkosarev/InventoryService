@@ -45,25 +45,19 @@ let projectName="InventoryService.Server"
 // Read release notes and version
 
 let BuildFn<'T>= match buildParam with
-                  | "debug" -> MSBuildDebug
-                  | _       ->MSBuildRelease
-
-
-                  
+                  | _       ->MSBuildDebug                  
 
 let BuildVersionType= match buildParam with
-                           | "release" -> "-pre"
-                           | _         -> "-"+buildParam
+                           | _         -> "-pre"
 
 let NugetDeployPath= match nugetDeployPath with
-                           | "release" -> "-pre"
-                           | _         -> "-"+buildParam
+                          | _         -> "-pre"
 
 // version info
 let version =
   match buildServer with
   | TeamCity -> (buildVersion+BuildVersionType)
-  | _        -> ("0.4.0"+BuildVersionType)
+  | _        -> ("0.9.0"+BuildVersionType)
 
 // Targets
 Target "Clean" (fun _ -> 

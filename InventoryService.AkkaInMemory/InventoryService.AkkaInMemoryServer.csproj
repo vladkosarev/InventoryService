@@ -82,7 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InventoryServerOptions.cs" />
-    <Compile Include="InventoryServiceAkkaInMemory.cs" />
+    <Compile Include="InventoryServiceServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
