@@ -10,7 +10,7 @@ using InventoryService.Storage;
 
 namespace InventoryService.Actors
 {
-    public class ProductInventoryActor : ReceiveActor
+    public class ProductInventoryActor : ReceiveActor, IWithUnboundedStash
     {
         private readonly string _id;
         private RealTimeInventory RealTimeInventory { set; get; }
@@ -20,6 +20,10 @@ namespace InventoryService.Actors
 
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
+          ReceiveAny(message =>
+          {
+              Stash.Stash();
+          });
             _id = id;
             _withCache = withCache;
             InventoryStorage = inventoryStorage;
@@ -29,6 +33,7 @@ namespace InventoryService.Actors
 
         private void Running()
         {
+           
             ReceiveAsync<GetInventoryMessage>(async message =>
             {
                 if (_withCache == false)
@@ -87,6 +92,8 @@ namespace InventoryService.Actors
 #if DEBUG
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5),Nobody.Instance, RealTimeInventory, Self);
 #endif
+
+            Stash.UnstashAll();
         }
 
         protected override void PostStop()
@@ -99,5 +106,7 @@ namespace InventoryService.Actors
             Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory));
             base.PostStop();
         }
+
+        public IStash Stash { get; set; }
     }
 }

@@ -92,6 +92,7 @@ namespace InventoryService.Actors
 
             Receive<IRequestMessage>(message =>
             {
+                message.Sender = Sender;
                 Logger.Error(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 GetActorRef(InventoryStorage, message.ProductId).Forward(message);
                 GetActorRef(InventoryStorage, message.ProductId).Tell(new GetInventoryMessage(message.ProductId));
