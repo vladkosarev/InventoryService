@@ -5,6 +5,61 @@ Here are a few code snippets to get you started
 
 NOTE : THERE IS A DEPENDENCY ON InventoryService.Messages PACKAGE THAT HAS TO BE ADDED MANUALLY!!!
 
+
+            var inventoryActorAddress = "akka.tcp://InventoryService-Server@localhost:10000/user/InventoryActor";
+            var serverOptions = new InventoryServerOptions()
+            {
+                InventoryActorAddress = inventoryActorAddress,
+                ServerEndPoint = "http://*:" + InventoryServerOptions.GetFreeTcpPort() + "/",
+                StorageType = typeof(InMemory),
+                OnInventoryActorSystemReady = (ia, s) =>
+                {
+                    if (internalInventoryActorRef != null)
+                    {
+                        internalInventoryActorRef = ia;
+                    }
+                },
+                ServerActorSystemName = "InventoryService-Server",
+                ServerActorSystemConfig = @"
+                   akka {
+                   loggers = [""Akka.Logger.NLog.NLogLogger,Akka.Logger.NLog""]
+                   stdout-loglevel = DEBUG
+                   loglevel = DEBUG
+                   log-config-on-start = on
+
+                    }
+                   akka.actor{
+                      provider= ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""
+                      debug {
+			                receive = on
+				            autoreceive = on
+				            lifecycle = on
+				            event-stream = on
+				            unhandled = on
+		            }
+                   }
+                  akka.remote {
+                      log-remote-lifecycle-events = DEBUG
+                      log-received-messages = on
+                      log-sent-messages = on
+                    helios.tcp {
+                      log-remote-lifecycle-events = DEBUG
+                      log-received-messages = on
+                      log-sent-messages = on
+                      transport-class =""Akka.Remote.Transport.Helios.HeliosTcpTransport, Akka.Remote""
+                      port = 10000
+                      transport-protocol = tcp
+                      hostname = ""localhost""
+                     }
+                   }                  
+              "
+            };
+            var inventoryserviceServer = new InventoryServiceServer(serverOptions);
+
+
+=============================================================================================================================
+
+
     [TestClass]
         public class UnitTest1
         {
