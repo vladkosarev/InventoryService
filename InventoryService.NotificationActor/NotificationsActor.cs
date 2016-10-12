@@ -18,10 +18,13 @@ namespace InventoryService.NotificationActor
         public NotificationsActor()
         {
             LastReceivedServerMessage = "System started at " + DateTime.UtcNow;
-
+            Logger.Debug(LastReceivedServerMessage);
             Receive<string>(message =>
             {
                 LastReceivedServerMessage = string.IsNullOrEmpty(message) ? LastReceivedServerMessage : message;
+#if DEBUG
+                Logger.Debug(LastReceivedServerMessage);
+#endif
             });
 
             Receive<QueryInventoryListMessage>(message =>
@@ -34,7 +37,7 @@ namespace InventoryService.NotificationActor
                 LastReceivedInventoryListMessage = message;
                 GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(message);
 #if DEBUG
-              Console.WriteLine("total inventories in inventory service : "+   message?.RealTimeInventories?.Count); 
+                Logger.Debug("total inventories in inventory service : "+   message?.RealTimeInventories?.Count); 
 #endif
    });
             Receive<GetMetricsMessage>(message =>
@@ -51,7 +54,7 @@ namespace InventoryService.NotificationActor
                 _messageCount++;
                 GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.incomingMessage(message.GetType().Name + " : " + message.Update + " for " + message.ProductId);
 #if DEBUG
-        Console.WriteLine("received by inventory Actor - "+message.GetType().Name+" - "+message);   
+                Logger.Debug("received by inventory Actor - "+message.GetType().Name+" - "+message);   
 #endif
        });
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(Seconds), Self, new GetMetricsMessage(), Self);

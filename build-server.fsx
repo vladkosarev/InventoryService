@@ -57,7 +57,7 @@ let NugetDeployPath= match nugetDeployPath with
 let version =
   match buildServer with
   | TeamCity -> (buildVersion+BuildVersionType)
-  | _        -> ("0.9.1"+BuildVersionType)
+  | _        -> ("0.9.2"+BuildVersionType)
 
 // Targets
 Target "Clean" (fun _ -> 
