@@ -90,6 +90,7 @@ namespace InventoryService.Actors
 
         protected override void PostStop()
         {
+            Logger.Error(" I , the "+ _id+" have been stopped. At the moment my inventory is "+RealTimeInventory.GetCurrentQuantitiesReport());
             Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id, 0, 0, 0), new RealTimeInventoryException()
             {
                 ErrorMessage = "Actor " + _id + " has stopped"

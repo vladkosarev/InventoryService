@@ -28,18 +28,18 @@ namespace InventoryService
 
             var @ref = requestMessage.Sender as IActorRef;
             sender = @ref != null && !@ref.IsNobody() ? @ref : sender;
-
+         
             if (!result.IsSuccessful)
             {
                 ( sender).Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
-                logger.Info(result.Exception.ErrorMessage);
+                logger.Error("Error while trying to "+ requestMessage.GetType()+ " - The sender of the message is " + sender.Path, requestMessage,result, realTimeInventory.GetCurrentQuantitiesReport());
             }
             else
             {
                 realTimeInventory = result.Data as RealTimeInventory;
                 var response = successResponseCompletedMessage(realTimeInventory);
                 sender.Tell(response);
-                logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport());
+                logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport() + " - The sender of the message is " + sender.Path);
             }
 
             return realTimeInventory as RealTimeInventory;

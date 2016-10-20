@@ -25,6 +25,7 @@ namespace InventoryService.Actors
 
         public InventoryActor(IInventoryStorage inventoryStorage, bool withCache = true)
         {
+            Logger.Debug("Starting Inventory Actor ....");
             InventoryStorage = inventoryStorage;
             _withCache = withCache;
             Become(Initializing);
@@ -32,6 +33,7 @@ namespace InventoryService.Actors
 
         private void Initializing()
         {
+            Logger.Debug("Inventory Actor Initializing ....");
             Self.Tell(new InitializeInventoriesFromStorageMessage());
             ReceiveAsync<InitializeInventoriesFromStorageMessage>(async message =>
             {
@@ -42,12 +44,16 @@ namespace InventoryService.Actors
                     Become(Processing);
                     foreach (var s in inventoryIdsResult.Result)
                     {
-                        GetActorRef(InventoryStorage, s).Tell(new GetInventoryMessage(s));
+                        Logger.Debug("Initializing asking "+s+" for its inventory ....");
+                        var invActorRef = GetActorRef(InventoryStorage, s);
+                        invActorRef.Tell(new GetInventoryMessage(s));
                     }
                 }
                 else
                 {
-                    throw new Exception("Failed to read inventories from storage " + InventoryStorage.GetType().FullName, inventoryIdsResult.Errors.Flatten());
+                    var errorMsg = "Failed to read inventories from storage " + InventoryStorage.GetType().FullName +" - "+ inventoryIdsResult.Errors.Flatten().Message;
+                    Logger.Error("Inventory Actor Initialization Failed "+ errorMsg);
+                    throw new Exception(errorMsg, inventoryIdsResult.Errors.Flatten());
 
                     /*
                  TODO :
@@ -60,17 +66,21 @@ namespace InventoryService.Actors
 
         private void Processing()
         {
+            Logger.Debug("Inventory Actor Processing started ...");
             NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()));
 
             Receive<RemoveProductMessage>(message =>
             {
                 var productId = message?.RealTimeInventory?.ProductId;
+
+                Logger.Debug("Actor "+ productId+" has requested to be removed because "+ message?.Reason?.Message + " and so will no longer be sent messages.", message);
+
                 if (!string.IsNullOrEmpty(productId))
                 {
                     _products.Remove(productId);
                     _realTimeInventories.Remove(productId);
                     _removedRealTimeInventories[productId] = message;
-                    NotificationActorRef.Tell(productId + " Actor has died! Reason : " + message.Reason.Message);
+                    NotificationActorRef.Tell(productId + " Actor has died! Reason : " + message?.Reason?.Message);
                 }
             });
 
@@ -93,9 +103,10 @@ namespace InventoryService.Actors
             Receive<IRequestMessage>(message =>
             {
                 message.Sender = Sender;
-                Logger.Error(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
-                GetActorRef(InventoryStorage, message.ProductId).Forward(message);
-                GetActorRef(InventoryStorage, message.ProductId).Tell(new GetInventoryMessage(message.ProductId));
+                Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
+                var actorRef = GetActorRef(InventoryStorage, message.ProductId);
+                actorRef.Forward(message);
+                actorRef.Tell(new GetInventoryMessage(message.ProductId));
                 NotificationActorRef.Tell(message);
             });
 
@@ -106,6 +117,7 @@ namespace InventoryService.Actors
         {
             if (_products.ContainsKey(productId)) return _products[productId];
 
+            Logger.Debug("Creating inventory actor "+productId+" since it does not yet exist ...");
             var productActorRef = Context.ActorOf(
                 Props.Create(() =>
                     new ProductInventoryActor(inventoryStorage, productId, _withCache))
@@ -121,7 +133,7 @@ namespace InventoryService.Actors
             return new OneForOneStrategy(
                 x =>
                 {
-                    var message = x.Message + " - " + x.InnerException?.Message;
+                    var message = x.Message + " - " + x.InnerException?.Message+" - it's possible an inventory actor has mal-functioned so i'm going to stop it :( ";
                     Logger.Error(message);
                     NotificationActorRef.Tell(message);
                     return Directive.Stop;
