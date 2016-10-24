@@ -40,9 +40,9 @@ namespace InventoryService.AkkaInMemoryServer
 
         private void InitializeWithInventorydata(InventoryServerOptions options)
         {
-            UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity).Wait();
-            ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved).Wait();
-            PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds).Wait();
+            UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity).TODO /* USE PROPER ASYNC AWAIT HERE */
+            ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved).TODO /* USE PROPER ASYNC AWAIT HERE */
+            PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds).TODO /* USE PROPER ASYNC AWAIT HERE */
             var result = GetInventoryAsync(options.InitialInventory.ProductId).Result;
             if (!result.Successful ||
                 result.RealTimeInventory == null ||
@@ -104,7 +104,7 @@ namespace InventoryService.AkkaInMemoryServer
         public void Dispose()
         {
             InventoryServiceApplication.Stop();
-            Sys?.Terminate().Wait();
+            Sys?.Terminate().TODO /* USE PROPER ASYNC AWAIT HERE */
             Sys?.Dispose();
         }
     }

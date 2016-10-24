@@ -39,12 +39,12 @@
       <HintPath>..\packages\Akka.Remote.1.1.2\lib\net45\Akka.Remote.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.TestKit, Version=1.0.8.24, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.TestKit.1.0.8\lib\net45\Akka.TestKit.dll</HintPath>
+    <Reference Include="Akka.TestKit, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.TestKit.1.1.2\lib\net45\Akka.TestKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.TestKit.Xunit2, Version=1.0.8.24, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.TestKit.Xunit2.1.0.8\lib\net45\Akka.TestKit.Xunit2.dll</HintPath>
+    <Reference Include="Akka.TestKit.Xunit2, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.TestKit.Xunit2.1.1.2\lib\net45\Akka.TestKit.Xunit2.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FsCheck, Version=2.6.0.0, Culture=neutral, processorArchitecture=MSIL">

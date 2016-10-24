@@ -102,15 +102,15 @@ namespace InventoryService.Actors
 
             Receive<IRequestMessage>(message =>
             {
-                message.Sender = Sender;
+               // message.Sender = Sender;
                 Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 var actorRef = GetActorRef(InventoryStorage, message.ProductId);
                 actorRef.Forward(message);
-                actorRef.Tell(new GetInventoryMessage(message.ProductId));
-                NotificationActorRef.Tell(message);
+              //  actorRef.Tell(new GetInventoryMessage(message.ProductId));
+             //   NotificationActorRef.Tell(message);
             });
 
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
+          //  Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
