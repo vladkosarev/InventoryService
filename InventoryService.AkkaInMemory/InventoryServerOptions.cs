@@ -8,7 +8,6 @@ namespace InventoryService.AkkaInMemoryServer
 {
     public class InventoryServerOptions
     {
-       
         public RealTimeInventory InitialInventory { set; get; }
 
         public ActorSystem ClientActorSystem { set; get; }
@@ -29,8 +28,6 @@ namespace InventoryService.AkkaInMemoryServer
         public string ServerActorSystemConfig { get; set; }
 
         public string ServerActorSystemName { get; set; }
-
-
 
         /// <summary>
         /// Not yet cross platform tested

@@ -24,40 +24,37 @@ namespace InventoryService.AkkaInMemoryServer
 
             if (string.IsNullOrEmpty(Options.InventoryActorAddress))
             {
-                Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"]; 
+                Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
             }
-        
-                InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
-                Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
-                inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
 
-                if (Options.InitialInventory != null)
-                {
-                    InitializeWithInventorydata(Options);
-                }
-          
+            InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
+            Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
+            inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
+
+            if (Options.InitialInventory != null)
+            {
+                InitializeWithInventorydata(Options);
+            }
         }
 
         private void InitializeWithInventorydata(InventoryServerOptions options)
         {
             Task.Run(async () =>
             {
-             await    UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
-          await  ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
-              await  PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds);//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                var result = GetInventoryAsync(options.InitialInventory.ProductId).Result;
-            if (!result.Successful ||
-                result.RealTimeInventory == null ||
-                result.RealTimeInventory.ProductId != options.InitialInventory.ProductId ||
-                result.RealTimeInventory.Quantity != options.InitialInventory.Quantity ||
-                result.RealTimeInventory.Reserved != options.InitialInventory.Reserved ||
-                result.RealTimeInventory.Holds != options.InitialInventory.Holds)
-            {
-                throw new Exception("Error initializing data into remote inventory actor ");
-            }
-
+                await UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                await ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                await PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                var result = await GetInventoryAsync(options.InitialInventory.ProductId);
+                if (!result.Successful ||
+                    result.RealTimeInventory == null ||
+                    result.RealTimeInventory.ProductId != options.InitialInventory.ProductId ||
+                    result.RealTimeInventory.Quantity != options.InitialInventory.Quantity ||
+                    result.RealTimeInventory.Reserved != options.InitialInventory.Reserved ||
+                    result.RealTimeInventory.Holds != options.InitialInventory.Holds)
+                {
+                    throw new Exception("Error initializing data into remote inventory actor ");
+                }
             }).Wait();
-           
         }
 
         public IActorRef inventoryActor { get; set; }

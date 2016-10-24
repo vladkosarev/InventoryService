@@ -9,7 +9,7 @@ namespace InventoryService.Server
 {
     public class InventoryServiceServerApp
     {
-        public void StartServer(Action<IActorRef,ActorSystem> onReady=null, Type storageType = null, string serverActorSystemName = null,
+        public void StartServer(Action<IActorRef, ActorSystem> onReady = null, Type storageType = null, string serverActorSystemName = null,
             ActorSystem serverActorSystem = null, string serverActorSystemConfig = null)
         {
             Console.WriteLine("Initializing");
@@ -36,7 +36,7 @@ namespace InventoryService.Server
                 Console.WriteLine(message);
                 throw new Exception(message);
             }
-            var inventoryService = (IInventoryStorage) Activator.CreateInstance(storageType);
+            var inventoryService = (IInventoryStorage)Activator.CreateInstance(storageType);
 
             Console.WriteLine("Starting Server");
             ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName,

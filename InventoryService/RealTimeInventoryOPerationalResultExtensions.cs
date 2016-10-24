@@ -25,11 +25,11 @@ namespace InventoryService
         public static RealTimeInventory ProcessAndSendResult(this OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage, ILoggingAdapter logger, IRealTimeInventory realTimeInventory, IActorRef sender)
         {
             logger.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + realTimeInventory.GetCurrentQuantitiesReport());
-            
+
             if (!result.IsSuccessful)
             {
-                ( sender).Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
-                logger.Error("Error while trying to "+ requestMessage.GetType()+ " - The sender of the message is " + sender.Path, requestMessage,result, realTimeInventory.GetCurrentQuantitiesReport());
+                (sender).Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
+                logger.Error("Error while trying to " + requestMessage.GetType() + " - The sender of the message is " + sender.Path, requestMessage, result, realTimeInventory.GetCurrentQuantitiesReport());
             }
             else
             {

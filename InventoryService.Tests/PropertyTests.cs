@@ -47,11 +47,11 @@ namespace InventoryService.Tests
             {
                 Enumerable.Range(1, 6).ForEach(oo =>
                   {
-                      using (var testHelper = new InventoryServiceServer( new InventoryServerOptions() {InitialInventory = request.Item1 }))
+                      using (var testHelper = new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = request.Item1 }))
                       {
-                        //var  response = testHelper.ReserveAsync(request.Item1, request.Item2).WaitAndGetOperationResult();
-                        //  response = testHelper.ReserveAsync(request.Item1, request.Item2).WaitAndGetOperationResult();
-                        var operation = InventoryServiceSpecificationHelper.GetOperations(testHelper)[oo];
+                          //var  response = testHelper.ReserveAsync(request.Item1, request.Item2).WaitAndGetOperationResult();
+                          //  response = testHelper.ReserveAsync(request.Item1, request.Item2).WaitAndGetOperationResult();
+                          var operation = InventoryServiceSpecificationHelper.GetOperations(testHelper)[oo];
                           InventoryServiceSpecificationHelper.GetAssertions()[oo](request.Item1, request.Item2, operation(request.Item1, request.Item2).WaitAndGetOperationResult());
                       }
                   });
@@ -62,7 +62,7 @@ namespace InventoryService.Tests
         public void Reservation_Test(RealTimeInventory inventory, int toReserve)
         {
             IInventoryServiceCompletedMessage response;
-            using (var testHelper = new InventoryServiceServer(new InventoryServerOptions() { InitialInventory= inventory }))
+            using (var testHelper = new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory }))
                 response = testHelper.ReserveAsync(inventory, toReserve).WaitAndGetOperationResult();
 
             InventoryServiceSpecificationHelper.AssertReservations(inventory, toReserve, response);

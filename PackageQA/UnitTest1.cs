@@ -1,21 +1,19 @@
-﻿using InventoryService.AkkaInMemoryServer;
-using InventoryService.Messages.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Configuration;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.Configuration;
+using InventoryService.AkkaInMemoryServer;
 using InventoryService.Messages;
+using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Storage.InMemoryLib;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Threading.Tasks;
 
 namespace PackageQA
 {
     [TestClass]
     public class UnitTest1
     {
-
         [TestMethod]
         public void TestMethod2()
         {
@@ -39,8 +37,6 @@ namespace PackageQA
 
             var res = InventoryserviceServer.inventoryActor.Path;
             var res2 = InventoryserviceServer.inventoryActor.Ask(new GetInventoryMessage("sample")).Result;
-
-
         }
 
         [TestMethod]
@@ -65,8 +61,7 @@ namespace PackageQA
               "
             };
 
-
-            using (var server=new InventoryServiceServer(serverOptions))
+            using (var server = new InventoryServiceServer(serverOptions))
             {
                 var mySystem = Akka.Actor.ActorSystem.Create("mySystem", ConfigurationFactory.ParseString(@"
                   akka.actor{provider= ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""}
@@ -78,7 +73,6 @@ namespace PackageQA
                   }
               "));
                 var inventoryActor = mySystem.ActorSelection(serverOptions.InventoryActorAddress);
-            
 
                 var result =
                  server.inventoryActor.Ask<IInventoryServiceCompletedMessage>(new ReserveMessage(

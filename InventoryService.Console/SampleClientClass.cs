@@ -33,27 +33,27 @@ namespace InventoryService.Console
 
                 stopwatch.Start();
 
-//                for (var j = 0;j< 1000; j++)
-//                {
-//for (var i = 0; i < 10; i++)
-//                {
-//                    try
-//                    {
-//                        inventoryActor.Tell(new UpdateQuantityMessage("test2", 1));
-//                    }
-//                    catch (Exception ex)
-//                    {
-//                        System.Console.WriteLine("Failed on iteration {0} while updating quantity {1} : {2}", i,
-//                   "test2",
-//                            ex.Message + " - " + ex);
-//                    }
-//                }
-//                    Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
-//                }
+                //                for (var j = 0;j< 1000; j++)
+                //                {
+                //for (var i = 0; i < 10; i++)
+                //                {
+                //                    try
+                //                    {
+                //                        inventoryActor.Tell(new UpdateQuantityMessage("test2", 1));
+                //                    }
+                //                    catch (Exception ex)
+                //                    {
+                //                        System.Console.WriteLine("Failed on iteration {0} while updating quantity {1} : {2}", i,
+                //                   "test2",
+                //                            ex.Message + " - " + ex);
+                //                    }
+                //                }
+                //                    Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
+                //                }
 
                 var m = await inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
-               // m.TODO /* USE PROPER ASYNC AWAIT HERE */
-            //  var n=  m.Result;
+                // m.TODO /* USE PROPER ASYNC AWAIT HERE */
+                //  var n=  m.Result;
                 var counter = 0;
                 var totalIteration = 10;
                 products.ForEach(p =>
@@ -68,7 +68,7 @@ namespace InventoryService.Console
                             inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 10));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            if (i%3 == 0)
+                            if (i % 3 == 0)
                             {
                                 inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                                 actorSystem.Terminate();
@@ -106,7 +106,7 @@ namespace InventoryService.Console
                 });
                 if (counter != products.Count * totalIteration)
                 {
-                    throw  new Exception();
+                    throw new Exception();
                 }
                 //try
                 //{

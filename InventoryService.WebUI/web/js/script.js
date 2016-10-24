@@ -147,7 +147,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     $scope.serverNotificationMessages = "";
     $scope.messageSpeed = "";
     $scope.model.incomingMessages = [];
-  
+
     hub.client("serverNotificationMessages",
         function(response) {
             $scope.serverNotificationMessages = response;
@@ -166,10 +166,8 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         function (response) {
             messageCount++;
             $timeout(function() {
-              
                 $scope.model.incomingMessagesFirst =messageCount+" : "+ response;
                     if ($scope.model.logMessages) {
-                      
                     } else {
                         $scope.model.incomingMessages = [];
                     }
@@ -185,9 +183,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
                     }
                 })($scope.model.incomingMessagesFirst), 500);
             });
-            
         });
-    
 
     hub.ready(function () {
         hub.server.getInventoryList();

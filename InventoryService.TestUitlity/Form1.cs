@@ -30,7 +30,7 @@ namespace InventoryService.TestUitlity
                     Convert.ToInt32(InitialHold.Text));
                 InventoryServiceServer helper = new InventoryServiceServer(new InventoryServerOptions()
                 {
-                StorageType    = typeof(Storage.InMemoryLib.InMemory),
+                    StorageType = typeof(Storage.InMemoryLib.InMemory),
                     InitialInventory = inventory,
                     ClientActorSystem = ActorSystem
                 });

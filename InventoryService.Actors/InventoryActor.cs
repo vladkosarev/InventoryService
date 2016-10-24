@@ -1,6 +1,5 @@
 ﻿using Akka.Actor;
 using Akka.Event;
-using InventoryService.Actors.Messages;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
@@ -44,15 +43,15 @@ namespace InventoryService.Actors
                     Become(Processing);
                     foreach (var s in inventoryIdsResult.Result)
                     {
-                        Logger.Debug("Initializing asking "+s+" for its inventory ....");
+                        Logger.Debug("Initializing asking " + s + " for its inventory ....");
                         var invActorRef = GetActorRef(InventoryStorage, s);
                         invActorRef.Tell(new GetInventoryMessage(s));
                     }
                 }
                 else
                 {
-                    var errorMsg = "Failed to read inventories from storage " + InventoryStorage.GetType().FullName +" - "+ inventoryIdsResult.Errors.Flatten().Message;
-                    Logger.Error("Inventory Actor Initialization Failed "+ errorMsg);
+                    var errorMsg = "Failed to read inventories from storage " + InventoryStorage.GetType().FullName + " - " + inventoryIdsResult.Errors.Flatten().Message;
+                    Logger.Error("Inventory Actor Initialization Failed " + errorMsg);
                     throw new Exception(errorMsg, inventoryIdsResult.Errors.Flatten());
 
                     /*
@@ -73,7 +72,7 @@ namespace InventoryService.Actors
             {
                 var productId = message?.RealTimeInventory?.ProductId;
 
-                Logger.Debug("Actor "+ productId+" has requested to be removed because "+ message?.Reason?.Message + " and so will no longer be sent messages.", message);
+                Logger.Debug("Actor " + productId + " has requested to be removed because " + message?.Reason?.Message + " and so will no longer be sent messages.", message);
 
                 if (!string.IsNullOrEmpty(productId))
                 {
@@ -98,26 +97,22 @@ namespace InventoryService.Actors
             {
                 _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory as RealTimeInventory;
             });
-          
 
             Receive<IRequestMessage>(message =>
             {
-               // message.Sender = Sender;
                 Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 var actorRef = GetActorRef(InventoryStorage, message.ProductId);
                 actorRef.Forward(message);
-              //  actorRef.Tell(new GetInventoryMessage(message.ProductId));
-             //   NotificationActorRef.Tell(message);
             });
 
-          //  Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {
             if (_products.ContainsKey(productId)) return _products[productId];
 
-            Logger.Debug("Creating inventory actor "+productId+" since it does not yet exist ...");
+            Logger.Debug("Creating inventory actor " + productId + " since it does not yet exist ...");
             var productActorRef = Context.ActorOf(
                 Props.Create(() =>
                     new ProductInventoryActor(inventoryStorage, productId, _withCache))
@@ -133,7 +128,7 @@ namespace InventoryService.Actors
             return new OneForOneStrategy(
                 x =>
                 {
-                    var message = x.Message + " - " + x.InnerException?.Message+" - it's possible an inventory actor has mal-functioned so i'm going to stop it :( ";
+                    var message = x.Message + " - " + x.InnerException?.Message + " - it's possible an inventory actor has mal-functioned so i'm going to stop it :( ";
                     Logger.Error(message);
                     NotificationActorRef.Tell(message);
                     return Directive.Stop;

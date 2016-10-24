@@ -6,7 +6,7 @@ namespace InventoryService.Server
     {
         private static void Main(string[] args)
         {
-            new InventoryServiceApplication().Start((a,s)=>
+            new InventoryServiceApplication().Start((a, s) =>
             {
                 Console.WriteLine("Server started ...");
             }

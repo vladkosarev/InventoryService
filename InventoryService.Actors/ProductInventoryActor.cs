@@ -1,5 +1,4 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.Event;
 using InventoryService.Actors.Messages;
 using InventoryService.Messages;
@@ -7,6 +6,7 @@ using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
+using System;
 
 namespace InventoryService.Actors
 {
@@ -20,7 +20,6 @@ namespace InventoryService.Actors
 
         public ProductInventoryActor(IInventoryStorage inventoryStorage, string id, bool withCache)
         {
-        
             _id = id;
             _withCache = withCache;
             InventoryStorage = inventoryStorage;
@@ -86,11 +85,9 @@ namespace InventoryService.Actors
 #endif
         }
 
-
-
         protected override void PostStop()
         {
-            Logger.Error(" I , the "+ _id+" have been stopped. At the moment my inventory is "+RealTimeInventory.GetCurrentQuantitiesReport());
+            Logger.Error(" I , the " + _id + " have been stopped. At the moment my inventory is " + RealTimeInventory.GetCurrentQuantitiesReport());
             Sender.Tell(new InventoryOperationErrorMessage(new RealTimeInventory(_id, 0, 0, 0), new RealTimeInventoryException()
             {
                 ErrorMessage = "Actor " + _id + " has stopped"
@@ -99,6 +96,5 @@ namespace InventoryService.Actors
             Context.Parent.Tell(new RemoveProductMessage(RealTimeInventory));
             base.PostStop();
         }
-        
     }
 }
