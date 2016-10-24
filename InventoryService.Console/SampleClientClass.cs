@@ -51,9 +51,9 @@ namespace InventoryService.Console
 //                    Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
 //                }
 
-                var m = inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
-                m.TODO /* USE PROPER ASYNC AWAIT HERE */
-              var n=  m.Result;
+                var m = await inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
+               // m.TODO /* USE PROPER ASYNC AWAIT HERE */
+            //  var n=  m.Result;
                 var counter = 0;
                 var totalIteration = 10;
                 products.ForEach(p =>
@@ -62,32 +62,32 @@ namespace InventoryService.Console
                     {
                         try
                         {
-                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 1000)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new ReserveMessage(p.Item1, 1)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new GetInventoryMessage(p.Item1)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 10)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new GetInventoryMessage(p.Item1)).TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 1000));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 10));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             if (i%3 == 0)
                             {
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3)).TODO /* USE PROPER ASYNC AWAIT HERE */
+                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                                 actorSystem.Terminate();
                                 inventoryActor =
                                      ActorSystem.Create("InventoryService-Client").ActorSelection(remoteAddress);
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                                Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3)).TODO /* USE PROPER ASYNC AWAIT HERE */
+                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                                Task.Delay(TimeSpan.FromSeconds(1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             }
 
                             if (i % 7 == 0)
                             {
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3)).TODO /* USE PROPER ASYNC AWAIT HERE */
+                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                                 actorSystem = ActorSystem.Create("InventoryService-Client");
                                 inventoryActor =
                                   actorSystem.ActorSelection(remoteAddress);
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                                Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3)).TODO /* USE PROPER ASYNC AWAIT HERE */
+                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                                Task.Delay(TimeSpan.FromSeconds(1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             }
                             counter++;
                         }

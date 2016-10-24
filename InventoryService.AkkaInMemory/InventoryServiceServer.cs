@@ -40,10 +40,12 @@ namespace InventoryService.AkkaInMemoryServer
 
         private void InitializeWithInventorydata(InventoryServerOptions options)
         {
-            UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity).TODO /* USE PROPER ASYNC AWAIT HERE */
-            ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved).TODO /* USE PROPER ASYNC AWAIT HERE */
-            PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds).TODO /* USE PROPER ASYNC AWAIT HERE */
-            var result = GetInventoryAsync(options.InitialInventory.ProductId).Result;
+            Task.Run(async () =>
+            {
+             await    UpdateQuantityAsync(options.InitialInventory, options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+          await  ReserveAsync(options.InitialInventory, options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+              await  PlaceHoldAsync(options.InitialInventory, options.InitialInventory.Holds);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                var result = GetInventoryAsync(options.InitialInventory.ProductId).Result;
             if (!result.Successful ||
                 result.RealTimeInventory == null ||
                 result.RealTimeInventory.ProductId != options.InitialInventory.ProductId ||
@@ -53,6 +55,9 @@ namespace InventoryService.AkkaInMemoryServer
             {
                 throw new Exception("Error initializing data into remote inventory actor ");
             }
+
+            }).Wait();
+           
         }
 
         public IActorRef inventoryActor { get; set; }
@@ -104,7 +109,8 @@ namespace InventoryService.AkkaInMemoryServer
         public void Dispose()
         {
             InventoryServiceApplication.Stop();
-            Sys?.Terminate().TODO /* USE PROPER ASYNC AWAIT HERE */
+            Sys?.Terminate();
+            Sys.AwaitTermination();
             Sys?.Dispose();
         }
     }
