@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
     <Compile Include="GetMetricsMessage.cs" />
     <Compile Include="InitializeInventoriesFromStorageMessage.cs" />

@@ -4,7 +4,6 @@
     {
         public string ProductId { get; private set; }
         public int Update { get; }
-        public object Sender { get; set; }
 
         public GetInventoryMessage(string productId)
         {

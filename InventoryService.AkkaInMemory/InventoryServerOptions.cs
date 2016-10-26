@@ -28,6 +28,7 @@ namespace InventoryService.AkkaInMemoryServer
         public string ServerActorSystemConfig { get; set; }
 
         public string ServerActorSystemName { get; set; }
+        public bool UseActorSystem { get; set; }
 
         /// <summary>
         /// Not yet cross platform tested

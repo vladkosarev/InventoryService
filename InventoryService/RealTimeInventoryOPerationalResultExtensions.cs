@@ -7,39 +7,55 @@ using System;
 
 namespace InventoryService
 {
-    public static class RealTimeInventoryOPerationalResultExtensions
+    public class RealTimeInventoryFinalResult
     {
-        public static IInventoryServiceCompletedMessage ProcessAndSendResult(this OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage, IRealTimeInventory realTimeInventory)
+        public RealTimeInventoryFinalResult(RealTimeInventory realTimeInventory, IInventoryServiceCompletedMessage inventoryServiceCompletedMessage, OperationResult<IRealTimeInventory> result)
         {
-            if (!result.IsSuccessful)
-            {
-                return result.ToInventoryOperationErrorMessage(requestMessage.ProductId);
-            }
-            else
-            {
-                realTimeInventory = result.Data as RealTimeInventory;
-                return successResponseCompletedMessage(realTimeInventory);
-            }
+            RealTimeInventory = realTimeInventory;
+            InventoryServiceCompletedMessage = inventoryServiceCompletedMessage;
+            Result = result;
         }
 
-        public static RealTimeInventory ProcessAndSendResult(this OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage, ILoggingAdapter logger, IRealTimeInventory realTimeInventory, IActorRef sender)
-        {
-            logger.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + realTimeInventory.GetCurrentQuantitiesReport());
+        public RealTimeInventory RealTimeInventory { get; }
+        public IInventoryServiceCompletedMessage InventoryServiceCompletedMessage { get; }
+        public OperationResult<IRealTimeInventory> Result { get; }
+    }
 
+    public static class RealTimeInventoryOPerationalResultExtensions
+    {
+        public static RealTimeInventoryFinalResult ProcessAndSendResult(
+            this OperationResult<IRealTimeInventory> result
+            , IRequestMessage requestMessage
+            , Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage
+            , IRealTimeInventory realTimeInventory)
+        {
+            return result.ProcessAndSendResult(requestMessage, successResponseCompletedMessage, null, realTimeInventory, null);
+        }
+
+        public static RealTimeInventoryFinalResult ProcessAndSendResult(
+            this OperationResult<IRealTimeInventory> result
+            , IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage
+            , ILoggingAdapter logger
+            , IRealTimeInventory realTimeInventory
+            , IActorRef sender)
+        {
+            logger?.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + realTimeInventory.GetCurrentQuantitiesReport());
+
+            IInventoryServiceCompletedMessage response;
             if (!result.IsSuccessful)
             {
-                (sender).Tell(result.ToInventoryOperationErrorMessage(requestMessage.ProductId));
-                logger.Error("Error while trying to " + requestMessage.GetType() + " - The sender of the message is " + sender.Path, requestMessage, result, realTimeInventory.GetCurrentQuantitiesReport());
+                response = result.ToInventoryOperationErrorMessage(requestMessage.ProductId);
+                logger?.Error("Error while trying to " + requestMessage.GetType() + " - The sender of the message is " + sender.Path, requestMessage, result, realTimeInventory.GetCurrentQuantitiesReport());
             }
             else
             {
                 realTimeInventory = result.Data as RealTimeInventory;
-                var response = successResponseCompletedMessage(realTimeInventory);
-                sender.Tell(response);
-                logger.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport() + " - The sender of the message is " + sender.Path);
+                response = successResponseCompletedMessage(realTimeInventory);
+                logger?.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport() + " - The sender of the message is " + sender.Path);
             }
 
-            return realTimeInventory as RealTimeInventory;
+            sender?.Tell(response);
+            return new RealTimeInventoryFinalResult(realTimeInventory as RealTimeInventory, response, result);
         }
 
         public static void ThrowIfFailedOperationResult(

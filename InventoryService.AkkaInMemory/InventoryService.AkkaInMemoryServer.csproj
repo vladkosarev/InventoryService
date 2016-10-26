@@ -114,6 +114,10 @@
       <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
       <Name>InventoryService.Storage</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
+      <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
+      <Name>InventoryService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="readme.txt">
