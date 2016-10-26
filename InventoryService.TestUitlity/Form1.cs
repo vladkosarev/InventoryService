@@ -1,12 +1,12 @@
 ﻿using Akka.Actor;
+using InventoryService.AkkaInMemoryServer;
+using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Response;
-using InventoryService.Storage.InMemoryLib;
 using InventoryService.Tests;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace InventoryService.TestUitlity
@@ -22,78 +22,80 @@ namespace InventoryService.TestUitlity
         {
             try
             {
-                TestHelper helper = new TestHelper(new InMemory());
-
-         
                 var productName = "productName";
-                //var inventoryActor = helper.InitializeAndGetInventoryActor(new RealTimeInventory(
-                //        productName,
-                //        Convert.ToInt32(InitialQuantity.Text),
-                //        Convert.ToInt32(InitialReservation.Text),
-                //        Convert.ToInt32(InitialHold.Text)), ActorSystem);
-                var resmoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
-
-
-             var t=   helper.Reserve(ActorSystem.ActorSelection(resmoteAddress), 1); 
-
-                var task = ActorSystem.ActorSelection(resmoteAddress).ResolveOne(TimeSpan.FromSeconds(5));
-                task.ConfigureAwait(false);
-                Task.WaitAll(task);
-                var inventoryActor = task.Result;
-
-                IInventoryServiceCompletedMessage result = null;
-                var newUpdate = Convert.ToInt32(NewQuantity.Text);
-                switch (cmbOoperation.SelectedItem.ToString())
+                var inventory = new RealTimeInventory(
+                    productName,
+                    Convert.ToInt32(InitialQuantity.Text),
+                    Convert.ToInt32(InitialReservation.Text),
+                    Convert.ToInt32(InitialHold.Text));
+                InventoryServiceServer helper = new InventoryServiceServer(new InventoryServerOptions()
                 {
-                    case "ReadInventory":
-                        result = helper.GetInventory(inventoryActor, productName).WaitAndGetOperationResult();
-                        break;
+                    StorageType = typeof(Storage.InMemoryLib.InMemory),
+                    InitialInventory = inventory,
+                    ClientActorSystem = ActorSystem
+                });
 
-                    case "Reserve":
-                        result = helper.Reserve(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
-                        break;
+                var t = helper.ReserveAsync(ActorSystem.ActorSelection(textBox1.Text), 1);
 
-                    case "UpdateQuantity":
-                        result = helper.UpdateQuantity(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
-                        break;
+                var task = ActorSystem.ActorSelection(textBox1.Text).ResolveOne(TimeSpan.FromSeconds(5));
+                // task.ConfigureAwait(false);
 
-                    case "UpdateQuantityAndHold":
-                        result = helper.UpdateQuantityAndHold(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
-                        break;
-
-                    case "PlaceHold":
-                        result = helper.Hold(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
-                        break;
-
-                    case "Purchase":
-                        result = helper.Purchase(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
-                        break;
-
-                    case "PurchaseFromHolds":
-                        result = helper.PurchaseFromHolds(inventoryActor, newUpdate, productName).WaitAndGetOperationResult();
-                        break;
-                }
-
-                if (result != null)
+                task.ContinueWith(r =>
                 {
-                    ResultQuantity.Text = result.RealTimeInventory.Quantity.ToString();
-                    ResultHold.Text = result.RealTimeInventory.Holds.ToString();
-                    ResultReservation.Text = result.RealTimeInventory.Reserved.ToString();
+                    IInventoryServiceCompletedMessage result = null;
+                    var newUpdate = Convert.ToInt32(NewQuantity.Text);
+                    switch (cmbOoperation.SelectedItem.ToString())
+                    {
+                        case "ReadInventory":
+                            result = helper.GetInventoryAsync(productName).WaitAndGetOperationResult();
+                            break;
 
-                    if (!result.Successful)
-                    {
-                        var errorMessage = result as InventoryOperationErrorMessage;
-                        var list = new List<string>();
-                        var aggregateException = errorMessage?.Error;
-                        if (aggregateException != null)
-                            list.Add(aggregateException.Message);
-                        richTextBox1.Text = errorMessage?.Error?.Message + " - " + string.Join(" ", list);
+                        case "Reserve":
+                            result = helper.ReserveAsync(inventory, newUpdate).WaitAndGetOperationResult();
+                            break;
+
+                        case "UpdateQuantity":
+                            result = helper.UpdateQuantityAsync(inventory, newUpdate).WaitAndGetOperationResult();
+                            break;
+
+                        case "UpdateQuantityAndHold":
+                            result = helper.UpdateQuantityAndHoldAsync(inventory, newUpdate).WaitAndGetOperationResult();
+                            break;
+
+                        case "PlaceHold":
+                            result = helper.PlaceHoldAsync(inventory, newUpdate).WaitAndGetOperationResult();
+                            break;
+
+                        case "Purchase":
+                            result = helper.PurchaseAsync(inventory, newUpdate).WaitAndGetOperationResult();
+                            break;
+
+                        case "PurchaseFromHolds":
+                            result = helper.PurchaseFromHoldsAsync(inventory, newUpdate).WaitAndGetOperationResult();
+                            break;
                     }
-                    else
+
+                    if (result != null)
                     {
-                        richTextBox1.Text = "";
+                        ResultQuantity.Text = result.RealTimeInventory.Quantity.ToString();
+                        ResultHold.Text = result.RealTimeInventory.Holds.ToString();
+                        ResultReservation.Text = result.RealTimeInventory.Reserved.ToString();
+
+                        if (!result.Successful)
+                        {
+                            var errorMessage = result as InventoryOperationErrorMessage;
+                            var list = new List<string>();
+                            var aggregateException = errorMessage?.Error;
+                            if (aggregateException != null)
+                                list.Add(aggregateException.ErrorMessage);
+                            richTextBox1.Text = errorMessage?.Error?.ErrorMessage + " - " + string.Join(" ", list);
+                        }
+                        else
+                        {
+                            richTextBox1.Text = "";
+                        }
                     }
-                }
+                });
             }
             catch (Exception ex)
             {
@@ -105,6 +107,8 @@ namespace InventoryService.TestUitlity
         {
             cmbOoperation.SelectedIndex = 1;
             ActorSystem = ActorSystem.Create("InventoryService-Client");
+            textBox1.Text = ConfigurationManager.AppSettings["RemoteActorAddress"];
+
             button1.PerformClick();
         }
 

@@ -1,4 +1,4 @@
-﻿using InventoryService.Messages.Response;
+﻿using InventoryService.Messages;
 using System.Threading.Tasks;
 
 namespace InventoryService.Tests

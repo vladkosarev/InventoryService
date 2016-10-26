@@ -16,7 +16,7 @@
 
     <!-- Theme CSS -->
     <link href="css/freelancer.css" rel="stylesheet">
-
+    <link href="css/animate.css" rel="stylesheet">
     <!-- Custom Fonts -->
     <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
@@ -55,41 +55,54 @@
                 </button>
                 <a class="navbar-brand" href="#page-top">Inventory Service</a>
             </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <!--<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="hidden">
-                        <a href="#page-top"></a>
-                    </li>
-                    <li class="page-scroll">
-                        <a href="#portfolio">Refresh</a>
-                    </li>
-                </ul>
-            </div>-->
-            <!-- /.navbar-collapse -->
         </div>
         <!-- /.container-fluid -->
     </nav>
-    <br />
-    <br />
-    <br />
+
     <!-- Header -->
     <div class="container" ng-controller="ActorsCtrl">
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-8">
                 <section id="grid">
                     <div class="container">
                         <div class="row">
-                            <div class="col-lg-12 text-center">
-                                <a class="btn btn-primary" ng-click="updateGrid()" ng-show="newUpdateAvailable">{{newUpdateAvailable}} Updates Available</a>
+                            <div class="col-lg-8 text-center">
+
+                                <br />
                                 <div id="jsGrid1"></div>
+                            </div>
+                            <div class="col-lg-4">
+
+                                <div class="row">
+                                    <br />
+                                    <div>
+                                        <a class="btn btn-success" ng-click="updateGrid()" ng-show="newUpdateAvailable">{{newUpdateAvailable}} Updates Available</a>
+                                        <a class="btn btn-primary" ng-click="model.realtime=!model.realtime;updateStorage()" ng-show="model.realtime">Disable Realtime</a>
+                                        <a class="btn btn-primary" ng-click="model.realtime=!model.realtime;updateStorage()" ng-hide="model.realtime">Enable Realtime</a>
+                                        <a class="btn btn-primary" ng-click="model.logMessages=!model.logMessages;updateStorage()" ng-show="model.logMessages">Disable Message Logs</a>
+                                        <a class="btn btn-primary" ng-click="model.logMessages=!model.logMessages;updateStorage()" ng-hide="model.logMessages">Enable  Message Logs</a>
+                                        <a class="btn btn-danger" ng-click="model.incomingMessages=[]">Clear List</a>
+                                     </div>
+                                    <br />
+                                    <div class="well"><a class="btn btn-info">{{serverNotificationMessages||'...'}}</a></div>
+                                    <div class="well"><a class="">{{messageSpeed}} messages/sec | Peak At {{peekMessageCount}}  messages/sec</a></div>
+
+                                    <div class="well">
+
+                                         Message Limit <input type="text" ng-model="maxMessageCount" />
+                                        <br /><br />
+                                        <ul class="list-group">
+                                            <li ng-show="model.incomingMessagesFirst"  class="list-group-item animated zoomIn  "><span >{{model.incomingMessagesFirst}}</span></li>
+                                            <li ng-repeat="message in model.incomingMessages  track by $index" class="list-group-item zoomOut"><span class="animated bounceIn ">{{message}}</span></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
             </div>
-        </div>
+            </div>
     </div>
 
     <!-- About Section -->

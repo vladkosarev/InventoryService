@@ -29,20 +29,16 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Akka, Version=1.1.1.27, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.1.1.1\lib\net45\Akka.dll</HintPath>
+    <Reference Include="Akka, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.1.1.2\lib\net45\Akka.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.Logger.NLog, Version=1.1.1.4, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.Logger.NLog.1.1.1\lib\net45\Akka.Logger.NLog.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.2\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -51,21 +47,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Services\IProductInventoryOperations.cs" />
-    <Compile Include="Services\OperationResult.cs" />
-    <Compile Include="Services\ProductInventoryOperations.cs" />
+    <Compile Include="IProductInventoryOperations.cs" />
+    <Compile Include="OperationResult.cs" />
+    <Compile Include="ProductInventoryOperations.cs" />
     <Compile Include="IPerformanceService.cs" />
-    <Compile Include="Messages\FlushStreamsMessage.cs" />
-    <Compile Include="Messages\GetMetricsMessage.cs" />
-    <Compile Include="Messages\LoadedInventoryMessage.cs" />
-    <Compile Include="Messages\WriteInventoryMessage.cs" />
-    <Compile Include="Messages\WriteReservationsMessage.cs" />
-    <Compile Include="Messages\WroteInventoryMessage.cs" />
-    <Compile Include="Messages\WroteReservationsMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Actors\InventoryActor.cs" />
-    <Compile Include="Actors\ProductInventoryActor.cs" />
-    <Compile Include="Services\RealTimeInventoryOPerationalResultExtensions.cs" />
+    <Compile Include="RealTimeInventoryOPerationalResultExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

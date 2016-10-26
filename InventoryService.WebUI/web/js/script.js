@@ -47,7 +47,7 @@ angular.module("InventoryServiceApp").service("service", function ($q, $http, $r
 });
 angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeout) {
     $.connection.hub.url = endpoints.hub;
-    var chat = $.connection.inventoryServiceHub;
+    var inventoryServiceHub = $.connection.inventoryServiceHub;
     return {
         ready: function (f) {
             $.connection.hub.start().done(function () {
@@ -57,10 +57,10 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
                 });
             });
         },
-        chat: chat,
-        server: chat.server,
+        inventoryServiceHub: inventoryServiceHub,
+        server: inventoryServiceHub.server,
         client: function (name, f) {
-            chat.client[name] = function (response) {
+            inventoryServiceHub.client[name] = function (response) {
                 var arg = arguments;
                 $timeout(function () {
                     f && f.apply(null, arg);
@@ -71,6 +71,32 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 });
 
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
+    var messageCount = 0;
+    $scope.model = {};
+    $scope.model.logMessages = true;
+    var storage = function(a,b) {
+        if (typeof (Storage) !== "undefined") {
+            if (b) {
+                localStorage.setItem(a, b);
+                return undefined;
+            } else {
+             return   localStorage.getItem(a);
+            }
+        } else {
+            console.log("Sorry! No Web Storage support..");
+            return undefined;
+        }
+    };
+    var initStorage = function() {
+        $scope.model.realtime=  storage("model.realtime")?true:false;
+        $scope.model.logMessages = storage("model.logMessages") ? true : false;
+    };
+    $scope.updateStorage=function () {
+        storage("model.realtime", $scope.model.realtime);
+        storage("model.logMessages", $scope.model.logMessages);
+    }
+    initStorage();
+    var hasLoaded = false;
     var lastResponse = {};
     var lastResponseDict = {};
     $scope. updateGrid = function () {
@@ -78,7 +104,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         $("#jsGrid1")
             .jsGrid({
                 width: "100%",
-                height: "1000px",
+                height: "500px",
                 inserting: false,
                 editing: false,
                 sorting: true,
@@ -110,8 +136,56 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
             lastResponseDict[productId] = newInventory;
         }
         lastResponse = response;
+        if ($scope.model.realtime || !hasLoaded) {
+             $timeout(function() {
+                 $scope.updateGrid();
+                 hasLoaded = true;
+             });
+        }
     });
 
+    $scope.serverNotificationMessages = "";
+    $scope.messageSpeed = "";
+    $scope.model.incomingMessages = [];
+
+    hub.client("serverNotificationMessages",
+        function(response) {
+            $scope.serverNotificationMessages = response;
+        });
+    $scope.peekMessageCount = 0;
+    hub.client("messageSpeed",
+        function(response) {
+            var speed = parseInt(response, 10);
+            $scope.messageSpeed = speed;
+            if ($scope.peekMessageCount < speed) {
+                $scope.peekMessageCount = speed;
+            }
+        });
+    $scope.maxMessageCount = 15;
+    hub.client("incomingMessage",
+        function (response) {
+            messageCount++;
+            $timeout(function() {
+                $scope.model.incomingMessagesFirst =messageCount+" : "+ response;
+                    if ($scope.model.logMessages) {
+                    } else {
+                        $scope.model.incomingMessages = [];
+                    }
+                    $timeout((function (incomingMessagesFirst) {
+                    return function () {
+                     incomingMessagesFirst && $scope.model.incomingMessages.unshift(incomingMessagesFirst);
+                        $scope.model.incomingMessagesFirst = false;
+                        if ($scope.model.incomingMessages.length > $scope.maxMessageCount) {
+                            while ($scope.model.incomingMessages.length > $scope.maxMessageCount) {
+                                $scope.model.incomingMessages.pop();
+                            }
+                        }
+                    }
+                })($scope.model.incomingMessagesFirst), 500);
+            });
+        });
+
     hub.ready(function () {
+        hub.server.getInventoryList();
     });
 });

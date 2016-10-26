@@ -1,4 +1,5 @@
-﻿using Topshelf;
+﻿using InventoryService.Server;
+using Topshelf;
 
 namespace InventoryService.ServiceDeployment
 {
@@ -8,9 +9,9 @@ namespace InventoryService.ServiceDeployment
         {
             HostFactory.Run(x =>                                 //1
             {
-                x.Service<MyServiceClass>(s =>                        //2
+                x.Service<InventoryServiceApplication>(s =>                        //2
                 {
-                    s.ConstructUsing(name => new MyServiceClass());     //3
+                    s.ConstructUsing(name => new InventoryServiceApplication());     //3
                     s.WhenStarted(tc => tc.Start());              //4
                     s.WhenStopped(tc => tc.Stop());               //5
                 });

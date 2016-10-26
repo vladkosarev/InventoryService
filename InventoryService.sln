@@ -23,9 +23,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Messages",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B3340614-BCAE-47E7-8FB9-EB8316DE7F5A}"
 	ProjectSection(SolutionItems) = preProject
+		build-server.fsx = build-server.fsx
+		build-service.fsx = build-service.fsx
 		build.bat = build.bat
-		build.fsx = build.fsx
 		InventoryService.Messages.nuspec = InventoryService.Messages.nuspec
+		InventoryService.Server.nuspec = InventoryService.Server.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.ServiceDeployment", "InventoryService.ServiceDeployment\InventoryService.ServiceDeployment.csproj", "{77FBB708-8E17-4792-90F1-E79308287E09}"
@@ -39,6 +41,22 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.TestUitlity", "InventoryService.TestUitlity\InventoryService.TestUitlity.csproj", "{934CC3C6-C85E-4939-8F0E-62A367E72A6F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.WebUI", "InventoryService.WebUI\InventoryService.WebUI.csproj", "{27535AD8-F451-45C1-A819-2E99E79FA202}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.NotificationActor", "InventoryService.NotificationActor\InventoryService.NotificationActor.csproj", "{058A90E4-0069-4606-BEC1-B804A00BD2A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.ActorSystemFactoryLib", "InventoryService.ActorSystem\InventoryService.ActorSystemFactoryLib.csproj", "{EE77439B-33D6-4ACD-ABCB-00108E3D0552}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QA", "QA", "{C6F3622F-748C-4329-BCBC-834483907D85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Actors", "InventoryService.Actors\InventoryService.Actors.csproj", "{CCF4CCA9-3BBE-4FF3-8622-EA0737FCB605}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ActorSystem", "ActorSystem", "{D9F585DD-92C9-44E6-B604-8BEA356CB184}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.InMemory", "InventoryService.InMemory\InventoryService.InMemory.csproj", "{307601FC-7BB7-4760-9B68-0F1C3E748E82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.AkkaInMemoryServer", "InventoryService.AkkaInMemory\InventoryService.AkkaInMemoryServer.csproj", "{280E9442-AEDC-4E2A-8DC7-C28A1D26F1A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageQA", "PackageQA\PackageQA.csproj", "{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,11 +112,37 @@ Global
 		{27535AD8-F451-45C1-A819-2E99E79FA202}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27535AD8-F451-45C1-A819-2E99E79FA202}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27535AD8-F451-45C1-A819-2E99E79FA202}.Release|Any CPU.Build.0 = Release|Any CPU
+		{058A90E4-0069-4606-BEC1-B804A00BD2A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{058A90E4-0069-4606-BEC1-B804A00BD2A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{058A90E4-0069-4606-BEC1-B804A00BD2A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{058A90E4-0069-4606-BEC1-B804A00BD2A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE77439B-33D6-4ACD-ABCB-00108E3D0552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE77439B-33D6-4ACD-ABCB-00108E3D0552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE77439B-33D6-4ACD-ABCB-00108E3D0552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE77439B-33D6-4ACD-ABCB-00108E3D0552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCF4CCA9-3BBE-4FF3-8622-EA0737FCB605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF4CCA9-3BBE-4FF3-8622-EA0737FCB605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCF4CCA9-3BBE-4FF3-8622-EA0737FCB605}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF4CCA9-3BBE-4FF3-8622-EA0737FCB605}.Release|Any CPU.Build.0 = Release|Any CPU
+		{307601FC-7BB7-4760-9B68-0F1C3E748E82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{307601FC-7BB7-4760-9B68-0F1C3E748E82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{307601FC-7BB7-4760-9B68-0F1C3E748E82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{307601FC-7BB7-4760-9B68-0F1C3E748E82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{280E9442-AEDC-4E2A-8DC7-C28A1D26F1A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{280E9442-AEDC-4E2A-8DC7-C28A1D26F1A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{280E9442-AEDC-4E2A-8DC7-C28A1D26F1A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{280E9442-AEDC-4E2A-8DC7-C28A1D26F1A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{66283BAF-950E-4A48-92A5-F3446FDA456F} = {C6F3622F-748C-4329-BCBC-834483907D85}
+		{FE583E78-6C0E-467B-A836-C4F88F5046CE} = {C6F3622F-748C-4329-BCBC-834483907D85}
 		{0106E966-5A22-4406-B99A-FA33F937285E} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
 		{69C4264A-CB21-47F8-A467-6072172DA842} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
 		{94389D22-92E0-4933-A1C9-41CAB38FFD7C} = {60085D86-B7B2-424C-BD1C-FAFCD537DDFA}
@@ -106,5 +150,9 @@ Global
 		{0A7A978D-2BD7-4A10-9088-28C74B5AFF80} = {3F320D97-7C57-45CC-B400-069F371D86D0}
 		{77FBB708-8E17-4792-90F1-E79308287E09} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
 		{04D88020-62A8-46EB-B759-ABE8DF93443C} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
+		{934CC3C6-C85E-4939-8F0E-62A367E72A6F} = {C6F3622F-748C-4329-BCBC-834483907D85}
+		{058A90E4-0069-4606-BEC1-B804A00BD2A2} = {D9F585DD-92C9-44E6-B604-8BEA356CB184}
+		{EE77439B-33D6-4ACD-ABCB-00108E3D0552} = {D9F585DD-92C9-44E6-B604-8BEA356CB184}
+		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB} = {C6F3622F-748C-4329-BCBC-834483907D85}
 	EndGlobalSection
 EndGlobal

@@ -40,8 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
+    <Compile Include="GetMetricsMessage.cs" />
+    <Compile Include="InitializeInventoriesFromStorageMessage.cs" />
     <Compile Include="InventoryServiceErrorMessageGenerator.cs" />
+    <Compile Include="Models\IRealTimeInventory.cs" />
     <Compile Include="Models\RealTimeInventory.cs" />
     <Compile Include="RealTimeInventoryException.cs" />
     <Compile Include="Request\GetInventoryMessage.cs" />

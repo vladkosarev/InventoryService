@@ -6,14 +6,11 @@ namespace InventoryService.Server
     {
         private static void Main(string[] args)
         {
-            try
+            new InventoryServiceApplication().Start((a, s) =>
             {
-                new InventoryServiceServer().StartServer();
+                Console.WriteLine("Server started ...");
             }
-            catch (Exception)
-            {
-            }
-            Console.ReadLine();
+            );
         }
     }
 }
