@@ -19,12 +19,12 @@ namespace InventoryService.Tests
             /*
              * TODO USE THESE
             #if !FULL_INTEGRATION
-                  return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, UseActorSystem = true });
+                  return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
             #else
                        return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
            #endif
            */
-            return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, UseActorSystem = true });
+            return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]

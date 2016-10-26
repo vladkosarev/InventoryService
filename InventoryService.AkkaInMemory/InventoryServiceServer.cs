@@ -16,14 +16,14 @@ namespace InventoryService.AkkaInMemoryServer
         private ActorSystem Sys { set; get; }
         private IInventoryStorage TestInventoryStorage { set; get; }
         private InventoryServerOptions Options { set; get; }
-        private bool UseActorSystem { set; get; }
+        private bool DontUseActorSystem { set; get; }
 
         public InventoryServiceServer(InventoryServerOptions options = null)
         {
             Options = options ?? new InventoryServerOptions();
-            if (Options.UseActorSystem)
+            if (Options.DontUseActorSystem)
             {
-                UseActorSystem = Options.UseActorSystem;
+                DontUseActorSystem = Options.DontUseActorSystem;
                 TestInventoryStorage = Options.StorageType != null ? (IInventoryStorage)Activator.CreateInstance(Options.StorageType) : new Storage.InMemoryLib.InMemory();
                 if (Options.InitialInventory != null)
                 {
@@ -88,7 +88,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new UpdateQuantityMessage(product.ProductId, quantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(
                     request
@@ -105,7 +105,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new ReserveMessage(product.ProductId, reserveQuantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, product.ReserveAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
@@ -120,7 +120,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new PurchaseMessage(product.ProductId, purchaseQuantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
@@ -134,7 +134,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new PlaceHoldMessage(product.ProductId, holdQuantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, product.PlaceHoldAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
@@ -148,7 +148,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new UpdateAndHoldQuantityMessage(product.ProductId, holdQuantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, product.UpdateQuantityAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
@@ -162,7 +162,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new PurchaseFromHoldsMessage(product.ProductId, purchaseQuantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, product.PurchaseFromHoldsAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
@@ -176,7 +176,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new GetInventoryMessage(inventoryName);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, Options.InitialInventory.ReadInventoryFromStorageAsync(TestInventoryStorage, request.ProductId),
                     TestInventoryStorage
@@ -190,7 +190,7 @@ namespace InventoryService.AkkaInMemoryServer
         {
             var request = new ReserveMessage(productId, reserveQuantity);
 
-            if (UseActorSystem)
+            if (DontUseActorSystem)
             {
                 return await PerformOperation(request, Options.InitialInventory.ReserveAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
