@@ -2,26 +2,44 @@
 using Microsoft.Owin.Hosting;
 using System;
 using System.Configuration;
+using InventoryService.Diagnostics;
+using NLog;
 
 namespace InventoryService.Server
 {
     public class InventoryServiceApplication
     {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
         public void Start(Action<IActorRef, ActorSystem> onReady = null,
             Type storageType = null
             , string serverEndPoint = null
             , string serverActorSystemName = null
             , ActorSystem serverActorSystem = null
             , string serverActorSystemConfig = null
-           )
+        )
         {
-            serverEndPoint = serverEndPoint ?? ConfigurationManager.AppSettings["ServerEndPoint"];
+            try
+            {
+                Log.Debug("Starting inventory service ...");
+                serverEndPoint = serverEndPoint ?? ConfigurationManager.AppSettings["ServerEndPoint"];
 
-            // Start OWIN host
-            OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
-            InventoryServiceServerApp = new InventoryServiceServerApp();
-            InventoryServiceServerApp.StartServer(onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
-            // Console.ReadLine();
+                if (!string.IsNullOrEmpty(serverEndPoint))
+                {
+                    // Start OWIN host
+                    OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
+                }
+
+                InventoryServiceServerApp = new InventoryServiceServerApp();
+                    InventoryServiceServerApp.StartServer(onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
+          
+            }
+            catch (Exception e)
+            {
+                Log.Error(e,"Unable to start inventory service");
+                throw;
+            }
+            //
         }
 
         public InventoryServiceServerApp InventoryServiceServerApp { get; set; }
@@ -30,7 +48,7 @@ namespace InventoryService.Server
 
         public void Stop()
         {
-            InventoryServiceServerApp.StopServer();
+          //  InventoryServiceServerApp.StopServer();
             OwinRef?.Dispose();
         }
     }

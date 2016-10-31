@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{307601FC-7BB7-4760-9B68-0F1C3E748E82}</ProjectGuid>
+    <ProjectGuid>{B0275619-9508-45C9-8C05-62BCD3700DB4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InventoryService.InMemory</RootNamespace>
-    <AssemblyName>InventoryService.InMemory</AssemblyName>
+    <RootNamespace>InventoryService.Diagnostics</RootNamespace>
+    <AssemblyName>InventoryService.Diagnostics</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,16 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,30 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IInventoryServiceDirect.cs" />
+    <Compile Include="InventoryServiceDiagnostics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
-      <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
-      <Name>InventoryService.Messages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService.Storage.InMemory\InventoryService.Storage.InMemoryLib.csproj">
-      <Project>{94389D22-92E0-4933-A1C9-41CAB38FFD7C}</Project>
-      <Name>InventoryService.Storage.InMemoryLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
-      <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
-      <Name>InventoryService.Storage</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
-      <Project>{d709c476-e572-470a-b948-1b05339f6c7e}</Project>
-      <Name>InventoryService</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

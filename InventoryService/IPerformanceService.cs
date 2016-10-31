@@ -52,7 +52,7 @@ namespace InventoryService
     //         }
     //         catch (Exception e)
     //         {
-    //             Console.WriteLine(e.Message + " " + e);
+    //            Log.Debug(e.Message + " " + e);
     //         }
     //          */
     //    }

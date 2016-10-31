@@ -58,6 +58,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.AkkaInMemo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageQA", "PackageQA\PackageQA.csproj", "{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.Diagnostics", "InventoryService.Diagnostics\InventoryService.Diagnostics.csproj", "{B0275619-9508-45C9-8C05-62BCD3700DB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,6 +138,10 @@ Global
 		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0275619-9508-45C9-8C05-62BCD3700DB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0275619-9508-45C9-8C05-62BCD3700DB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0275619-9508-45C9-8C05-62BCD3700DB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0275619-9508-45C9-8C05-62BCD3700DB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -154,5 +160,6 @@ Global
 		{058A90E4-0069-4606-BEC1-B804A00BD2A2} = {D9F585DD-92C9-44E6-B604-8BEA356CB184}
 		{EE77439B-33D6-4ACD-ABCB-00108E3D0552} = {D9F585DD-92C9-44E6-B604-8BEA356CB184}
 		{2726AD7B-244E-4D60-80DC-E9A7484BE6EB} = {C6F3622F-748C-4329-BCBC-834483907D85}
+		{B0275619-9508-45C9-8C05-62BCD3700DB4} = {C6F3622F-748C-4329-BCBC-834483907D85}
 	EndGlobalSection
 EndGlobal

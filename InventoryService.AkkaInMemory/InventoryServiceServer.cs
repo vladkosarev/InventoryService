@@ -8,6 +8,7 @@ using InventoryService.Storage;
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
+using InventoryService.Diagnostics;
 
 namespace InventoryService.AkkaInMemoryServer
 {
@@ -32,6 +33,7 @@ namespace InventoryService.AkkaInMemoryServer
             }
             else
             {
+               
                 Sys = Options.ClientActorSystem;
                 InventoryServiceApplication = new InventoryServiceApplication();
 
@@ -39,12 +41,16 @@ namespace InventoryService.AkkaInMemoryServer
                 {
                     Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
                 }
-
-                InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
-                Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
-
-                inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
-
+               
+                    
+ InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
+                
+              
+        
+               Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
+                     inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
+    
+               
                 if (Options.InitialInventory != null)
                 {
                     InitializeWithInventorydata(Options);
@@ -54,7 +60,8 @@ namespace InventoryService.AkkaInMemoryServer
 
         private void InitializeWithInventorydata(InventoryServerOptions options)
         {
-            Task.Run(async () =>
+           
+                 Task.Run(async () =>
             {
                 await UpdateQuantityAsync(options.InitialInventory, Options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
                 await ReserveAsync(options.InitialInventory, Options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
@@ -70,6 +77,8 @@ namespace InventoryService.AkkaInMemoryServer
                     throw new Exception("Error initializing data into remote inventory actor ");
                 }
             }).Wait();
+      
+           
         }
 
         public IActorRef inventoryActor { get; set; }
@@ -202,9 +211,9 @@ namespace InventoryService.AkkaInMemoryServer
 
         public void Dispose()
         {
-            InventoryServiceApplication?.Stop();
-            Sys?.Terminate().RunSynchronously();
-            Sys?.Dispose();
+            //InventoryServiceApplication?.Stop();
+            //Sys?.Terminate().RunSynchronously();
+            //Sys?.Dispose();
         }
     }
 }

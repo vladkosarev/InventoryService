@@ -23,7 +23,7 @@ NOTE : THERE IS A DEPENDENCY ON InventoryService.Messages PACKAGE THAT HAS TO BE
                 ServerActorSystemConfig = @"
                    akka {
                    loggers = [""Akka.Logger.NLog.NLogLogger,Akka.Logger.NLog""]
-                   stdout-loglevel = DEBUG
+                   #stdout-loglevel = DEBUG
                    loglevel = DEBUG
                    log-config-on-start = on
 
@@ -110,11 +110,11 @@ NOTE : THERE IS A DEPENDENCY ON InventoryService.Messages PACKAGE THAT HAS TO BE
 
                     if (result.Result.Successful)
                     {
-                        Console.WriteLine(result.Result.RealTimeInventory);
+                       Log.Debug(result.Result.RealTimeInventory);
                     }
                     else
                     {
-                        Console.WriteLine(result.Result.RealTimeInventory);
+                       Log.Debug(result.Result.RealTimeInventory);
                     }
                 }
             }

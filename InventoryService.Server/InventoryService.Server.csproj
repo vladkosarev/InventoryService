@@ -44,8 +44,8 @@
       <HintPath>..\packages\Akka.Cluster.1.1.2\lib\net45\Akka.Cluster.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.Logger.NLog, Version=1.0.8.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.Logger.NLog.1.0.8\lib\net45\Akka.Logger.NLog.dll</HintPath>
+    <Reference Include="Akka.Logger.NLog, Version=1.1.2.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Logger.NLog.1.1.2\lib\net45\Akka.Logger.NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Akka.Remote, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
@@ -101,7 +101,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.0-betaV15\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -154,6 +154,10 @@
     <ProjectReference Include="..\InventoryService.Actors\InventoryService.Actors.csproj">
       <Project>{CCF4CCA9-3BBE-4FF3-8622-EA0737FCB605}</Project>
       <Name>InventoryService.Actors</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.Diagnostics\InventoryService.Diagnostics.csproj">
+      <Project>{B0275619-9508-45C9-8C05-62BCD3700DB4}</Project>
+      <Name>InventoryService.Diagnostics</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.Esent\InventoryService.Storage.EsentLib.csproj">
       <Project>{5515e3d0-e58f-4637-8044-48e05ee35b96}</Project>
