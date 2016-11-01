@@ -31,20 +31,20 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Akka, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.1.1.2\lib\net45\Akka.dll</HintPath>
+    <Reference Include="Akka, Version=1.0.8.24, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.1.0.8\lib\net45\Akka.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.Remote, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.Remote.1.1.2\lib\net45\Akka.Remote.dll</HintPath>
+    <Reference Include="Akka.Remote, Version=1.0.8.24, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Remote.1.0.8\lib\net45\Akka.Remote.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.TestKit, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.TestKit.1.1.2\lib\net45\Akka.TestKit.dll</HintPath>
+    <Reference Include="Akka.TestKit, Version=1.0.8.24, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.TestKit.1.0.8\lib\net45\Akka.TestKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.TestKit.Xunit2, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.TestKit.Xunit2.1.1.2\lib\net45\Akka.TestKit.Xunit2.dll</HintPath>
+    <Reference Include="Akka.TestKit.Xunit2, Version=1.0.8.24, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.TestKit.Xunit2.1.0.8\lib\net45\Akka.TestKit.Xunit2.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FsCheck, Version=2.6.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -67,8 +67,8 @@
       <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Helios, Version=2.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Helios.2.1.2\lib\net45\Helios.dll</HintPath>
+    <Reference Include="Helios, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Helios.1.4.1\lib\net45\Helios.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
