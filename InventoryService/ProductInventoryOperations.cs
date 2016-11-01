@@ -85,6 +85,40 @@ namespace InventoryService
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
+
+
+        public static async Task<OperationResult<IRealTimeInventory>> ResetInventoryQuantityReserveAndHoldAsync(this IRealTimeInventory currentInventory, IInventoryStorage inventoryStorage, string productId, int quantity,int reserve, int hold)
+        {
+            IRealTimeInventory realTimeInventory = new RealTimeInventory(currentInventory.ProductId, 0, 0, 0);
+
+            var updateQuantityResult=await realTimeInventory.UpdateQuantityAsync(inventoryStorage, productId, quantity);
+            if (!updateQuantityResult.IsSuccessful)
+            {
+                updateQuantityResult.Data = currentInventory;
+                return updateQuantityResult;
+            }
+
+            var reserveResult=   await updateQuantityResult.Data.ReserveAsync(inventoryStorage, productId, reserve);
+            if (!reserveResult.IsSuccessful)
+            {
+                reserveResult.Data = currentInventory;
+                return reserveResult;
+            }
+
+            var placeHoldResult=     await reserveResult.Data.PlaceHoldAsync(inventoryStorage, productId, hold);
+            if (!placeHoldResult.IsSuccessful)
+            {
+                placeHoldResult.Data = currentInventory;
+                return placeHoldResult;
+            }
+
+            return placeHoldResult.Data.ToOperationResult(isSuccessful: true);
+        }
+
+
+
+
+
         public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHoldAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
             var newQuantity = realTimeInventory.Quantity + quantity;

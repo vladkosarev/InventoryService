@@ -29,7 +29,7 @@ namespace InventoryService.Tests
            #endif
            */
             // return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
-            return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
+           return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
@@ -54,6 +54,19 @@ namespace InventoryService.Tests
             }
 
             InventoryServiceSpecificationHelper.AssertPurchase(inventory, toPurchase, response);
+        }
+
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
+        public void ResetInventoryQuantityReserveAndHold_Test(RealTimeInventory inventory, int toUpdate, int toReserve, int toHold)
+        {
+            IInventoryServiceCompletedMessage response;
+
+            using (var testHelper = CreateInventoryServiceServer(inventory))
+            {
+                response = testHelper.ResetInventoryQuantityReserveAndHoldAsync(inventory, toUpdate, toReserve,toHold).WaitAndGetOperationResult();
+            }
+
+            InventoryServiceSpecificationHelper.AssertResetInventoryQuantityReserveAndHold(inventory, toUpdate, toReserve, toHold, response);
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]

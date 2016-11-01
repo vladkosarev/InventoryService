@@ -55,6 +55,7 @@
     <Compile Include="Request\QueryInventoryListCompletedMessage.cs" />
     <Compile Include="Request\QueryInventoryListMessage.cs" />
     <Compile Include="Request\RemoveProductMessage.cs" />
+    <Compile Include="Request\ResetInventoryQuantityReserveAndHoldMessage.cs" />
     <Compile Include="Request\UpdateAndHoldQuantityMessage.cs" />
     <Compile Include="IInventoryServiceCompletedMessage.cs" />
     <Compile Include="Response\GetRemovedProductCompletedMessage.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Request\PurchaseFromHoldsMessage.cs" />
     <Compile Include="Request\PurchaseMessage.cs" />
     <Compile Include="Response\PlaceHoldCompletedMessage.cs" />
+    <Compile Include="Response\ResetInventoryQuantityReserveAndHoldCompletedMessage.cs" />
     <Compile Include="Response\UpdateAndHoldQuantityCompletedMessage.cs" />
     <Compile Include="Response\UpdateQuantityCompletedMessage.cs" />
     <Compile Include="Response\ReserveCompletedMessage.cs" />

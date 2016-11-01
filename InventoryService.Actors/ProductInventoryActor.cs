@@ -80,6 +80,12 @@ namespace InventoryService.Actors
                 Sender.Tell(result.Data);
             });
 
+            ReceiveAsync<ResetInventoryQuantityReserveAndHoldMessage>(async message =>
+            {
+                var updateandHoldResultesult = await RealTimeInventory.ResetInventoryQuantityReserveAndHoldAsync(InventoryStorage, message.ProductId, message.Update,message.Reservations,message.Holds);
+                RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, CompletedMessageFactory.GetSuccessResponseCompletedMessage(message), Logger, RealTimeInventory, Sender).RealTimeInventory;
+            });
+
 #if DEBUG
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Nobody.Instance, RealTimeInventory, Self);
 #endif

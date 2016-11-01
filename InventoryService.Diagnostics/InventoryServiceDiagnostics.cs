@@ -34,7 +34,6 @@ namespace InventoryService.Diagnostics
                 ReportDiagnostics(description, memberName, sourceFilePath, sourceLineNumber, watch, exception);
             }
         }
-
 #else
         public static void Debug(Action operation)
         {

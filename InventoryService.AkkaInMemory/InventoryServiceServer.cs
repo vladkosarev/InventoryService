@@ -139,6 +139,24 @@ namespace InventoryService.AkkaInMemoryServer
             return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
+        public async Task<IInventoryServiceCompletedMessage> ResetInventoryQuantityReserveAndHoldAsync(
+            RealTimeInventory product, 
+            int quantity, 
+            int reserveQuantity, 
+            int holdsQuantity)
+        {
+            var request = new ResetInventoryQuantityReserveAndHoldMessage(product.ProductId, quantity, reserveQuantity,holdsQuantity);
+
+            if (DontUseActorSystem)
+            {
+                return await PerformOperation(request, product.ResetInventoryQuantityReserveAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update,request.Reservations,request.Holds),
+                    TestInventoryStorage
+                  .ReadInventoryAsync(request.ProductId)
+                  .Result.Result);
+            }
+            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+        }
+
         public async Task<IInventoryServiceCompletedMessage> PlaceHoldAsync(RealTimeInventory product, int holdQuantity)
         {
             var request = new PlaceHoldMessage(product.ProductId, holdQuantity);

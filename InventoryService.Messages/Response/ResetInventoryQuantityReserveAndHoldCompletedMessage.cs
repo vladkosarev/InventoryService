@@ -2,9 +2,9 @@
 
 namespace InventoryService.Messages.Response
 {
-    public class UpdateAndHoldQuantityCompletedMessage : IInventoryServiceCompletedMessage
+    public class ResetInventoryQuantityReserveAndHoldCompletedMessage : IInventoryServiceCompletedMessage
     {
-        public UpdateAndHoldQuantityCompletedMessage(IRealTimeInventory realTimeInventory, bool successful)
+        public ResetInventoryQuantityReserveAndHoldCompletedMessage(IRealTimeInventory realTimeInventory, bool successful)
         {
             RealTimeInventory = realTimeInventory;
             Successful = successful;
