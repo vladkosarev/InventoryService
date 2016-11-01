@@ -85,39 +85,26 @@ namespace InventoryService
             return newRealTimeInventory.ToOperationResult(isSuccessful: true);
         }
 
-
-
-        public static async Task<OperationResult<IRealTimeInventory>> ResetInventoryQuantityReserveAndHoldAsync(this IRealTimeInventory currentInventory, IInventoryStorage inventoryStorage, string productId, int quantity,int reserve, int hold)
+        public static async Task<OperationResult<IRealTimeInventory>> ResetInventoryQuantityReserveAndHoldAsync(this IRealTimeInventory currentInventory, IInventoryStorage inventoryStorage, string productId, int quantity, int reserve, int hold)
         {
             IRealTimeInventory realTimeInventory = new RealTimeInventory(currentInventory.ProductId, 0, 0, 0);
 
-            var updateQuantityResult=await realTimeInventory.UpdateQuantityAsync(inventoryStorage, productId, quantity);
-            if (!updateQuantityResult.IsSuccessful)
+            var result = await realTimeInventory.UpdateQuantityAsync(inventoryStorage, productId, quantity);
+            if (result.IsSuccessful)
             {
-                updateQuantityResult.Data = currentInventory;
-                return updateQuantityResult;
+                result = await result.Data.ReserveAsync(inventoryStorage, productId, reserve);
+                if (result.IsSuccessful)
+                {
+                    result = await result.Data.PlaceHoldAsync(inventoryStorage, productId, hold);
+                    if (result.IsSuccessful)
+                    {
+                        return result.Data.ToOperationResult(isSuccessful: true);
+                    }
+                }
             }
-
-            var reserveResult=   await updateQuantityResult.Data.ReserveAsync(inventoryStorage, productId, reserve);
-            if (!reserveResult.IsSuccessful)
-            {
-                reserveResult.Data = currentInventory;
-                return reserveResult;
-            }
-
-            var placeHoldResult=     await reserveResult.Data.PlaceHoldAsync(inventoryStorage, productId, hold);
-            if (!placeHoldResult.IsSuccessful)
-            {
-                placeHoldResult.Data = currentInventory;
-                return placeHoldResult;
-            }
-
-            return placeHoldResult.Data.ToOperationResult(isSuccessful: true);
+            result.Data = currentInventory;
+            return result;
         }
-
-
-
-
 
         public static async Task<OperationResult<IRealTimeInventory>> UpdateQuantityAndHoldAsync(this IRealTimeInventory realTimeInventory, IInventoryStorage inventoryStorage, string productId, int quantity)
         {
