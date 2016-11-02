@@ -20,9 +20,7 @@ namespace InventoryService.ServiceDeployment
                 x.UseNLog();
                 x.SetDescription("Inventory MicroService");        //7
                 x.SetDisplayName("Inventory Service");                       //8
-                x.SetServiceName("InventoryService");                    //9
-
-
+                x.SetServiceName("InventoryService");                   //9
             });                                                  //10
 
         }
