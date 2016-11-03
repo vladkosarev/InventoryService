@@ -43,7 +43,7 @@ namespace InventoryService.Actors
             });
             Receive<GetMetricsMessage>(message =>
             {
-                NotifySubscribers(new GetMetricsCompletedMessage(_messageCount / Seconds));
+                NotifySubscribers(new GetMetricsCompletedMessage((double)_messageCount / Seconds));
 
                 _messageCount = 0;
             });
@@ -88,6 +88,7 @@ namespace InventoryService.Actors
                     Subscribers.Remove(Subscribers.Find(x => x.Item1 == message.SubscriptionId));
                     Sender.Tell(new UnSubScribeToNotificationCompletedMessage());
                 }
+                      Subscribers.Remove(Subscribers.Find(x => string.IsNullOrEmpty(x?.Item1.ToString())));
             });
         }
 
@@ -95,11 +96,24 @@ namespace InventoryService.Actors
         {
             foreach (var subscriber in Subscribers)
             {
-                Logger.Debug("Sending " + typeof(T).Name + " to subscriber : " + subscriber.Item1);
-                subscriber.Item2.Tell(message);
+                Logger.Debug("Sending " + typeof(T).Name + " to subscriber : " + subscriber?.Item1);
+                if (subscriber == null || subscriber.Item2.IsNobody() || subscriber.Item2 == null ||
+                    string.IsNullOrEmpty(subscriber.Item1.ToString()))
+                {
+                    //todo fix this mess
+                    if (subscriber != null)
+                    {
+                        Self.Tell(new UnSubScribeToNotificationMessage(subscriber.Item1));
+                    }
+                }
+                else
+                {
+                      subscriber.Item2.Tell(message);
+                }
+              
             }
         }
 
-        public int Seconds = 1;
+        public int Seconds = 2;
     }
 }
