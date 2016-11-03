@@ -4,7 +4,6 @@ using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
-using InventoryService.NotificationActor;
 using InventoryService.Storage;
 using System;
 using System.Collections.Generic;
@@ -66,7 +65,7 @@ namespace InventoryService.Actors
         private void Processing()
         {
             Logger.Debug("Inventory Actor Processing started ...");
-            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()));
+            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()),typeof(NotificationsActor).Name);
 
             Receive<RemoveProductMessage>(message =>
             {
@@ -103,6 +102,7 @@ namespace InventoryService.Actors
                 Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 var actorRef = GetActorRef(InventoryStorage, message.ProductId);
                 actorRef.Forward(message);
+                actorRef.Tell(new GetInventoryMessage(message.ProductId));
             });
 
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);

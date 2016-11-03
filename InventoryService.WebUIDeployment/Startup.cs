@@ -1,10 +1,10 @@
-﻿using Microsoft.Owin.FileSystems;
+﻿using System;
+using System.IO;
+using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
-using System;
-using System.IO;
 
-namespace InventoryService.Server
+namespace InventoryService.WebUIDeployment
 {
     public class Startup
     {

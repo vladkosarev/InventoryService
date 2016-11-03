@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Microsoft.Owin.Hosting;
+
 using System;
 using System.Configuration;
 using InventoryService.Diagnostics;
@@ -21,14 +21,14 @@ namespace InventoryService.Server
         {
             try
             {
-                Log.Debug("Starting inventory service ...");
-                serverEndPoint = serverEndPoint ?? ConfigurationManager.AppSettings["ServerEndPoint"];
+                //Log.Debug("Starting inventory service ...");
+                //serverEndPoint = serverEndPoint ?? ConfigurationManager.AppSettings["ServerEndPoint"];
 
-                if (!string.IsNullOrEmpty(serverEndPoint))
-                {
-                    // Start OWIN host
-                    OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
-                }
+                //if (!string.IsNullOrEmpty(serverEndPoint))
+                //{
+                //    // Start OWIN host
+                //    OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
+                //}
 
                 InventoryServiceServerApp = new InventoryServiceServerApp();
                     InventoryServiceServerApp.StartServer(onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);

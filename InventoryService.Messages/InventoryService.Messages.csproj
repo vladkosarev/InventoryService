@@ -42,11 +42,17 @@
   <ItemGroup>
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
+    <Compile Include="GetMetricsCompletedMessage.cs" />
     <Compile Include="GetMetricsMessage.cs" />
     <Compile Include="InitializeInventoriesFromStorageMessage.cs" />
     <Compile Include="InventoryServiceErrorMessageGenerator.cs" />
     <Compile Include="Models\IRealTimeInventory.cs" />
     <Compile Include="Models\RealTimeInventory.cs" />
+    <Compile Include="NotificationSubscriptionMessages\UnSubScribeToNotificationMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationCompletedMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationFailedMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\UnSubScribeToNotificationCompletedMessage.cs" />
     <Compile Include="RealTimeInventoryException.cs" />
     <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,6 +62,7 @@
     <Compile Include="Request\QueryInventoryListMessage.cs" />
     <Compile Include="Request\RemoveProductMessage.cs" />
     <Compile Include="Request\ResetInventoryQuantityReserveAndHoldMessage.cs" />
+    <Compile Include="Request\ServerNotificationMessage.cs" />
     <Compile Include="Request\UpdateAndHoldQuantityMessage.cs" />
     <Compile Include="IInventoryServiceCompletedMessage.cs" />
     <Compile Include="Response\GetRemovedProductCompletedMessage.cs" />

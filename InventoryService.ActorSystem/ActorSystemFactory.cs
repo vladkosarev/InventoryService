@@ -22,14 +22,12 @@ namespace InventoryService.ActorSystemFactoryLib
             actorSystemName = string.IsNullOrEmpty(serverActorSystemName) ? ConfigurationManager.AppSettings["ServerActorSystemName"] : serverActorSystemName;
             InventoryServiceDiagnostics.Debug(() =>
             {
-                
-    InventoryServiceActorSystem = string.IsNullOrEmpty(actorSystemName)
+              InventoryServiceActorSystem = string.IsNullOrEmpty(actorSystemName)
                 ? actorSystem
                 : (string.IsNullOrEmpty(actorSystemConfig)
                     ? Akka.Actor.ActorSystem.Create(actorSystemName)
                     : Akka.Actor.ActorSystem.Create(serverActorSystemName,actorSystemConfig));
             });
-        
 
             if (InventoryServiceActorSystem != null) return;
             const string message = "Invalid ActorSystemName.Please set up 'ServerActorSystemName' in the config file";
