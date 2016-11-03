@@ -163,8 +163,8 @@ Target "RemotePublishNuGet" (fun _ ->
 // Build order
 "Clean"
  // ==> "BuildServer"
- // ==> "BuildTest"
- // ==> "xUnitTest" 
+  ==> "BuildTest"
+  ==> "xUnitTest" 
   ==> "BuildService"
   ==> "CreateNuget"
   ==> "RemotePublishNuGet"
