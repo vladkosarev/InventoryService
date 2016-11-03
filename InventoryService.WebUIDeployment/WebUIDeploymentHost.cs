@@ -1,10 +1,11 @@
 ﻿using Akka.Actor;
 using InventoryService.ActorSystemFactoryLib;
-using InventoryService.WebUIHost;
+
 using Microsoft.Owin.Hosting;
 using NLog;
 using System;
 using System.Configuration;
+using InventoryService.WebUIHost;
 
 namespace InventoryService.WebUIDeployment
 {

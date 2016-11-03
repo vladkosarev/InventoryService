@@ -181,8 +181,8 @@
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryService.NotificationActor\InventoryService.WebUIHost.csproj">
-      <Project>{058a90e4-0069-4606-bec1-b804a00bd2a2}</Project>
+    <ProjectReference Include="..\InventoryService.WebUIHost\InventoryService.WebUIHost.csproj">
+      <Project>{058A90E4-0069-4606-BEC1-B804A00BD2A2}</Project>
       <Name>InventoryService.WebUIHost</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.WebUI\InventoryService.WebUI.csproj">

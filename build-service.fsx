@@ -15,7 +15,7 @@ open Fake.Testing
 
 let buildParam = getBuildParamOrDefault  "buildType" "release" 
 // Directories
-let root="./.build/build-"+buildParam
+let root="./.build/build-"+buildParam+"-service"
 let buildDir  = root+"/app/"
 let testDir   =root+ "/test"
 let deployDir = root+"/deploy/"
