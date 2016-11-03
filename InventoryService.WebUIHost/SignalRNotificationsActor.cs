@@ -18,6 +18,7 @@ namespace InventoryService.WebUIHost
             SignalRNotificationService = new SignalRNotificationService();
             Receive<GetMetricsCompletedMessage>(message =>
             {
+                Console.WriteLine(Sender.Path);
                 SignalRNotificationService.SendMessageSpeed(message.MessageSpeedPersecond);
                 Logger.Debug("received  - " + message.GetType().Name + " - MessageSpeedPersecond :" +
                              message.MessageSpeedPersecond);
@@ -25,12 +26,14 @@ namespace InventoryService.WebUIHost
 
             Receive<QueryInventoryListCompletedMessage>(message =>
             {
+                Console.WriteLine(Sender.Path);
                 SignalRNotificationService.SendInventoryList(message);
                 Logger.Debug("total inventories in inventory service : " + message?.RealTimeInventories?.Count);
             });
 
             Receive<IRequestMessage>(message =>
             {
+                Console.WriteLine(Sender.Path);
                 SignalRNotificationService.SendIncomingMessage(message.GetType().Name + " : " + message.Update + " for " +
                                                                message.ProductId);
                 Logger.Debug("received by inventory Actor - " + message.GetType().Name + " - " + message.ProductId +
@@ -38,6 +41,7 @@ namespace InventoryService.WebUIHost
             });
             Receive<ServerNotificationMessage>(message =>
             {
+                Console.WriteLine(Sender.Path);
                 SignalRNotificationService.SendServerNotification(message.ServerMessage);
                 Logger.Debug("received  - " + message.GetType().Name + " -  ServerMessage : " + message.ServerMessage);
             });

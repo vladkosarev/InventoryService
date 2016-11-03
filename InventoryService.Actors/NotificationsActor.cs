@@ -44,7 +44,8 @@ namespace InventoryService.Actors
             Receive<GetMetricsMessage>(message =>
             {
                 NotifySubscribers(new GetMetricsCompletedMessage((double)_messageCount / Seconds));
-
+                NotifySubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
+                NotifySubscribers(LastReceivedInventoryListMessage);
                 _messageCount = 0;
             });
 
@@ -97,8 +98,7 @@ namespace InventoryService.Actors
             foreach (var subscriber in Subscribers)
             {
                 Logger.Debug("Sending " + typeof(T).Name + " to subscriber : " + subscriber?.Item1);
-                if (subscriber == null || subscriber.Item2.IsNobody() || subscriber.Item2 == null ||
-                    string.IsNullOrEmpty(subscriber.Item1.ToString()))
+                if (subscriber == null || subscriber.Item2.IsNobody() || subscriber.Item2 == null || string.IsNullOrEmpty(subscriber.Item1.ToString()))
                 {
                     //todo fix this mess
                     if (subscriber != null)

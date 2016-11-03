@@ -1,4 +1,5 @@
-﻿using InventoryService.Messages.Request;
+﻿using System;
+using InventoryService.Messages.Request;
 using Microsoft.AspNet.SignalR;
 
 namespace InventoryService.WebUIHost
@@ -11,6 +12,7 @@ namespace InventoryService.WebUIHost
         }
         public void SendMessageSpeed(double speed)
         {
+           
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.messageSpeed(speed);
         }
         public void SendServerNotification(string serverNotification)
