@@ -5,10 +5,8 @@ using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using InventoryService.Diagnostics;
 using Xunit;
 using Random = System.Random;
 
@@ -29,7 +27,7 @@ namespace InventoryService.Tests
            #endif
            */
             // return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
-           return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
+            return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
@@ -63,7 +61,7 @@ namespace InventoryService.Tests
 
             using (var testHelper = CreateInventoryServiceServer(inventory))
             {
-                response = testHelper.ResetInventoryQuantityReserveAndHoldAsync(inventory, toUpdate, toReserve,toHold).WaitAndGetOperationResult();
+                response = testHelper.ResetInventoryQuantityReserveAndHoldAsync(inventory, toUpdate, toReserve, toHold).WaitAndGetOperationResult();
             }
 
             InventoryServiceSpecificationHelper.AssertResetInventoryQuantityReserveAndHold(inventory, toUpdate, toReserve, toHold, response);

@@ -1,9 +1,6 @@
 ﻿using Akka.Actor;
-
-using System;
-using System.Configuration;
-using InventoryService.Diagnostics;
 using NLog;
+using System;
 
 namespace InventoryService.Server
 {
@@ -31,12 +28,11 @@ namespace InventoryService.Server
                 //}
 
                 InventoryServiceServerApp = new InventoryServiceServerApp();
-                    InventoryServiceServerApp.StartServer(onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
-          
+                InventoryServiceServerApp.StartServer(onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
             }
             catch (Exception e)
             {
-                Log.Error(e,"Unable to start inventory service");
+                Log.Error(e, "Unable to start inventory service");
                 throw;
             }
             //
@@ -48,7 +44,7 @@ namespace InventoryService.Server
 
         public void Stop()
         {
-          //  InventoryServiceServerApp.StopServer();
+            //  InventoryServiceServerApp.StopServer();
             OwinRef?.Dispose();
         }
     }

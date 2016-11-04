@@ -20,7 +20,6 @@ namespace InventoryService.WebUIDeployment
                 x.SetDisplayName("Inventory Service UI");                       //8
                 x.SetServiceName("InventoryService UI");                   //9
             });                                                  //10
-
         }
     }
 }

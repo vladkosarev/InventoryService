@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InventoryService.Messages.NotificationSubscriptionMessages
 {
@@ -12,6 +8,7 @@ namespace InventoryService.Messages.NotificationSubscriptionMessages
         {
             SubscriptionId = subscriptionId;
         }
+
         public Guid SubscriptionId { get; private set; }
     }
 }

@@ -30,7 +30,6 @@ namespace InventoryService.Messages
             if (message is PurchaseFromHoldsMessage)
                 return (rti) => new PurchaseFromHoldsCompletedMessage(rti, isSuccessful);
 
-
             if (message is ResetInventoryQuantityReserveAndHoldMessage)
                 return (rti) => new ResetInventoryQuantityReserveAndHoldCompletedMessage(rti, isSuccessful);
 

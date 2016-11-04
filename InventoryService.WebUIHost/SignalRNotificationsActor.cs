@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.Event;
 using InventoryService.Messages;
 using InventoryService.Messages.NotificationSubscriptionMessages;
 using InventoryService.Messages.Request;
-using NLog.Fluent;
+using System;
+using System.Threading.Tasks;
 
 namespace InventoryService.WebUIHost
 {
@@ -35,8 +34,8 @@ namespace InventoryService.WebUIHost
             Receive<IRequestMessage>(message =>
             {
                 Console.WriteLine(Sender.Path);
-                SignalRNotificationService.SendIncomingMessage(message.GetType().Name + " : " + message.Update + " for " +message.ProductId);
-                Logger.Debug("received by inventory Actor - " + message.GetType().Name + " - " + message.ProductId +" : quantity " + message.Update);
+                SignalRNotificationService.SendIncomingMessage(message.GetType().Name + " : " + message.Update + " for " + message.ProductId);
+                Logger.Debug("received by inventory Actor - " + message.GetType().Name + " - " + message.ProductId + " : quantity " + message.Update);
             });
 
             Receive<ServerNotificationMessage>(message =>
@@ -60,16 +59,16 @@ namespace InventoryService.WebUIHost
             var expDelay = 0;
             while (!isReachable && retryMax > 0)
             {
-                try 
+                try
                 {
-                    await  notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
+                    await notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
                     isReachable = true;
                     Logger.Debug("Successfully reached " + inventoryActorAddress + " ....");
                 }
                 catch (Exception e)
                 {
                     retryMax--;
-                    await   Task.Delay(TimeSpan.FromSeconds(expDelay++));
+                    await Task.Delay(TimeSpan.FromSeconds(expDelay++));
                     isReachable = false;
                     Logger.Error("remote actor is not reachable, so im retrying " + inventoryActorAddress + " ....", e);
                 }
@@ -85,7 +84,7 @@ namespace InventoryService.WebUIHost
             else
             {
                 //kill the actor
-               await     Self.GracefulStop(TimeSpan.FromSeconds(10));
+                await Self.GracefulStop(TimeSpan.FromSeconds(10));
                 return await Task.FromResult(false);
             }
         }
@@ -94,6 +93,4 @@ namespace InventoryService.WebUIHost
         {
         }
     }
-
-  
 }

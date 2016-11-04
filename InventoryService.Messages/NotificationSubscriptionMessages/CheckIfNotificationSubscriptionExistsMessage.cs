@@ -4,7 +4,7 @@ namespace InventoryService.Messages.NotificationSubscriptionMessages
 {
     public class CheckIfNotificationSubscriptionExistsMessage
     {
-        CheckIfNotificationSubscriptionExistsMessage(Guid subscriptionId)
+        private CheckIfNotificationSubscriptionExistsMessage(Guid subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }

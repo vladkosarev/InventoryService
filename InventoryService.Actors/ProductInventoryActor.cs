@@ -82,7 +82,7 @@ namespace InventoryService.Actors
 
             ReceiveAsync<ResetInventoryQuantityReserveAndHoldMessage>(async message =>
             {
-                var updateandHoldResultesult = await RealTimeInventory.ResetInventoryQuantityReserveAndHoldAsync(InventoryStorage, message.ProductId, message.Update,message.Reservations,message.Holds);
+                var updateandHoldResultesult = await RealTimeInventory.ResetInventoryQuantityReserveAndHoldAsync(InventoryStorage, message.ProductId, message.Update, message.Reservations, message.Holds);
                 RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, CompletedMessageFactory.GetSuccessResponseCompletedMessage(message), Logger, RealTimeInventory, Sender).RealTimeInventory;
             });
 

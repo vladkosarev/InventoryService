@@ -65,7 +65,7 @@ namespace InventoryService.Actors
         private void Processing()
         {
             Logger.Debug("Inventory Actor Processing started ...");
-            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()),typeof(NotificationsActor).Name);
+            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()), typeof(NotificationsActor).Name);
 
             Receive<RemoveProductMessage>(message =>
             {

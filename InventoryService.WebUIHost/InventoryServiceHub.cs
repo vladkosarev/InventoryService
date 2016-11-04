@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Akka.Actor;
-using InventoryService.ActorSystemFactoryLib;
+﻿using Akka.Actor;
 using InventoryService.Messages;
 using Microsoft.AspNet.SignalR;
 using NLog;
@@ -15,6 +13,7 @@ namespace InventoryService.WebUIHost
         {
             SignalRNotificationsActorRef = signalRNotificationsActorRef;
         }
+
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public void GetInventoryList()
@@ -22,6 +21,5 @@ namespace InventoryService.WebUIHost
             SignalRNotificationsActorRef.Tell(new GetAllInventoryListMessage());
             Log.Debug("A client has joined the system and will be receiving messages");
         }
-        
     }
 }

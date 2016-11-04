@@ -14,7 +14,6 @@ namespace PackageQA
     [TestClass]
     public class UnitTest1
     {
-      
         [TestMethod]
         public void TestMethod2()
         {
@@ -85,11 +84,11 @@ namespace PackageQA
 
                 if (result.Result.Successful)
                 {
-                  Console.WriteLine(result.Result.RealTimeInventory);
+                    Console.WriteLine(result.Result.RealTimeInventory);
                 }
                 else
                 {
-                  Console.WriteLine(result.Result.RealTimeInventory);
+                    Console.WriteLine(result.Result.RealTimeInventory);
                 }
             }
         }

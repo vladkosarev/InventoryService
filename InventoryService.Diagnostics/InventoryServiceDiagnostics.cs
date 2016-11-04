@@ -9,6 +9,7 @@ namespace InventoryService.Diagnostics
     public class InventoryServiceDiagnostics
     {
 #if DEBUG
+
         public static void Debug(
            Action operation
            , string description = null
@@ -34,6 +35,7 @@ namespace InventoryService.Diagnostics
                 ReportDiagnostics(description, memberName, sourceFilePath, sourceLineNumber, watch, exception);
             }
         }
+
 #else
         public static void Debug(Action operation)
         {

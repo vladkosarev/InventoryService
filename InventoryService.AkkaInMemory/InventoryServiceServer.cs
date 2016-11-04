@@ -8,7 +8,6 @@ using InventoryService.Storage;
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
-using InventoryService.Diagnostics;
 
 namespace InventoryService.AkkaInMemoryServer
 {
@@ -33,7 +32,6 @@ namespace InventoryService.AkkaInMemoryServer
             }
             else
             {
-               
                 Sys = Options.ClientActorSystem;
                 InventoryServiceApplication = new InventoryServiceApplication();
 
@@ -41,16 +39,12 @@ namespace InventoryService.AkkaInMemoryServer
                 {
                     Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
                 }
-               
-                    
- InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
-                
-              
-        
-               Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
-                     inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
-    
-               
+
+                InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
+
+                Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
+                inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
+
                 if (Options.InitialInventory != null)
                 {
                     InitializeWithInventorydata(Options);
@@ -60,25 +54,22 @@ namespace InventoryService.AkkaInMemoryServer
 
         private void InitializeWithInventorydata(InventoryServerOptions options)
         {
-           
-                 Task.Run(async () =>
-            {
-                await UpdateQuantityAsync(options.InitialInventory, Options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+            Task.Run(async () =>
+       {
+           await UpdateQuantityAsync(options.InitialInventory, Options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
                 await ReserveAsync(options.InitialInventory, Options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
                 await PlaceHoldAsync(options.InitialInventory, Options.InitialInventory.Holds);//.TODO /* USE PROPER ASYNC AWAIT HERE */
                 var result = await GetInventoryAsync(Options.InitialInventory.ProductId);
-                if (!result.Successful ||
-                    result.RealTimeInventory == null ||
-                    result.RealTimeInventory.ProductId != Options.InitialInventory.ProductId ||
-                    result.RealTimeInventory.Quantity != Options.InitialInventory.Quantity ||
-                    result.RealTimeInventory.Reserved != Options.InitialInventory.Reserved ||
-                    result.RealTimeInventory.Holds != Options.InitialInventory.Holds)
-                {
-                    throw new Exception("Error initializing data into remote inventory actor ");
-                }
-            }).Wait();
-      
-           
+           if (!result.Successful ||
+               result.RealTimeInventory == null ||
+               result.RealTimeInventory.ProductId != Options.InitialInventory.ProductId ||
+               result.RealTimeInventory.Quantity != Options.InitialInventory.Quantity ||
+               result.RealTimeInventory.Reserved != Options.InitialInventory.Reserved ||
+               result.RealTimeInventory.Holds != Options.InitialInventory.Holds)
+           {
+               throw new Exception("Error initializing data into remote inventory actor ");
+           }
+       }).Wait();
         }
 
         public IActorRef inventoryActor { get; set; }
@@ -140,16 +131,16 @@ namespace InventoryService.AkkaInMemoryServer
         }
 
         public async Task<IInventoryServiceCompletedMessage> ResetInventoryQuantityReserveAndHoldAsync(
-            RealTimeInventory product, 
-            int quantity, 
-            int reserveQuantity, 
+            RealTimeInventory product,
+            int quantity,
+            int reserveQuantity,
             int holdsQuantity)
         {
-            var request = new ResetInventoryQuantityReserveAndHoldMessage(product.ProductId, quantity, reserveQuantity,holdsQuantity);
+            var request = new ResetInventoryQuantityReserveAndHoldMessage(product.ProductId, quantity, reserveQuantity, holdsQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.ResetInventoryQuantityReserveAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update,request.Reservations,request.Holds),
+                return await PerformOperation(request, product.ResetInventoryQuantityReserveAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update, request.Reservations, request.Holds),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
