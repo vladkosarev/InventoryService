@@ -15,9 +15,7 @@ namespace InventoryService.Actors
         private List<Tuple<Guid, IActorRef>> Subscribers { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
-
-        private QueryInventoryListCompletedMessage ChangeSetOfLastReceivedInventoryListMessage { set; get; }
-
+     
         public QueryInventoryListCompletedMessage CalculateInventoryListChanges(
             QueryInventoryListCompletedMessage oldList, QueryInventoryListCompletedMessage newList)
         {
@@ -61,9 +59,13 @@ namespace InventoryService.Actors
             });
             Receive<QueryInventoryListCompletedMessage>(message =>
             {
-                ChangeSetOfLastReceivedInventoryListMessage = CalculateInventoryListChanges(LastReceivedInventoryListMessage, message);
+              var  changeSetOfLastReceivedInventoryListMessage = CalculateInventoryListChanges(LastReceivedInventoryListMessage, message);
                 LastReceivedInventoryListMessage = message;
-                NotifySubscribersAndRemoveStaleSubscribers(ChangeSetOfLastReceivedInventoryListMessage);
+                if (changeSetOfLastReceivedInventoryListMessage.RealTimeInventories != null && changeSetOfLastReceivedInventoryListMessage.RealTimeInventories.Count > 0)
+                {
+                     NotifySubscribersAndRemoveStaleSubscribers(changeSetOfLastReceivedInventoryListMessage);
+                }
+            
                 Logger.Debug("total inventories in inventory service : " + message?.RealTimeInventories?.Count);
             });
             Receive<GetMetricsMessage>(message =>
