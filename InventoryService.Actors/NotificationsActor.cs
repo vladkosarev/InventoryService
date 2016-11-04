@@ -27,7 +27,7 @@ namespace InventoryService.Actors
             {
                 foreach (var oldItem in oldList.RealTimeInventories
                     .Where(oldItem =>
-                    (oldItem.ProductId != newItem.ProductId) &&
+                    (oldItem.ProductId == newItem.ProductId) &&
                     (oldItem.Quantity != newItem.Quantity ||
                      oldItem.Reserved != newItem.Reserved ||
                      oldItem.Holds != newItem.Holds)))
@@ -72,7 +72,7 @@ namespace InventoryService.Actors
             {
                 NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage((double)_messageCount / Seconds));
                 NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
-                NotifySubscribersAndRemoveStaleSubscribers(LastReceivedInventoryListMessage);
+               
                 _messageCount = 0;
             });
 

@@ -12,6 +12,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Reflection;
+using Microsoft.AspNet.SignalR;
 
 namespace InventoryService.WebUIDeployment
 {
@@ -48,12 +49,13 @@ namespace InventoryService.WebUIDeployment
                        if (Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "/web"))
                        {
                            var builder = new ContainerBuilder();
-                           builder.Register(c => signalRNotificationsActorRef).SingleInstance();
+                           builder.Register(c => signalRNotificationsActorRef).ExternallyOwned();
                             // Register your SignalR hubs.
-                            builder.RegisterHubs(Assembly.GetExecutingAssembly());
+                            builder.RegisterType<InventoryServiceHub>().ExternallyOwned();
 
                            var container = builder.Build();
-
+                           //var config = new HubConfiguration {Resolver = new AutofacDependencyResolver(container)};
+                           GlobalHost.DependencyResolver = new AutofacDependencyResolver(container);
                            appBuilder.UseAutofacMiddleware(container);
 
                            appBuilder.MapSignalR();
