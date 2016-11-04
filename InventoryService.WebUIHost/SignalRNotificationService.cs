@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac.Integration.SignalR;
 using InventoryService.Messages.Request;
 using Microsoft.AspNet.SignalR;
 
@@ -6,6 +7,7 @@ namespace InventoryService.WebUIHost
 {
     public class SignalRNotificationService
     {
+       
         public void SendInventoryList(QueryInventoryListCompletedMessage inventoryListCompletedMessage)
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(inventoryListCompletedMessage);

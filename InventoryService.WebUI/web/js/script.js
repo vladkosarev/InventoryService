@@ -99,26 +99,29 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     var hasLoaded = false;
     var lastResponse = {};
     var lastResponseDict = {};
+    $scope.realTimeInventories = [];
     $scope. updateGrid = function () {
         $scope.newUpdateAvailable = 0;
-        $("#jsGrid1")
-            .jsGrid({
-                width: "100%",
-                height: "500px",
-                inserting: false,
-                editing: false,
-                sorting: true,
-                paging: false,
 
-                data: lastResponse.RealTimeInventories,
+        $scope.realTimeInventories = lastResponse.RealTimeInventories;
+        //$("#jsGrid1")
+        //    .jsGrid({
+        //        width: "100%",
+        //        height: "500px",
+        //        inserting: false,
+        //        editing: false,
+        //        sorting: true,
+        //        paging: false,
 
-                fields: [
-                    { name: "ProductId", type: "text", width: 200 },
-                    { name: "Quantity", type: "text", width: 200 },
-                    { name: "Reserved", type: "text", width: 200 },
-                    { name: "Holds", type: "text", width: 200 }
-                ]
-            });
+        //        data: lastResponse.RealTimeInventories,
+
+        //        fields: [
+        //            { name: "ProductId", type: "text", width: 200 },
+        //            { name: "Quantity", type: "text", width: 200 },
+        //            { name: "Reserved", type: "text", width: 200 },
+        //            { name: "Holds", type: "text", width: 200 }
+        //        ]
+        //    });
     }
     $scope.newUpdateAvailable = 0;
     hub.client("inventoryData", function (response) {

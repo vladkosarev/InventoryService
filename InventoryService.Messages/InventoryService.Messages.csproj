@@ -42,12 +42,15 @@
   <ItemGroup>
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
+    <Compile Include="GetAllInventoryListMessage.cs" />
     <Compile Include="GetMetricsCompletedMessage.cs" />
     <Compile Include="GetMetricsMessage.cs" />
     <Compile Include="InitializeInventoriesFromStorageMessage.cs" />
     <Compile Include="InventoryServiceErrorMessageGenerator.cs" />
     <Compile Include="Models\IRealTimeInventory.cs" />
     <Compile Include="Models\RealTimeInventory.cs" />
+    <Compile Include="NotificationSubscriptionMessages\CheckIfNotificationSubscriptionExistsCompletedMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\CheckIfNotificationSubscriptionExistsMessage.cs" />
     <Compile Include="NotificationSubscriptionMessages\UnSubScribeToNotificationMessage.cs" />
     <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationCompletedMessage.cs" />
     <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationFailedMessage.cs" />

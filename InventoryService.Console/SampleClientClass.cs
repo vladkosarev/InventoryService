@@ -20,6 +20,13 @@ namespace InventoryService.Console
             products.Add(new Tuple<string, int, int>("ticketsections-216", initialQuantity, 0));
             products.Add(new Tuple<string, int, int>("ticketsections-217", initialQuantity, 0));
 
+            products.Add(new Tuple<string, int, int>("ticketsections-1", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-2", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-3", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-4", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-5", initialQuantity, 0));
+            products.Add(new Tuple<string, int, int>("ticketsections-6", initialQuantity, 0));
+
             System.Console.WriteLine("Starting Client");
             var actorSystem = ActorSystem.Create("InventoryService-Client");
             {

@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InventoryService.Messages.NotificationSubscriptionMessages
 {
-    public class UnSubScribeToNotificationMessage
+    public class CheckIfNotificationSubscriptionExistsMessage
     {
-        public UnSubScribeToNotificationMessage(Guid subscriptionId)
+        CheckIfNotificationSubscriptionExistsMessage(Guid subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }
+
         public Guid SubscriptionId { get; private set; }
     }
 }
