@@ -13,9 +13,11 @@ namespace InventoryService.Actors
     public class NotificationsActor : ReceiveActor
     {
         private List<Tuple<Guid, IActorRef>> Subscribers { set; get; }
+
+        private HashSet<Guid> ActorAliveList { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
-     
+
         public QueryInventoryListCompletedMessage CalculateInventoryListChanges(
             QueryInventoryListCompletedMessage oldList, QueryInventoryListCompletedMessage newList)
         {
@@ -27,10 +29,10 @@ namespace InventoryService.Actors
             {
                 foreach (var oldItem in oldList.RealTimeInventories
                     .Where(oldItem =>
-                    (oldItem.ProductId == newItem.ProductId) &&
-                    (oldItem.Quantity != newItem.Quantity ||
-                     oldItem.Reserved != newItem.Reserved ||
-                     oldItem.Holds != newItem.Holds)))
+                        (oldItem.ProductId == newItem.ProductId) &&
+                        (oldItem.Quantity != newItem.Quantity ||
+                         oldItem.Reserved != newItem.Reserved ||
+                         oldItem.Holds != newItem.Holds)))
                 {
                     result.RealTimeInventories.Add(newItem);
                 }
@@ -59,20 +61,22 @@ namespace InventoryService.Actors
             });
             Receive<QueryInventoryListCompletedMessage>(message =>
             {
-              var  changeSetOfLastReceivedInventoryListMessage = CalculateInventoryListChanges(LastReceivedInventoryListMessage, message);
+                var changeSetOfLastReceivedInventoryListMessage =
+                    CalculateInventoryListChanges(LastReceivedInventoryListMessage, message);
                 LastReceivedInventoryListMessage = message;
-                if (changeSetOfLastReceivedInventoryListMessage.RealTimeInventories != null && changeSetOfLastReceivedInventoryListMessage.RealTimeInventories.Count > 0)
+                if (changeSetOfLastReceivedInventoryListMessage.RealTimeInventories != null &&
+                    changeSetOfLastReceivedInventoryListMessage.RealTimeInventories.Count > 0)
                 {
-                     NotifySubscribersAndRemoveStaleSubscribers(changeSetOfLastReceivedInventoryListMessage);
+                    NotifySubscribersAndRemoveStaleSubscribers(changeSetOfLastReceivedInventoryListMessage);
                 }
-            
+
                 Logger.Debug("total inventories in inventory service : " + message?.RealTimeInventories?.Count);
             });
             Receive<GetMetricsMessage>(message =>
             {
                 NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage((double)_messageCount / Seconds));
                 NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
-               
+
                 _messageCount = 0;
             });
 
@@ -89,19 +93,51 @@ namespace InventoryService.Actors
             });
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(Seconds), Self, new GetMetricsMessage(), Self);
 
+            Receive<ActorAliveMessage>(message =>
+            {
+                Logger.Debug(message.SubscriptionId + " from " + Sender.Path + " says it is still alive");
+                ActorAliveList = ActorAliveList ?? new HashSet<Guid>();
+                var sub = Subscribers.FirstOrDefault(x => x.Item1 == message.SubscriptionId);
+                if (sub != null)
+                {
+                    ActorAliveList.Add(message.SubscriptionId);
+                    sub.Item2.Tell(new ActorAliveReceivedMessage());
+                }
+            });
+
+            Receive<PurgeInvalidSubscribers>(message =>
+            {
+                ActorAliveList = ActorAliveList ?? new HashSet<Guid>();
+                foreach (var subscriber in Subscribers)
+                {
+                    if (!ActorAliveList.Contains(subscriber.Item1))
+                    {
+                        Logger.Error("Removing subscriber " + subscriber.Item1 + " because no ActorAliveMessage was received over time ....");
+                        Self.Tell(new UnSubScribeToNotificationMessage(subscriber.Item1));
+                        subscriber.Item2.Tell(new UnSubscribedNotificationMessage(subscriber.Item1));
+                    }
+                    else
+                    {
+                        Logger.Debug("Subscriber " + subscriber.Item1 + " is still connected!!");
+                    }
+                }
+                ActorAliveList = new HashSet<Guid>();
+            });
+
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), Self, new PurgeInvalidSubscribers(), Self);
+
             Receive<SubScribeToNotificationMessage>(message =>
             {
-                //todo doing this coz im not sure to use sender or iactorref passed in message in remoting scenarios
-                var subscriber = (message.Subscriber as IActorRef) ?? (Sender);
-                if (subscriber == null || Sender.IsNobody())
+                var subscriber = Sender;
+                if (Sender.IsNobody())
                 {
                     Logger.Error("No subscriber specified or subscriber is nobody");
-                    Sender.Tell(new SubScribeToNotificationFailedMessage("No subscriber specified or subscriber is nobody"));
                 }
                 else
                 {
                     var id = Guid.NewGuid();
                     Subscribers.Add(new Tuple<Guid, IActorRef>(id, subscriber));
+                    ActorAliveList.Add(id);
                     Sender.Tell(new SubScribeToNotificationCompletedMessage(id));
                     Logger.Debug("Successfully subscribed . Subscription id : " + id + " and subscriber is : " + subscriber.Path);
                 }
@@ -110,7 +146,7 @@ namespace InventoryService.Actors
             {
                 if (!Subscribers.Exists(x => x.Item1 == message.SubscriptionId))
                 {
-                    Logger.Error("Unable to unscubscribe : No subscriber specified or subscriber is nobody");
+                    Logger.Error("Unable to unsubscribe : No subscriber specified or subscriber is nobody");
                     Sender.Tell(new SubScribeToNotificationFailedMessage("Subscription doesn't exists"));
                 }
                 else
@@ -152,5 +188,9 @@ namespace InventoryService.Actors
         }
 
         public int Seconds = 2;
+    }
+
+    public class PurgeInvalidSubscribers
+    {
     }
 }

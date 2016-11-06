@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActorAliveMessage.cs" />
+    <Compile Include="ActorAliveReceivedMessage.cs" />
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
     <Compile Include="GetAllInventoryListMessage.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="Request\UpdateQuantityMessage.cs" />
     <Compile Include="Request\ReserveMessage.cs" />
     <Compile Include="Response\GetInventoryCompletedMessage.cs" />
+    <Compile Include="UnSubscribedNotificationMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

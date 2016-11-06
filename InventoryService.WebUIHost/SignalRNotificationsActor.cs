@@ -13,6 +13,8 @@ namespace InventoryService.WebUIHost
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private SignalRNotificationService SignalRNotificationService { set; get; }
 
+        private Guid SubscriptionId { set; get; }
+
         public SignalRNotificationsActor(string inventoryActorAddress)
         {
             SignalRNotificationService = new SignalRNotificationService();
@@ -58,13 +60,31 @@ namespace InventoryService.WebUIHost
                 }
             });
 
-
+            ReceiveAsync<UnSubscribedNotificationMessage>(async _ =>
+            {
+                Logger.Error("Suddenly unsubscribed to notification. ");
+                NotificationsActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
+            });
             ReceiveAsync<SubscribeToNotifications>(async _ =>
             {
                 NotificationsActorRef= await SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
             });
 
+            Receive<SubScribeToNotificationCompletedMessage>(message =>
+            {
+                SubscriptionId = message.SubscriptionId;
+                SendKeepAlive(inventoryActorAddress);
+            });
             Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(1), Self, new SubscribeToNotifications(), Self);
+            
+            Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
+
+           
+        }
+        private void SendKeepAlive(string inventoryActorAddress)
+         {
+            Logger.Debug("Sending keep alive to "+ inventoryActorAddress);
+            Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(10), NotificationsActorRef, new ActorAliveMessage(SubscriptionId), Self);
         }
 
         public IActorRef NotificationsActorRef { get; set; }
@@ -93,11 +113,11 @@ namespace InventoryService.WebUIHost
                     Logger.Error("remote actor is not reachable, so im retrying " + inventoryActorAddress + " ....", e);
                 }
             }
-
+            
             if (isReachable)
             {
                 Logger.Debug("Subscribing for notifications at " + inventoryActorAddress + " ....");
-                Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(3), notificationsActor,new SubScribeToNotificationMessage(Self), Self);
+                Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(3), notificationsActor,new SubScribeToNotificationMessage(), Self);
             }
             else
             {
