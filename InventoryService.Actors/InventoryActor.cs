@@ -8,6 +8,7 @@ using InventoryService.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using InventoryService.ActorMailBoxes;
 
 namespace InventoryService.Actors
 {
@@ -60,7 +61,7 @@ namespace InventoryService.Actors
         private void Processing()
         {
             Logger.Debug("Inventory Actor Processing started ...");
-            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()), typeof(NotificationsActor).Name);
+            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(NotificationsActor).Name);
 
             Receive<RemoveProductMessage>(message =>
             {
@@ -127,7 +128,7 @@ namespace InventoryService.Actors
                     var message = x.Message + " - " + x.InnerException?.Message + " - it's possible an inventory actor has mal-functioned so i'm going to stop it :( ";
                     Logger.Error(message);
                     NotificationActorRef.Tell(message);
-                    return Directive.Stop;
+                    return Directive.Restart;
                 });
         }
     }

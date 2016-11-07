@@ -101,6 +101,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.ActorMailBoxes\InventoryService.ActorMailBoxes.csproj">
+      <Project>{a32b3eb0-b7cb-470b-a5a0-2fc083b774d5}</Project>
+      <Name>InventoryService.ActorMailBoxes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>

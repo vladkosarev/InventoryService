@@ -184,6 +184,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.ActorMailBoxes\InventoryService.ActorMailBoxes.csproj">
+      <Project>{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5}</Project>
+      <Name>InventoryService.ActorMailBoxes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.ActorSystem\InventoryService.ActorSystemFactoryLib.csproj">
       <Project>{ee77439b-33d6-4acd-abcb-00108e3d0552}</Project>
       <Name>InventoryService.ActorSystemFactoryLib</Name>

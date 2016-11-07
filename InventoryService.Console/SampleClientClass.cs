@@ -62,14 +62,14 @@ namespace InventoryService.Console
                 // m.TODO /* USE PROPER ASYNC AWAIT HERE */
                 //  var n=  m.Result;
                 var counter = 0;
-                var totalIteration = 100000;
+                var totalIteration = 100000000;
                 products.ForEach(p =>
                 {
                     for (var i = 0; i < totalIteration; i++)
                     {
                         try
                         {
-                            System.Threading.Thread.Sleep(1000);
+                            System.Threading.Thread.Sleep(10);
                             inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */

@@ -12,6 +12,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Reflection;
+using InventoryService.ActorMailBoxes;
 using Microsoft.AspNet.SignalR;
 
 namespace InventoryService.WebUIDeployment
@@ -33,7 +34,7 @@ namespace InventoryService.WebUIDeployment
             {
                 ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName, actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
                 var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
-                var signalRNotificationsActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRNotificationsActor(inventoryActorAddress)), typeof(SignalRNotificationsActor).Name);
+                var signalRNotificationsActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRNotificationsActor(inventoryActorAddress)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(SignalRNotificationsActor).Name);
 
                 const string message = "signalRNotificationsActor created !!!!";
                 Log.Debug(message);

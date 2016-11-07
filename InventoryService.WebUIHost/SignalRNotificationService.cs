@@ -22,7 +22,7 @@ namespace InventoryService.WebUIHost
 
         public void SendIncomingMessage(string incomingMessage)
         {
-            GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.serverNotificationMessages(incomingMessage);
+            GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.incomingMessage(incomingMessage);
         }
     }
 }

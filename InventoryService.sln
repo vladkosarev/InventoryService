@@ -65,6 +65,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.WebUIHost"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService", "InventoryService\InventoryService.csproj", "{D709C476-E572-470A-B948-1B05339F6C7E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.ActorMailBoxes", "InventoryService.ActorMailBoxes\InventoryService.ActorMailBoxes.csproj", "{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,10 @@ Global
 		{D709C476-E572-470A-B948-1B05339F6C7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D709C476-E572-470A-B948-1B05339F6C7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D709C476-E572-470A-B948-1B05339F6C7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -175,5 +181,6 @@ Global
 		{B0275619-9508-45C9-8C05-62BCD3700DB4} = {C6F3622F-748C-4329-BCBC-834483907D85}
 		{38FC38FD-1052-4D9F-AD8B-BBA5BBDA94A1} = {67D7C9C7-D0B6-4C17-8E5B-DA384830D311}
 		{058A90E4-0069-4606-BEC1-B804A00BD2A2} = {9457B33A-F817-482F-B31B-D668ED0E4F38}
+		{A32B3EB0-B7CB-470B-A5A0-2FC083B774D5} = {D9F585DD-92C9-44E6-B604-8BEA356CB184}
 	EndGlobalSection
 EndGlobal

@@ -33,6 +33,7 @@ namespace InventoryService
             logger?.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + realTimeInventory.GetCurrentQuantitiesReport());
 
             IInventoryServiceCompletedMessage response;
+            notificationActorRef?.Tell(requestMessage);
             if (!result.IsSuccessful)
             {
                 response = result.ToInventoryOperationErrorMessage(requestMessage.ProductId);

@@ -70,24 +70,63 @@
 
                                 <br />
                                 <!--<div id="jsGrid1"></div>-->
-
+                               
+                                <a class="btn btn-success" ng-click="updateGrid()" ng-show="newUpdateAvailable && !model.realtime" style="position: fixed;right: 0;z-index: 999;">{{newUpdateAvailable}} Updates Available</a>
                                 <div class="well">
+                                    <div class="alert alert-info text-left">
+                                        <span>Sort Type: {{ sortType }}</span>
+                                        <span>Sort Reverse: {{ sortReverse }}</span>
+                                        <span>Search Query: {{ searchFish }}</span>
+                                    </div>
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchFish">
                                     <table class="table table-striped">
+                                        <!--<thead>
+                                        <tr>
+                                            <th>ProductId</th>
+                                            <th>Quantity</th>
+                                            <th>Reserved</th>
+                                            <th>Holds</th>
+                                        </tr>
+                                        </thead>-->
                                         <thead>
-                                            <tr>
-                                                <th>ProductId</th>
-                                                <th>Quantity</th>
-                                                <th>Reserved</th>
-                                                <th>Holds</th>
-                                            </tr>
+                                        <tr>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'ProductId'; sortReverse = !sortReverse">
+                                                    ProductId
+                                                    <span ng-show="sortType == 'ProductId' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'ProductId' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'Quantity'; sortReverse = !sortReverse">
+                                                    Quantity
+                                                    <span ng-show="sortType == 'Quantity' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'Quantity' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'Reserved'; sortReverse = !sortReverse">
+                                                    Reserved
+                                                    <span ng-show="sortType == 'Reserved' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'Reserved' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'Holds'; sortReverse = !sortReverse">
+                                                    Holds
+                                                    <span ng-show="sortType == 'Holds' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'Holds' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <tr ng-repeat="inv in realTimeInventories">
-                                                <td>{{inv.ProductId}}</td>
-                                                <td>{{inv.Quantity}}</td>
-                                                <td>{{inv.Reserved}}</td>
-                                                <td>{{inv.Holds}}</td>
-                                            </tr>
+                                        <tr ng-repeat="inv in realTimeInventories | orderBy:sortType:sortReverse | filter:searchFish">
+                                            <td>{{inv.ProductId}}</td>
+                                            <td>{{inv.Quantity}}</td>
+                                            <td>{{inv.Reserved}}</td>
+                                            <td>{{inv.Holds}}</td>
+                                        </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -96,7 +135,7 @@
                                 <div class="row">
                                     <br />
                                     <div>
-                                        <a class="btn btn-success" ng-click="updateGrid()" ng-show="newUpdateAvailable">{{newUpdateAvailable}} Updates Available</a>
+                                      
                                         <a class="btn btn-primary" ng-click="model.realtime=!model.realtime;updateStorage()" ng-show="model.realtime">Disable Realtime</a>
                                         <a class="btn btn-primary" ng-click="model.realtime=!model.realtime;updateStorage()" ng-hide="model.realtime">Enable Realtime</a>
                                         <a class="btn btn-primary" ng-click="model.logMessages=!model.logMessages;updateStorage()" ng-show="model.logMessages">Disable Message Logs</a>

@@ -18,7 +18,7 @@ namespace InventoryService.Actors
 
         protected QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
 
-        public QueryInventoryListCompletedMessage CalculateInventoryListChanges(
+        public QueryInventoryListCompletedMessage CalculateInventoryListChangesAndUpdateCurrentTotal(
             QueryInventoryListCompletedMessage oldList, QueryInventoryListCompletedMessage newList)
         {
             oldList = oldList ?? new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
@@ -27,15 +27,22 @@ namespace InventoryService.Actors
             var result = new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
             foreach (var newItem in newList.RealTimeInventories)
             {
-                foreach (var oldItem in oldList.RealTimeInventories
-                    .Where(oldItem =>
-                        (oldItem.ProductId == newItem.ProductId) &&
-                        (oldItem.Quantity != newItem.Quantity ||
-                         oldItem.Reserved != newItem.Reserved ||
-                         oldItem.Holds != newItem.Holds)))
+                if (!oldList.RealTimeInventories.Exists(x => x.ProductId == newItem.ProductId))
                 {
                     result.RealTimeInventories.Add(newItem);
+                    oldList.RealTimeInventories.Add(newItem);
                 }
+                else
+                {
+                    for (var i = 0; i < oldList.RealTimeInventories.Count; i++)
+                    {
+                        var oldItem = oldList.RealTimeInventories[i];
+                        if ((oldItem.ProductId != newItem.ProductId) || (oldItem.Quantity == newItem.Quantity && oldItem.Reserved == newItem.Reserved && oldItem.Holds == newItem.Holds)) continue;
+                        result.RealTimeInventories.Add(newItem);
+                        oldList.RealTimeInventories[i] = newItem;
+                    }
+                }
+
             }
 
             return result;
@@ -46,9 +53,10 @@ namespace InventoryService.Actors
 
         public NotificationsActor()
         {
+
             Subscribers = new List<Tuple<Guid, IActorRef>>();
             LastReceivedServerMessage = "System started at " + DateTime.UtcNow;
-            LastReceivedInventoryListMessage=new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
+            LastReceivedInventoryListMessage = new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
             Logger.Debug(LastReceivedServerMessage);
             Receive<string>(message =>
             {
@@ -62,9 +70,8 @@ namespace InventoryService.Actors
             });
             Receive<QueryInventoryListCompletedMessage>(message =>
             {
-                var changeSetOfLastReceivedInventoryListMessage =
-                    CalculateInventoryListChanges(LastReceivedInventoryListMessage, message);
-                LastReceivedInventoryListMessage = message;
+                var changeSetOfLastReceivedInventoryListMessage = CalculateInventoryListChangesAndUpdateCurrentTotal(LastReceivedInventoryListMessage, message);
+                
                 if (changeSetOfLastReceivedInventoryListMessage.RealTimeInventories != null &&
                     changeSetOfLastReceivedInventoryListMessage.RealTimeInventories.Count > 0)
                 {
@@ -75,8 +82,13 @@ namespace InventoryService.Actors
             });
             Receive<GetMetricsMessage>(message =>
             {
-                NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage(MessageCount /Seconds));
-                NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
+
+                if (MessageCount > 2)
+                {
+                    throw  new Exception();
+                }
+
+                NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage(MessageCount / Seconds));
 
                 MessageCount = 0;
             });

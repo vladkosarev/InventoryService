@@ -47,10 +47,9 @@ namespace InventoryService.WebUIHost
                 Logger.Debug("received  - " + message.GetType().Name + " -  ServerMessage : " + message.ServerMessage);
             });
 
-
             Receive<GetAllInventoryListMessage>(message =>
             {
-                if (NotificationsActorRef!=null && !NotificationsActorRef.IsNobody())
+                if (NotificationsActorRef != null && !NotificationsActorRef.IsNobody())
                 {
                     NotificationsActorRef.Tell(message);
                 }
@@ -67,7 +66,7 @@ namespace InventoryService.WebUIHost
             });
             ReceiveAsync<SubscribeToNotifications>(async _ =>
             {
-                NotificationsActorRef= await SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
+                NotificationsActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
             });
 
             Receive<SubScribeToNotificationCompletedMessage>(message =>
@@ -75,15 +74,35 @@ namespace InventoryService.WebUIHost
                 SubscriptionId = message.SubscriptionId;
                 SendKeepAlive(inventoryActorAddress);
             });
-            Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(1), Self, new SubscribeToNotifications(), Self);
-            
-            Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
 
-           
+
+            Receive<MonitorHealthMessage>(message =>
+            {
+                Context.System.ActorSelection(inventoryActorAddress).Tell(new CheckIfNotificationSubscriptionExistsMessage(SubscriptionId));  
+            });
+         
+            ReceiveAsync<CheckIfNotificationSubscriptionExistsCompletedMessage>(async message =>
+            {
+                if (!message.IsSubscribed)
+                {
+                    Logger.Error("Notification subscription is no longer valid. Trying to subscribe again ....");
+                    await   SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
+                }
+                else
+                {
+                    Logger.Debug("Notification subscription is still valid");
+                }
+            });
+            Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(1), Self, new SubscribeToNotifications(), Self);
+
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30), Self,new MonitorHealthMessage(), Self);
+
+            Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
         }
+
         private void SendKeepAlive(string inventoryActorAddress)
-         {
-            Logger.Debug("Sending keep alive to "+ inventoryActorAddress);
+        {
+            Logger.Debug("Sending keep alive to " + inventoryActorAddress);
             Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(10), NotificationsActorRef, new ActorAliveMessage(SubscriptionId), Self);
         }
 
@@ -96,12 +115,12 @@ namespace InventoryService.WebUIHost
             var isReachable = false;
             var retryMax = 10;
             var expDelay = 0;
-            IActorRef notificationsActorRef=null;
+            IActorRef notificationsActorRef = null;
             while (!isReachable && retryMax > 0)
             {
                 try
                 {
-                    notificationsActorRef= await notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
+                    notificationsActorRef = await notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
                     isReachable = true;
                     Logger.Debug("Successfully reached " + inventoryActorAddress + " ....");
                 }
@@ -113,11 +132,11 @@ namespace InventoryService.WebUIHost
                     Logger.Error("remote actor is not reachable, so im retrying " + inventoryActorAddress + " ....", e);
                 }
             }
-            
+
             if (isReachable)
             {
                 Logger.Debug("Subscribing for notifications at " + inventoryActorAddress + " ....");
-                Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(3), notificationsActor,new SubScribeToNotificationMessage(), Self);
+                Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(3), notificationsActor, new SubScribeToNotificationMessage(), Self);
             }
             else
             {
@@ -129,7 +148,10 @@ namespace InventoryService.WebUIHost
 
         public class SubscribeToNotifications
         {
-
         }
+    }
+
+    public class MonitorHealthMessage
+    {
     }
 }
