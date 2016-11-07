@@ -65,10 +65,6 @@
       <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
       <Name>InventoryService.Storage</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
-      <Project>{d709c476-e572-470a-b948-1b05339f6c7e}</Project>
-      <Name>InventoryService</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -53,7 +53,7 @@ namespace InventoryService.Actors
             Receive<string>(message =>
             {
                 LastReceivedServerMessage = string.IsNullOrEmpty(message) ? LastReceivedServerMessage : message;
-                NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
+                //NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
                 Logger.Debug(LastReceivedServerMessage);
             });
             Receive<QueryInventoryListMessage>(message =>

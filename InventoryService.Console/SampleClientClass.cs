@@ -69,6 +69,7 @@ namespace InventoryService.Console
                     {
                         try
                         {
+                            System.Threading.Thread.Sleep(1000);
                             inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
