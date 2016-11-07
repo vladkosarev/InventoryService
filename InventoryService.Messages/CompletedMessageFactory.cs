@@ -7,7 +7,7 @@ namespace InventoryService.Messages
 {
     public class CompletedMessageFactory
     {
-        public static Func<IRealTimeInventory, IInventoryServiceCompletedMessage> GetSuccessResponseCompletedMessage<T>(T message, bool isSuccessful = true) where T : IRequestMessage
+        public static Func<IRealTimeInventory, IInventoryServiceCompletedMessage> GetResponseCompletedMessage<T>(T message, bool isSuccessful = true) where T : IRequestMessage
         {
             if (message is GetInventoryMessage)
                 return (rti) => new GetInventoryCompletedMessage(rti, isSuccessful);

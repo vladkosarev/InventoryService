@@ -1,4 +1,6 @@
-﻿namespace InventoryService.Messages.Models
+﻿using System;
+
+namespace InventoryService.Messages.Models
 {
     public interface IRealTimeInventory
     {
@@ -6,5 +8,6 @@
         int Quantity { get; }
         int Holds { get; }
         string ProductId { get; }
+        Guid ETag { get; }
     }
 }

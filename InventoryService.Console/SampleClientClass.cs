@@ -58,11 +58,11 @@ namespace InventoryService.Console
                 //                    Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
                 //                }
 
-                var m = await inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
+              //  var m = await inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
                 // m.TODO /* USE PROPER ASYNC AWAIT HERE */
                 //  var n=  m.Result;
                 var counter = 0;
-                var totalIteration = 1000;
+                var totalIteration = 100000;
                 products.ForEach(p =>
                 {
                     for (var i = 0; i < totalIteration; i++)

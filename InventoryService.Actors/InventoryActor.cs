@@ -14,7 +14,7 @@ namespace InventoryService.Actors
     public class InventoryActor : ReceiveActor
     {
         private readonly Dictionary<string, IActorRef> _products = new Dictionary<string, IActorRef>();
-        private readonly Dictionary<string, RealTimeInventory> _realTimeInventories = new Dictionary<string, RealTimeInventory>();
+       // private readonly Dictionary<string, IRealTimeInventory> _realTimeInventories = new Dictionary<string, IRealTimeInventory>();
         private readonly Dictionary<string, RemoveProductMessage> _removedRealTimeInventories = new Dictionary<string, RemoveProductMessage>();
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private IInventoryStorage InventoryStorage { set; get; }
@@ -53,11 +53,6 @@ namespace InventoryService.Actors
                     Logger.Error("Inventory Actor Initialization Failed " + errorMsg);
                     throw new Exception(errorMsg, inventoryIdsResult.Errors.Flatten());
 
-                    /*
-                 TODO :
-                     Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
-
-                 */
                 }
             });
         }
@@ -76,7 +71,6 @@ namespace InventoryService.Actors
                 if (!string.IsNullOrEmpty(productId))
                 {
                     _products.Remove(productId);
-                    _realTimeInventories.Remove(productId);
                     _removedRealTimeInventories[productId] = message;
                     NotificationActorRef.Tell(productId + " Actor has died! Reason : " + message?.Reason?.Message);
                 }
@@ -89,12 +83,14 @@ namespace InventoryService.Actors
 
             Receive<QueryInventoryListMessage>(message =>
             {
-                Sender.Tell(new QueryInventoryListCompletedMessage(_realTimeInventories.Select(x => x.Value).ToList()));
+                foreach (var product in _products)
+                    product.Value.Tell(new GetInventoryMessage(product.Key));
             });
 
             Receive<GetInventoryCompletedMessage>(message =>
             {
-                _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory as RealTimeInventory;
+               // _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
+               // NotificationActorRef.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { message.RealTimeInventory }));
             });
 
             Receive<IRequestMessage>(message =>
@@ -102,10 +98,10 @@ namespace InventoryService.Actors
                 Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 var actorRef = GetActorRef(InventoryStorage, message.ProductId);
                 actorRef.Forward(message);
-                actorRef.Tell(new GetInventoryMessage(message.ProductId));
+               // actorRef.Tell(new GetInventoryMessage(message.ProductId));
             });
 
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
+           // Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
@@ -115,11 +111,11 @@ namespace InventoryService.Actors
             Logger.Debug("Creating inventory actor " + productId + " since it does not yet exist ...");
             var productActorRef = Context.ActorOf(
                 Props.Create(() =>
-                    new ProductInventoryActor(inventoryStorage, productId, _withCache))
+                    new ProductInventoryActor(inventoryStorage, NotificationActorRef, productId, _withCache))
                 , productId);
 
             _products.Add(productId, productActorRef);
-            _realTimeInventories.Add(productId, new RealTimeInventory(productId, 0, 0, 0));
+          //  _realTimeInventories.Add(productId, new RealTimeInventory(productId, 0, 0, 0));
             return _products[productId];
         }
 

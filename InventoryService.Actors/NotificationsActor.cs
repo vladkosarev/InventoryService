@@ -12,19 +12,19 @@ namespace InventoryService.Actors
 {
     public class NotificationsActor : ReceiveActor
     {
-        private List<Tuple<Guid, IActorRef>> Subscribers { set; get; }
-
-        private HashSet<Guid> ActorAliveList { set; get; }
         public readonly ILoggingAdapter Logger = Context.GetLogger();
-        private QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
+        protected List<Tuple<Guid, IActorRef>> Subscribers { set; get; }
+        protected HashSet<Guid> ActorAliveList { set; get; }
+
+        protected QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
 
         public QueryInventoryListCompletedMessage CalculateInventoryListChanges(
             QueryInventoryListCompletedMessage oldList, QueryInventoryListCompletedMessage newList)
         {
-            oldList = oldList ?? new QueryInventoryListCompletedMessage(new List<RealTimeInventory>());
-            newList = newList ?? new QueryInventoryListCompletedMessage(new List<RealTimeInventory>());
+            oldList = oldList ?? new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
+            newList = newList ?? new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
 
-            var result = new QueryInventoryListCompletedMessage(new List<RealTimeInventory>());
+            var result = new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
             foreach (var newItem in newList.RealTimeInventories)
             {
                 foreach (var oldItem in oldList.RealTimeInventories
@@ -41,13 +41,14 @@ namespace InventoryService.Actors
             return result;
         }
 
-        private string LastReceivedServerMessage { set; get; }
-        private int _messageCount = 0;
+        protected string LastReceivedServerMessage { set; get; }
+        protected double MessageCount = 0;
 
         public NotificationsActor()
         {
             Subscribers = new List<Tuple<Guid, IActorRef>>();
             LastReceivedServerMessage = "System started at " + DateTime.UtcNow;
+            LastReceivedInventoryListMessage=new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
             Logger.Debug(LastReceivedServerMessage);
             Receive<string>(message =>
             {
@@ -74,10 +75,10 @@ namespace InventoryService.Actors
             });
             Receive<GetMetricsMessage>(message =>
             {
-                NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage((double)_messageCount / Seconds));
+                NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage(MessageCount /Seconds));
                 NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
 
-                _messageCount = 0;
+                MessageCount = 0;
             });
 
             Receive<GetAllInventoryListMessage>(message =>
@@ -87,7 +88,7 @@ namespace InventoryService.Actors
 
             Receive<IRequestMessage>(message =>
             {
-                _messageCount++;
+                MessageCount++;
                 NotifySubscribersAndRemoveStaleSubscribers(message);
                 Logger.Debug("received by inventory Actor - " + message.GetType().Name + " - " + message);
             });
@@ -164,7 +165,7 @@ namespace InventoryService.Actors
             });
         }
 
-        private void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
+        protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
         {
             foreach (var subscriber in Subscribers)
             {

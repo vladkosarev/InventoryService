@@ -78,10 +78,9 @@ namespace InventoryService.AkkaInMemoryServer
 
         public InventoryServiceApplication InventoryServiceApplication { get; set; }
 
-        public async Task<IInventoryServiceCompletedMessage> PerformOperation(IRequestMessage request
-            , Task<OperationResult<IRealTimeInventory>> response, IRealTimeInventory originalInventory)
+        public async Task<IInventoryServiceCompletedMessage> PerformOperation(IRequestMessage request, Task<OperationResult<IRealTimeInventory>> response, IRealTimeInventory originalInventory)
         {
-            return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetSuccessResponseCompletedMessage(request), originalInventory).InventoryServiceCompletedMessage;
+            return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetResponseCompletedMessage(request), originalInventory,null).InventoryServiceCompletedMessage;
         }
 
         public async Task<IInventoryServiceCompletedMessage> UpdateQuantityAsync(RealTimeInventory product, int quantity)
@@ -122,10 +121,7 @@ namespace InventoryService.AkkaInMemoryServer
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update),
-                    TestInventoryStorage
-                  .ReadInventoryAsync(request.ProductId)
-                  .Result.Result);
+                return await PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update),TestInventoryStorage.ReadInventoryAsync(request.ProductId).Result.Result);
             }
             return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }

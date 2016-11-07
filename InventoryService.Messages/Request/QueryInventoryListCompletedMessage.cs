@@ -5,11 +5,11 @@ namespace InventoryService.Messages.Request
 {
     public class QueryInventoryListCompletedMessage
     {
-        public QueryInventoryListCompletedMessage(List<RealTimeInventory> realTimeInventories)
+        public QueryInventoryListCompletedMessage(List<IRealTimeInventory> realTimeInventories)
         {
             RealTimeInventories = realTimeInventories;
         }
 
-        public List<RealTimeInventory> RealTimeInventories { get; private set; }
+        public List<IRealTimeInventory> RealTimeInventories { get; private set; }
     }
 }
