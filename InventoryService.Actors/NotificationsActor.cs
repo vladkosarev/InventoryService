@@ -82,12 +82,6 @@ namespace InventoryService.Actors
             });
             Receive<GetMetricsMessage>(message =>
             {
-
-                if (MessageCount > 2)
-                {
-                    throw  new Exception();
-                }
-
                 NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage(MessageCount / Seconds));
 
                 MessageCount = 0;
