@@ -19,18 +19,30 @@ namespace InventoryService.Console
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
             products.Add(new Tuple<string, int, int>("ticketsections-216", initialQuantity, 0));
             products.Add(new Tuple<string, int, int>("ticketsections-217", initialQuantity, 0));
+            for (var i = 0; i < 100; i++)
+            {   products.Add(new Tuple<string, int, int>("ticketsections-1"+i, initialQuantity, 0));
+            }
+         
+            //products.Add(new Tuple<string, int, int>("ticketsections-2", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-3", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-4", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-5", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-6", initialQuantity, 0));
 
-            products.Add(new Tuple<string, int, int>("ticketsections-1", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-2", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-3", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-4", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-5", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-6", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-216", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-217", initialQuantity, 0));
+
+            //products.Add(new Tuple<string, int, int>("me-1", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-2", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-3", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-4", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-5", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-6", initialQuantity, 0));
 
             System.Console.WriteLine("Starting Client");
             var actorSystem = ActorSystem.Create("InventoryService-Client");
             {
-                var remoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+                var remoteAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
                 var inventoryActorSelection =
                     actorSystem.ActorSelection(remoteAddress);
 
@@ -62,14 +74,14 @@ namespace InventoryService.Console
                 // m.TODO /* USE PROPER ASYNC AWAIT HERE */
                 //  var n=  m.Result;
                 var counter = 0;
-                var totalIteration = 100000000;
+                var totalIteration = 100;
                 products.ForEach(p =>
                 {
                     for (var i = 0; i < totalIteration; i++)
                     {
                         try
                         {
-                            
+                          System.Threading.Thread.Sleep(100);
                             inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
