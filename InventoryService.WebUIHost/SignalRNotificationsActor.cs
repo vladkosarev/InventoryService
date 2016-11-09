@@ -102,7 +102,7 @@ namespace InventoryService.WebUIHost
 
             //Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
             Receive<Terminated>( t => {
-                Logger.Error("Suddenly unsubscribed to notification. trying to subscribe again ");
+                Logger.Error("Suddenly unsubscribed from notification at " + t.ActorRef .Path+ ". trying to subscribe again ");
                 Self.Tell(new SubscribeToNotifications());
             });
         }

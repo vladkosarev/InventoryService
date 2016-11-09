@@ -136,8 +136,8 @@ namespace InventoryService.Actors
                      Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), Self, new PurgeInvalidSubscribers(), Self);
                       */
             Receive<Terminated>(t => {
-                Logger.Error("Removing subscriber " + Sender.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
-                Self.Tell(new UnSubScribeToNotificationMessage(Sender.Path.ToStringWithUid()));
+                Logger.Error("Removing subscriber " + t.ActorRef.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
+                Self.Tell(new UnSubScribeToNotificationMessage(t.ActorRef.Path.ToStringWithUid()));
             });
 
 
