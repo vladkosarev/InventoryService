@@ -4,11 +4,11 @@ namespace InventoryService.Messages.NotificationSubscriptionMessages
 {
     public class SubScribeToNotificationCompletedMessage
     {
-        public SubScribeToNotificationCompletedMessage(Guid subscriptionId)
+        public SubScribeToNotificationCompletedMessage(string subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }
 
-        public Guid SubscriptionId { get; private set; }
+        public string SubscriptionId { get; private set; }
     }
 }

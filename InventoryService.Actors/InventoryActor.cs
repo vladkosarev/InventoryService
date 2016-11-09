@@ -15,12 +15,12 @@ namespace InventoryService.Actors
     public class InventoryActor : ReceiveActor
     {
         private readonly Dictionary<string, IActorRef> _products = new Dictionary<string, IActorRef>();
-       // private readonly Dictionary<string, IRealTimeInventory> _realTimeInventories = new Dictionary<string, IRealTimeInventory>();
         private readonly Dictionary<string, RemoveProductMessage> _removedRealTimeInventories = new Dictionary<string, RemoveProductMessage>();
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private IInventoryStorage InventoryStorage { set; get; }
         private readonly bool _withCache;
         public IActorRef NotificationActorRef { get; set; }
+        public IActorRef InventoryServicePingActor { set; get; }
 
         public InventoryActor(IInventoryStorage inventoryStorage, bool withCache = true)
         {
@@ -61,7 +61,9 @@ namespace InventoryService.Actors
         private void Processing()
         {
             Logger.Debug("Inventory Actor Processing started ...");
+
             NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(NotificationsActor).Name);
+            InventoryServicePingActor = Context.ActorOf(Props.Create(() => new InventoryServicePingActor()), typeof(InventoryServicePingActor).Name);
 
             Receive<RemoveProductMessage>(message =>
             {
@@ -90,6 +92,7 @@ namespace InventoryService.Actors
 
             Receive<GetInventoryCompletedMessage>(message =>
             {
+                //todo remove this
                // _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
                // NotificationActorRef.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { message.RealTimeInventory }));
             });
@@ -99,11 +102,8 @@ namespace InventoryService.Actors
                 Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
                 var actorRef = GetActorRef(InventoryStorage, message.ProductId);
                 actorRef.Forward(message);
-               // actorRef.Tell(new GetInventoryMessage(message.ProductId));
             });
-
-           // Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Self, new QueryInventoryListMessage(), NotificationActorRef);
-        }
+         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
         {
@@ -116,7 +116,6 @@ namespace InventoryService.Actors
                 , productId);
 
             _products.Add(productId, productActorRef);
-          //  _realTimeInventories.Add(productId, new RealTimeInventory(productId, 0, 0, 0));
             return _products[productId];
         }
 

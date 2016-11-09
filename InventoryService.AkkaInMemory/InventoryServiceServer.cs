@@ -37,7 +37,7 @@ namespace InventoryService.AkkaInMemoryServer
 
                 if (string.IsNullOrEmpty(Options.InventoryActorAddress))
                 {
-                    Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+                    Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
                 }
 
                 InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);

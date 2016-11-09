@@ -4,11 +4,11 @@ namespace InventoryService.Messages
 {
     public class UnSubscribedNotificationMessage
     {
-        public UnSubscribedNotificationMessage(Guid subscriptionId)
+        public UnSubscribedNotificationMessage(string subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }
 
-        public Guid SubscriptionId { get; private set; }
+        public string SubscriptionId { get; private set; }
     }
 }

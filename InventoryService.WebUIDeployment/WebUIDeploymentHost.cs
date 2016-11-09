@@ -33,7 +33,7 @@ namespace InventoryService.WebUIDeployment
             try
             {
                 ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName, actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
-                var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+                var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
                 var signalRNotificationsActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRNotificationsActor(inventoryActorAddress)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(SignalRNotificationsActor).Name);
 
                 const string message = "signalRNotificationsActor created !!!!";

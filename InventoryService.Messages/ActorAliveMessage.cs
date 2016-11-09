@@ -4,11 +4,11 @@ namespace InventoryService.Messages
 {
     public class ActorAliveMessage
     {
-        public ActorAliveMessage(Guid subscriptionId)
+        public ActorAliveMessage(string subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }
 
-        public Guid SubscriptionId { get; private set; }
+        public string SubscriptionId { get; private set; }
     }
 }

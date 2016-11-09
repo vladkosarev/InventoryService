@@ -4,11 +4,11 @@ namespace InventoryService.Messages.NotificationSubscriptionMessages
 {
     public class CheckIfNotificationSubscriptionExistsMessage
     {
-        public CheckIfNotificationSubscriptionExistsMessage(Guid subscriptionId)
+        public CheckIfNotificationSubscriptionExistsMessage(string subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }
 
-        public Guid SubscriptionId { get; private set; }
+        public string SubscriptionId { get; private set; }
     }
 }

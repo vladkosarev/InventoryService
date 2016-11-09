@@ -132,7 +132,7 @@ THE CONFIG SECTION LOOKS SOMETHING LIKE THIS
   </configSections>
   <appSettings>
     <add key="Storage" value="InventoryService.Storage.InMemoryLib.InMemory, InventoryService.Storage.InMemoryLib" />
-    <add key="RemoteActorAddress" value="akka.tcp://InventoryService-Server@localhost:10000/user/InventoryActor" />
+    <add key="RemoteInventoryActorAddress" value="akka.tcp://InventoryService-Server@localhost:10000/user/InventoryActor" />
     <add key="ServerEndPoint" value="http://*:10080/" />
     <add key="ServerActorSystemName" value="InventoryService-Server" />
   </appSettings>

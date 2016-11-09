@@ -13,7 +13,7 @@ namespace InventoryService.WebUIHost
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private SignalRNotificationService SignalRNotificationService { set; get; }
 
-        private Guid SubscriptionId { set; get; }
+        private string SubscriptionId { set; get; }
 
         public SignalRNotificationsActor(string inventoryActorAddress)
         {
@@ -72,39 +72,46 @@ namespace InventoryService.WebUIHost
             Receive<SubScribeToNotificationCompletedMessage>(message =>
             {
                 SubscriptionId = message.SubscriptionId;
-                SendKeepAlive(inventoryActorAddress);
+                Context.Watch(NotificationsActorRef);
             });
 
 
-            Receive<MonitorHealthMessage>(message =>
-            {
-                Context.System.ActorSelection(inventoryActorAddress).Tell(new CheckIfNotificationSubscriptionExistsMessage(SubscriptionId));  
-            });
+            //Receive<MonitorHealthMessage>(message =>
+            //{
+            //    Context.System.ActorSelection(inventoryActorAddress).Tell(new CheckIfNotificationSubscriptionExistsMessage(SubscriptionId));  
+            //});
          
-            ReceiveAsync<CheckIfNotificationSubscriptionExistsCompletedMessage>(async message =>
-            {
-                if (!message.IsSubscribed)
-                {
-                    Logger.Error("Notification subscription is no longer valid. Trying to subscribe again ....");
-                    await   SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
-                }
-                else
-                {
-                    Logger.Debug("Notification subscription is still valid");
-                }
-            });
+            //ReceiveAsync<CheckIfNotificationSubscriptionExistsCompletedMessage>(async message =>
+            //{
+            //    if (!message.IsSubscribed)
+            //    {
+            //        Logger.Error("Notification subscription is no longer valid. Trying to subscribe again ....");
+            //        await   SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
+            //    }
+            //    else
+            //    {
+            //        Logger.Debug("Notification subscription is still valid");
+            //    }
+            //});
+
+
+
             Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(1), Self, new SubscribeToNotifications(), Self);
 
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30), Self,new MonitorHealthMessage(), Self);
+            //Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30), Self,new MonitorHealthMessage(), Self);
 
-            Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
+            //Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
+            Receive<Terminated>( t => {
+                Logger.Error("Suddenly unsubscribed to notification. trying to subscribe again ");
+                Self.Tell(new SubscribeToNotifications());
+            });
         }
 
-        private void SendKeepAlive(string inventoryActorAddress)
-        {
-            Logger.Debug("Sending keep alive to " + inventoryActorAddress);
-            Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(10), NotificationsActorRef, new ActorAliveMessage(SubscriptionId), Self);
-        }
+        //private void SendKeepAlive(string inventoryActorAddress)
+        //{
+        //    Logger.Debug("Sending keep alive to " + inventoryActorAddress);
+        //    Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(10), NotificationsActorRef, new ActorAliveMessage(SubscriptionId), Self);
+        //}
 
         public IActorRef NotificationsActorRef { get; set; }
 
@@ -121,6 +128,7 @@ namespace InventoryService.WebUIHost
                 try
                 {
                     notificationsActorRef = await notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
+                 
                     isReachable = true;
                     Logger.Debug("Successfully reached " + inventoryActorAddress + " ....");
                 }

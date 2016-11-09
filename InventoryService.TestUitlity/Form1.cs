@@ -107,7 +107,7 @@ namespace InventoryService.TestUitlity
         {
             cmbOoperation.SelectedIndex = 1;
             ActorSystem = ActorSystem.Create("InventoryService-Client");
-            textBox1.Text = ConfigurationManager.AppSettings["RemoteActorAddress"];
+            textBox1.Text = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
 
             button1.PerformClick();
         }

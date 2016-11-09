@@ -237,7 +237,7 @@ namespace InventoryService.Tests
         }
 
         /*
-              var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+              var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
               var serverOptions = new InventoryServerOptions()
               {
                   InitialInventory = inventory,

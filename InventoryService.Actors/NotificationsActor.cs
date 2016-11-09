@@ -13,8 +13,8 @@ namespace InventoryService.Actors
     public class NotificationsActor : ReceiveActor
     {
         public readonly ILoggingAdapter Logger = Context.GetLogger();
-        protected List<Tuple<Guid, IActorRef>> Subscribers { set; get; }
-        protected HashSet<Guid> ActorAliveList { set; get; }
+        protected List<Tuple<string, IActorRef>> Subscribers { set; get; }
+        protected HashSet<string> ActorAliveList { set; get; }
 
         protected QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
 
@@ -54,7 +54,7 @@ namespace InventoryService.Actors
         public NotificationsActor()
         {
 
-            Subscribers = new List<Tuple<Guid, IActorRef>>();
+            Subscribers = new List<Tuple<string, IActorRef>>();
             LastReceivedServerMessage = "System started at " + DateTime.UtcNow;
             LastReceivedInventoryListMessage = new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
             Logger.Debug(LastReceivedServerMessage);
@@ -100,53 +100,63 @@ namespace InventoryService.Actors
             });
             Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(Seconds), Self, new GetMetricsMessage(), Self);
 
-            Receive<ActorAliveMessage>(message =>
-            {
-                Logger.Debug(message.SubscriptionId + " from " + Sender.Path + " says it is still alive");
-                ActorAliveList = ActorAliveList ?? new HashSet<Guid>();
-                var sub = Subscribers.FirstOrDefault(x => x.Item1 == message.SubscriptionId);
-                if (sub != null)
-                {
-                    ActorAliveList.Add(message.SubscriptionId);
-                    sub.Item2.Tell(new ActorAliveReceivedMessage());
-                }
+            /*
+             TODO REMOVING THESE COZ USING INFRASTR..
+                      Receive<ActorAliveMessage>(message =>
+                     {
+                         Logger.Debug(message.SubscriptionId + " from " + Sender.Path + " says it is still alive");
+                         ActorAliveList = ActorAliveList ?? new HashSet<string>();
+                         var sub = Subscribers.FirstOrDefault(x => x.Item1 == message.SubscriptionId);
+                         if (sub != null)
+                         {
+                             ActorAliveList.Add(message.SubscriptionId);
+                             sub.Item2.Tell(new ActorAliveReceivedMessage());
+                         }
+                     });
+
+                     Receive<PurgeInvalidSubscribers>(message =>
+                     {
+                         ActorAliveList = ActorAliveList ?? new HashSet<string>();
+                         foreach (var subscriber in Subscribers)
+                         {
+                             if (!ActorAliveList.Contains(subscriber.Item1))
+                             {
+                                 Logger.Error("Removing subscriber " + subscriber.Item1 + " because no ActorAliveMessage was received over time ....");
+                                 Self.Tell(new UnSubScribeToNotificationMessage(subscriber.Item1));
+                                 subscriber.Item2.Tell(new UnSubscribedNotificationMessage(subscriber.Item1));
+                             }
+                             else
+                             {
+                                 Logger.Debug("Subscriber " + subscriber.Item1 + " is still connected!!");
+                             }
+                         }
+                         ActorAliveList = new HashSet<string>();
+                     });
+
+                     Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), Self, new PurgeInvalidSubscribers(), Self);
+                      */
+            Receive<Terminated>(t => {
+                Logger.Error("Removing subscriber " + Sender.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
+                Self.Tell(new UnSubScribeToNotificationMessage(Sender.Path.ToStringWithUid()));
             });
 
-            Receive<PurgeInvalidSubscribers>(message =>
-            {
-                ActorAliveList = ActorAliveList ?? new HashSet<Guid>();
-                foreach (var subscriber in Subscribers)
-                {
-                    if (!ActorAliveList.Contains(subscriber.Item1))
-                    {
-                        Logger.Error("Removing subscriber " + subscriber.Item1 + " because no ActorAliveMessage was received over time ....");
-                        Self.Tell(new UnSubScribeToNotificationMessage(subscriber.Item1));
-                        subscriber.Item2.Tell(new UnSubscribedNotificationMessage(subscriber.Item1));
-                    }
-                    else
-                    {
-                        Logger.Debug("Subscriber " + subscriber.Item1 + " is still connected!!");
-                    }
-                }
-                ActorAliveList = new HashSet<Guid>();
-            });
-
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), Self, new PurgeInvalidSubscribers(), Self);
 
             Receive<SubScribeToNotificationMessage>(message =>
             {
-                var subscriber = Sender;
+              
                 if (Sender.IsNobody())
                 {
                     Logger.Error("No subscriber specified or subscriber is nobody");
                 }
                 else
                 {
-                    var id = Guid.NewGuid();
-                    Subscribers.Add(new Tuple<Guid, IActorRef>(id, subscriber));
+                    var id = Sender.Path.ToStringWithUid();
+                    Subscribers.Add(new Tuple<string, IActorRef>(id, Sender));
+                    ActorAliveList = ActorAliveList ?? new HashSet<string>();
                     ActorAliveList.Add(id);
+                    Context.Watch(Sender);
                     Sender.Tell(new SubScribeToNotificationCompletedMessage(id));
-                    Logger.Debug("Successfully subscribed . Subscription id : " + id + " and subscriber is : " + subscriber.Path);
+                    Logger.Debug("Successfully subscribed . Subscription id : " + id + " and subscriber is : " + Sender.Path);
                 }
             });
             Receive<UnSubScribeToNotificationMessage>(message =>
@@ -170,6 +180,8 @@ namespace InventoryService.Actors
                 Sender.Tell(new CheckIfNotificationSubscriptionExistsCompletedMessage(subscriptionExists));
             });
         }
+
+      
 
         protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
         {
