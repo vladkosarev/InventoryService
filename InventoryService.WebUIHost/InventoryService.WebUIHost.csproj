@@ -121,6 +121,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RequestInstructionIntoRemoteServermessage.cs" />
     <Compile Include="SignalRNotificationsActor.cs" />
     <Compile Include="SignalRNotificationService.cs" />
     <Compile Include="InventoryServiceHub.cs" />

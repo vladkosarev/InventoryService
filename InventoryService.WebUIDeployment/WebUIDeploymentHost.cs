@@ -33,8 +33,9 @@ namespace InventoryService.WebUIDeployment
             try
             {
                 ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName, actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
-                var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
-                var signalRNotificationsActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRNotificationsActor(inventoryActorAddress)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(SignalRNotificationsActor).Name);
+                var inventoryNotificationActorAddress = ConfigurationManager.AppSettings["RemoteInventoryNotificationsActorAddress"];
+                var RemoteInventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
+                var signalRNotificationsActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRNotificationsActor(inventoryNotificationActorAddress, RemoteInventoryActorAddress)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(SignalRNotificationsActor).Name);
 
                 const string message = "signalRNotificationsActor created !!!!";
                 Log.Debug(message);

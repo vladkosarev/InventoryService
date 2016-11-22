@@ -3,7 +3,10 @@ using Akka.Event;
 using InventoryService.Messages;
 using InventoryService.Messages.NotificationSubscriptionMessages;
 using InventoryService.Messages.Request;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InventoryService.WebUIHost
@@ -12,12 +15,80 @@ namespace InventoryService.WebUIHost
     {
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private SignalRNotificationService SignalRNotificationService { set; get; }
-
+        private readonly List<Type> _requestmessageTypes;
         private string SubscriptionId { set; get; }
 
-        public SignalRNotificationsActor(string inventoryActorAddress)
+        public SignalRNotificationsActor(string inventoryActorAddress, string remoteInventoryActorAddress)
         {
+            var type = typeof(IRequestMessage);
+            _requestmessageTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => 
+                type.IsAssignableFrom(p) && 
+                p.Name!=nameof(IRequestMessage) &&
+                p.Name != nameof(GetInventoryMessage) &&
+                p.Name != nameof(ResetInventoryQuantityReserveAndHoldMessage)
+                 ).ToList();
+
             SignalRNotificationService = new SignalRNotificationService();
+
+            Receive<RequestInstructionIntoRemoteServermessage>( message =>
+            {
+                object messageToSend = null;
+                try
+                {
+                    if (message.Message != null)
+                        messageToSend = message.Message;
+                    else if (!string.IsNullOrEmpty(message.OperationName))
+                    {
+                        var messageType = _requestmessageTypes.FirstOrDefault(x => x.Name == message.OperationName);
+                        if (messageType != null)
+                        {
+                            messageToSend = Activator.CreateInstance(messageType, message.ProductId, message.Quantity);
+                        }
+                    }
+                    else
+                    {
+                        SignalRNotificationService.SendJsonResultNotification("Can't send message to remote actor - Unknown message" + JsonConvert.SerializeObject(message.Message));
+                    }
+
+                    if (!(messageToSend is IRequestMessage))
+                    {
+                        SignalRNotificationService.SendJsonResultNotification("Can't send message to remote actor -  Unknown message " + JsonConvert.SerializeObject(message.Message));
+                    }
+                }
+                catch (Exception e)
+                {
+                    SignalRNotificationService.SendJsonResultNotification("Can't send message to remote actor - " + JsonConvert.SerializeObject(e));
+                }
+                if ((messageToSend is IRequestMessage))
+                {
+                    try
+                    {
+                        var actorRef = Context.ActorSelection(remoteInventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(10)).Result;
+                        Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromMilliseconds(1000), Self, new GetAllInventoryListMessage(), Self);
+                        for (var i = 0; i < message.NumberOfTimes; i++)
+                        {
+                          
+                            actorRef.Tell(messageToSend);
+                            if(i%1000==0)
+                            Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromMilliseconds(i), Self, new GetAllInventoryListMessage(), Self);
+                        }
+                      
+                    }
+                    catch (Exception e)
+                    {
+                        SignalRNotificationService.SendJsonResultNotification("Can't send message to remote actor - " + JsonConvert.SerializeObject(e));
+                    }
+
+                }
+               
+            });
+
+            Receive<IInventoryServiceCompletedMessage>(message =>
+            {
+                SignalRNotificationService.SendJsonResultNotification(message.GetType().Name + " - " + JsonConvert.SerializeObject(message));
+            });
 
             Receive<GetMetricsCompletedMessage>(message =>
             {
@@ -29,7 +100,7 @@ namespace InventoryService.WebUIHost
             Receive<QueryInventoryListCompletedMessage>(message =>
             {
                 Console.WriteLine(Sender.Path);
-                SignalRNotificationService.SendInventoryList(message);
+                SignalRNotificationService.SendInventoryList(message, _requestmessageTypes.Select(x => x.Name).ToList());
                 Logger.Debug("total inventories in inventory service : " + message?.RealTimeInventories?.Count);
             });
 
@@ -58,10 +129,12 @@ namespace InventoryService.WebUIHost
                     Self.Tell(new SubscribeToNotifications());
                 }
             });
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1), Self, new GetAllInventoryListMessage(), Self);
 
             ReceiveAsync<UnSubscribedNotificationMessage>(async _ =>
             {
                 Logger.Error("Suddenly unsubscribed to notification. ");
+              
                 NotificationsActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
             });
             ReceiveAsync<SubscribeToNotifications>(async _ =>
@@ -73,51 +146,25 @@ namespace InventoryService.WebUIHost
             {
                 SubscriptionId = message.SubscriptionId;
                 Context.Watch(NotificationsActorRef);
+               Self.Tell(new GetAllInventoryListMessage());
             });
-
-
-            //Receive<MonitorHealthMessage>(message =>
-            //{
-            //    Context.System.ActorSelection(inventoryActorAddress).Tell(new CheckIfNotificationSubscriptionExistsMessage(SubscriptionId));  
-            //});
-         
-            //ReceiveAsync<CheckIfNotificationSubscriptionExistsCompletedMessage>(async message =>
-            //{
-            //    if (!message.IsSubscribed)
-            //    {
-            //        Logger.Error("Notification subscription is no longer valid. Trying to subscribe again ....");
-            //        await   SubscribeToRemoteNotificationActorMessasges(inventoryActorAddress);
-            //    }
-            //    else
-            //    {
-            //        Logger.Debug("Notification subscription is still valid");
-            //    }
-            //});
-
-
-
+            
             Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(1), Self, new SubscribeToNotifications(), Self);
 
-            //Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30), Self,new MonitorHealthMessage(), Self);
-
-            //Receive<ActorAliveReceivedMessage>(message => SendKeepAlive(inventoryActorAddress));
-            Receive<Terminated>( t => {
-                Logger.Error("Suddenly unsubscribed from notification at " + t.ActorRef .Path+ ". trying to subscribe again ");
+            Receive<Terminated>(t =>
+            {
+                Logger.Error("Suddenly unsubscribed from notification at " + t.ActorRef.Path + ". trying to subscribe again ");
                 Self.Tell(new SubscribeToNotifications());
             });
         }
 
-        //private void SendKeepAlive(string inventoryActorAddress)
-        //{
-        //    Logger.Debug("Sending keep alive to " + inventoryActorAddress);
-        //    Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(10), NotificationsActorRef, new ActorAliveMessage(SubscriptionId), Self);
-        //}
+   
 
         public IActorRef NotificationsActorRef { get; set; }
 
         private async Task<IActorRef> SubscribeToRemoteNotificationActorMessasges(string inventoryActorAddress)
         {
-            var notificationsActor = Context.System.ActorSelection(inventoryActorAddress);
+            var notificationsActor = Context.ActorSelection(inventoryActorAddress);
             Logger.Debug("Trying to reach remote actor at  " + inventoryActorAddress + " ....");
             var isReachable = false;
             var retryMax = 10;
@@ -128,7 +175,7 @@ namespace InventoryService.WebUIHost
                 try
                 {
                     notificationsActorRef = await notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
-                 
+
                     isReachable = true;
                     Logger.Debug("Successfully reached " + inventoryActorAddress + " ....");
                 }

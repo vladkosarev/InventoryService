@@ -72,6 +72,16 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
     var messageCount = 0;
+
+    $scope.performOperation = function (operationName,id, quantity,messageQty) {
+        hub.server.performOperation(operationName, id, quantity, messageQty);
+    };
+
+    $scope.messageQuantity = 1;
+    $scope.current = {};
+    $scope . setCurrent = function(inv) {
+        $scope.current = inv;
+    };
     $scope.model = {};
     $scope.model.logMessages = true;
     var storage = function(a,b) {
@@ -100,6 +110,17 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     var lastResponse = {};
     var lastResponseDict = {};
     $scope.realTimeInventories = [];
+
+    var line1 = new TimeSeries();
+    var smoothie = new SmoothieChart({ grid: {
+        strokeStyle: 'rgb(125, 0, 0)',
+        fillStyle: 'rgb(60, 0, 0)',
+        lineWidth: 1,
+        millisPerLine: 250,
+        verticalSections: 6
+    } });
+    smoothie.addTimeSeries(line1);
+   smoothie.streamTo(document.getElementById("mycanvas"), 1000 /*delay*/); 
     $scope. updateGrid = function () {
         $scope.newUpdateAvailable = 0;
 
@@ -129,7 +150,14 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     $scope.sortReverse = false;  // set the default sort order
     $scope.searchFish = '';     // set the default search/filter term
     $scope.newUpdateAvailable = 0;
+
+    $scope.operationNames = [];
+
+    hub.client("operationNames", function(operationNames) {
+        $scope.operationNames = operationNames;
+    });
     hub.client("inventoryData", function (response) {
+        hasLoaded = false;
         for (var i = 0; i < response.RealTimeInventories.length; i++) {
             var newInventory = response.RealTimeInventories[i];
             var productId = newInventory.ProductId;
@@ -144,17 +172,26 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
             lastResponseDict[productId] = newInventory;
         }
         lastResponse = response;
-        if ($scope.model.realtime || !hasLoaded) {
-             $timeout(function() {
-                 $scope.updateGrid();
-                 hasLoaded = true;
-             });
+        hasLoaded = true;
+        if ($scope.model.realtime ) {
+            $timeout(function () {
+                if (hasLoaded) {
+                   $scope.updateGrid();
+                   hasLoaded = true;
+                }
+             },10);
         }
     });
 
     $scope.serverNotificationMessages = "";
+    $scope.jsonNotificationMessages = "";
     $scope.messageSpeed = "";
     $scope.model.incomingMessages = [];
+
+    hub.client("jsonNotificationMessages",
+       function (response) {
+           $scope.jsonNotificationMessages = response;
+       });
 
     hub.client("serverNotificationMessages",
         function(response) {
@@ -165,6 +202,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         function(response) {
             var speed = parseInt(response, 10);
             $scope.messageSpeed = speed;
+            line1.append(new Date().getTime(), speed);
             if ($scope.peekMessageCount < speed) {
                 $scope.peekMessageCount = speed;
             }
