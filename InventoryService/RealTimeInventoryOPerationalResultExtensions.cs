@@ -46,9 +46,9 @@ namespace InventoryService
                 realTimeInventory = result.Data as RealTimeInventory;
                 response = successResponseCompletedMessage(realTimeInventory);
                 logger?.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport() + " - The sender of the message is " + sender.Path);
-                notificationActorRef?.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { realTimeInventory }));
             }
 
+            notificationActorRef?.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { realTimeInventory }));
             sender?.Tell(response);
        
             return new RealTimeInventoryFinalResult(realTimeInventory as RealTimeInventory, response, result);
