@@ -16,10 +16,11 @@ namespace InventoryService.Actors
         private RealTimeInventory RealTimeInventory { set; get; }
         private readonly bool _withCache;
         private IInventoryStorage InventoryStorage { set; get; }
-        public readonly ILoggingAdapter Logger = Context.GetLogger();
+        public readonly ILoggingAdapter Logger = null;// Context.GetLogger();
         public IActorRef NotificationActorRef { get; set; }
-        public ProductInventoryActor(IInventoryStorage inventoryStorage,IActorRef notificationsActorRef, string id, bool withCache)
+        public ProductInventoryActor(IInventoryStorage inventoryStorage, IActorRef notificationsActorRef, string id, bool withCache, IPerformanceService performanceService)
         {
+            PerformanceService = performanceService;
             _id = id;
             _withCache = withCache;
             InventoryStorage = inventoryStorage;
@@ -36,11 +37,11 @@ namespace InventoryService.Actors
                 if (_withCache == false)
                 {
                     var result = await RealTimeInventory.ReadInventoryFromStorageAsync(InventoryStorage, message.ProductId);
-                    RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                    RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
                 }
                 else
                 {
-                    RealTimeInventory = RealTimeInventory.ToSuccessOperationResult().ProcessAndSendResult(message, (rti) => new GetInventoryCompletedMessage(rti, true), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                    RealTimeInventory = RealTimeInventory.ToSuccessOperationResult().ProcessAndSendResult(message, (rti) => new GetInventoryCompletedMessage(rti, true), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
                 }
             });
 
@@ -51,7 +52,8 @@ namespace InventoryService.Actors
                     return;
                 }
                 var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
-                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
+                PerformanceService.Increment("Done reserving");
             });
 
             ReceiveAsync<UpdateQuantityMessage>(async message =>
@@ -61,7 +63,7 @@ namespace InventoryService.Actors
                     return;
                 }
                 var result = await RealTimeInventory.UpdateQuantityAsync(InventoryStorage, message.ProductId, message.Update);
-                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
             });
 
             ReceiveAsync<UpdateAndHoldQuantityMessage>(async message =>
@@ -71,7 +73,7 @@ namespace InventoryService.Actors
                     return;
                 }
                 var updateandHoldResultesult = await RealTimeInventory.UpdateQuantityAndHoldAsync(InventoryStorage, message.ProductId, message.Update);
-                RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
             });
 
             ReceiveAsync<PlaceHoldMessage>(async message =>
@@ -81,7 +83,7 @@ namespace InventoryService.Actors
                     return;
                 }
                 var result = await RealTimeInventory.PlaceHoldAsync(InventoryStorage, message.ProductId, message.Update);
-                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
             });
 
             ReceiveAsync<PurchaseMessage>(async message =>
@@ -91,7 +93,7 @@ namespace InventoryService.Actors
                     return;
                 }
                 var result = await RealTimeInventory.PurchaseAsync(InventoryStorage, message.ProductId, message.Update);
-                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
             });
 
             ReceiveAsync<PurchaseFromHoldsMessage>(async message =>
@@ -101,7 +103,7 @@ namespace InventoryService.Actors
                     return;
                 }
                 var result = await RealTimeInventory.PurchaseFromHoldsAsync(InventoryStorage, message.ProductId, message.Update).ConfigureAwait(false);
-                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
             });
 
             ReceiveAsync<FlushStreamsMessage>(async message =>
@@ -117,13 +119,15 @@ namespace InventoryService.Actors
                     return;
                 }
                 var updateandHoldResultesult = await RealTimeInventory.ResetInventoryQuantityReserveAndHoldAsync(InventoryStorage, message.ProductId, message.Update, message.Reservations, message.Holds);
-                RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef).RealTimeInventory;
+                RealTimeInventory = updateandHoldResultesult.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
             });
 
 #if DEBUG
 //            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Nobody.Instance, RealTimeInventory, Self);
 #endif
         }
+
+        public IPerformanceService PerformanceService { get; set; }
 
         private bool CanProcessMessage(string productId,IRequestMessage message)
         {
@@ -138,7 +142,7 @@ namespace InventoryService.Actors
                 {
                     ErrorMessage = errorMessage
                 }
-            }.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message,false), Logger,RealTimeInventory, Sender, NotificationActorRef);
+            }.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message,false), Logger,RealTimeInventory, Sender, NotificationActorRef, PerformanceService);
             NotificationActorRef.Tell(errorMessage);
             return false;
         }

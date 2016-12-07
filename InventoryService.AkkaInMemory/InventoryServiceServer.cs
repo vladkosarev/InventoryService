@@ -80,7 +80,9 @@ namespace InventoryService.AkkaInMemoryServer
 
         public async Task<IInventoryServiceCompletedMessage> PerformOperation(IRequestMessage request, Task<OperationResult<IRealTimeInventory>> response, IRealTimeInventory originalInventory)
         {
-            return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetResponseCompletedMessage(request), originalInventory,null).InventoryServiceCompletedMessage;
+            var perf=new ConsolePerformanceService();
+            perf.Init();
+            return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetResponseCompletedMessage(request), originalInventory,null, perf).InventoryServiceCompletedMessage;
         }
 
         public async Task<IInventoryServiceCompletedMessage> UpdateQuantityAsync(RealTimeInventory product, int quantity)

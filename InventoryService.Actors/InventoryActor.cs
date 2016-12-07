@@ -24,11 +24,15 @@ namespace InventoryService.Actors
 
         public InventoryActor(IInventoryStorage inventoryStorage, bool withCache = true)
         {
+           PerformanceService=  new ConsolePerformanceService();
+            PerformanceService.Init();
             Logger.Debug("Starting Inventory Actor ....");
             InventoryStorage = inventoryStorage;
             _withCache = withCache;
             Become(Initializing);
         }
+
+        public ConsolePerformanceService PerformanceService { get; set; }
 
         private void Initializing()
         {
@@ -44,7 +48,7 @@ namespace InventoryService.Actors
                     foreach (var s in inventoryIdsResult.Result)
                     {
                         Logger.Debug("Initializing asking " + s + " for its inventory ....");
-                        var invActorRef = GetActorRef(InventoryStorage, s);
+                        var invActorRef = GetActorRef(InventoryStorage, s,PerformanceService);
                         invActorRef.Tell(new GetInventoryMessage(s));
                     }
                 }
@@ -99,20 +103,26 @@ namespace InventoryService.Actors
 
             Receive<IRequestMessage>(message =>
             {
+                PerformanceService.Increment("Incoming Message");
                 Logger.Debug(message.GetType().Name + " received for " + message.ProductId + " for update " + message.Update);
-                var actorRef = GetActorRef(InventoryStorage, message.ProductId);
+                var actorRef = GetActorRef(InventoryStorage, message.ProductId, PerformanceService);
                 actorRef.Forward(message);
             });
+            Receive<GetMetrics>(_ =>
+            {
+                PerformanceService.PrintMetrics();
+            });
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self,new GetMetrics(),Nobody.Instance);
          }
 
-        private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId)
+        private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId, IPerformanceService performanceService)
         {
             if (_products.ContainsKey(productId)) return _products[productId];
 
             Logger.Debug("Creating inventory actor " + productId + " since it does not yet exist ...");
             var productActorRef = Context.ActorOf(
                 Props.Create(() =>
-                    new ProductInventoryActor(inventoryStorage, NotificationActorRef, productId, _withCache))
+                    new ProductInventoryActor(inventoryStorage, NotificationActorRef, productId, _withCache, performanceService))
                 , productId);
 
             _products.Add(productId, productActorRef);
@@ -130,5 +140,9 @@ namespace InventoryService.Actors
                     return Directive.Restart;
                 });
         }
+    }
+
+    internal class GetMetrics
+    {
     }
 }

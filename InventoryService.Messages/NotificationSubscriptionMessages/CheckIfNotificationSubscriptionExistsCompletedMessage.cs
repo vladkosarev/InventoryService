@@ -9,4 +9,16 @@
 
         public bool IsSubscribed { get; private set; }
     }
+
+    //public class GetAllInventoryListFromServerCompletedMessage
+    //{
+    //}
+
+    //public class GetAllInventoryListFromServerMessage
+    //{
+    //}
+
+    public class SendNotificationToClientMessage
+    {
+    }
 }

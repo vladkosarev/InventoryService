@@ -16,47 +16,20 @@ namespace InventoryService.Actors
         protected List<Tuple<string, IActorRef>> Subscribers { set; get; }
         protected HashSet<string> ActorAliveList { set; get; }
 
-        protected QueryInventoryListCompletedMessage LastReceivedInventoryListMessage { set; get; }
-
-        public QueryInventoryListCompletedMessage CalculateInventoryListChangesAndUpdateCurrentTotal(
-            QueryInventoryListCompletedMessage oldList, QueryInventoryListCompletedMessage newList)
-        {
-            oldList = oldList ?? new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
-            newList = newList ?? new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
-
-            var result = new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
-            foreach (var newItem in newList.RealTimeInventories)
-            {
-                if (!oldList.RealTimeInventories.Exists(x => x.ProductId == newItem.ProductId))
-                {
-                    result.RealTimeInventories.Add(newItem);
-                    oldList.RealTimeInventories.Add(newItem);
-                }
-                else
-                {
-                    for (var i = 0; i < oldList.RealTimeInventories.Count; i++)
-                    {
-                        var oldItem = oldList.RealTimeInventories[i];
-                        if ((oldItem.ProductId != newItem.ProductId) || (oldItem.Quantity == newItem.Quantity && oldItem.Reserved == newItem.Reserved && oldItem.Holds == newItem.Holds)) continue;
-                        result.RealTimeInventories.Add(newItem);
-                        oldList.RealTimeInventories[i] = newItem;
-                    }
-                }
-
-            }
-
-            return result;
-        }
+        protected Dictionary<string, IRealTimeInventory> RealTimeInventories { set; get; }
 
         protected string LastReceivedServerMessage { set; get; }
         protected double MessageCount = 0;
+        protected double MessageSpeed = 0;
+        protected double PeakMessageSpeed = 0;
+        public double MessageSampleRate = 1;
 
         public NotificationsActor()
         {
-
+            var lastUpadteTime = DateTime.UtcNow;
             Subscribers = new List<Tuple<string, IActorRef>>();
             LastReceivedServerMessage = "System started at " + DateTime.UtcNow;
-            LastReceivedInventoryListMessage = new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>());
+            RealTimeInventories = new Dictionary<string, IRealTimeInventory>();
             Logger.Debug(LastReceivedServerMessage);
             Receive<string>(message =>
             {
@@ -66,40 +39,38 @@ namespace InventoryService.Actors
             });
             Receive<QueryInventoryListMessage>(message =>
             {
-                NotifySubscribersAndRemoveStaleSubscribers(LastReceivedInventoryListMessage);
+                NotifySubscribersAndRemoveStaleSubscribers(RealTimeInventories);
             });
-            Receive<QueryInventoryListCompletedMessage>(message =>
+            Receive<RealTimeInventoryChangeMessage>(message =>
             {
-                var changeSetOfLastReceivedInventoryListMessage = CalculateInventoryListChangesAndUpdateCurrentTotal(LastReceivedInventoryListMessage, message);
-                
-                if (changeSetOfLastReceivedInventoryListMessage.RealTimeInventories != null &&
-                    changeSetOfLastReceivedInventoryListMessage.RealTimeInventories.Count > 0)
-                {
-                    NotifySubscribersAndRemoveStaleSubscribers(changeSetOfLastReceivedInventoryListMessage);
-                }
-
-                Logger.Debug("total inventories in inventory service : " + message?.RealTimeInventories?.Count);
+                RealTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
+                NotifySubscribersAndRemoveStaleSubscribers(message);
+                Logger.Debug("total inventories in inventory service : " +RealTimeInventories.Count);
             });
-            Receive<GetMetricsMessage>(message =>
-            {
-                NotifySubscribersAndRemoveStaleSubscribers(new GetMetricsCompletedMessage(MessageCount / Seconds));
-
-                MessageCount = 0;
-            });
+           
 
             Receive<GetAllInventoryListMessage>(message =>
             {
-                NotifySubscribersAndRemoveStaleSubscribers(LastReceivedInventoryListMessage);
+               Sender.Tell(new QueryInventoryCompletedMessage(RealTimeInventories.Select(x => x.Value).ToList(), 0, 0));
             });
 
             Receive<IRequestMessage>(message =>
             {
-                MessageCount++;
                 NotifySubscribersAndRemoveStaleSubscribers(message);
-                Logger.Debug("received by inventory Actor - " + message.GetType().Name + " - " + message);
-            });
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(Seconds), Self, new GetMetricsMessage(), Self);
 
+                Logger.Debug("received by inventory Actor - " + message.GetType().Name + " - " + message);
+
+                MessageCount++;
+                var secondsPast = (int)(DateTime.UtcNow - lastUpadteTime).TotalSeconds;
+
+                if (secondsPast <= 1) return;
+
+                MessageSpeed = MessageCount / secondsPast;
+                PeakMessageSpeed = (PeakMessageSpeed > MessageSpeed) ? PeakMessageSpeed : MessageSpeed;
+                lastUpadteTime = DateTime.UtcNow;
+                MessageCount = 0;
+            });
+        
             /*
              TODO REMOVING THESE COZ USING INFRASTR..
                       Receive<ActorAliveMessage>(message =>
@@ -183,6 +154,7 @@ namespace InventoryService.Actors
 
       
 
+
         protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
         {
             foreach (var subscriber in Subscribers)
@@ -206,7 +178,7 @@ namespace InventoryService.Actors
             }
         }
 
-        public int Seconds = 2;
+       
     }
 
     public class PurgeInvalidSubscribers

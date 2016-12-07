@@ -6,7 +6,7 @@ namespace InventoryService.WebUIHost
 {
     public class SignalRNotificationService
     {
-        public void SendInventoryList(QueryInventoryListCompletedMessage inventoryListCompletedMessage,List<string> operationNames)
+        public void SendInventoryList(QueryInventoryCompletedMessage inventoryListCompletedMessage,List<string> operationNames)
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(inventoryListCompletedMessage);
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.operationNames(operationNames);

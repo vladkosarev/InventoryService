@@ -58,11 +58,9 @@ namespace InventoryService
             if ((reservationQuantity > 0) && (newReserved > realTimeInventory.Quantity - realTimeInventory.Holds))
                 return InventoryServiceErrorMessageGenerator.Generate(ErrorType.RESERVATION_EXCEED_QUANTITY, realTimeInventory, reservationQuantity).ToFailedOperationResult(realTimeInventory, productId);
 
-            var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved,
-                realTimeInventory.Holds);
-            var result =
-                await
-                    inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
+            var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved,realTimeInventory.Holds);
+
+            var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
             if (!result.IsSuccessful)
                 return InventoryServiceErrorMessageGenerator.Generate(ErrorType.UNABLE_TO_UPDATE_INVENTORY_STORAGE, realTimeInventory, reservationQuantity, result.Errors).ToFailedOperationResult(realTimeInventory, productId);

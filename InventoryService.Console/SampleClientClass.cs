@@ -17,10 +17,9 @@ namespace InventoryService.Console
             const int initialQuantity = 1;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
-            products.Add(new Tuple<string, int, int>("ticketsections-216", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-217", initialQuantity, 0));
-            for (var i = 0; i < 100; i++)
-            {   products.Add(new Tuple<string, int, int>("ticketsections-1"+i, initialQuantity, 0));
+            
+            for (var i = 0; i < 1000; i++)
+            {   products.Add(new Tuple<string, int, int>("ticketsections-"+i, initialQuantity, 0));
             }
          
             //products.Add(new Tuple<string, int, int>("ticketsections-2", initialQuantity, 0));
@@ -74,15 +73,19 @@ namespace InventoryService.Console
                 // m.TODO /* USE PROPER ASYNC AWAIT HERE */
                 //  var n=  m.Result;
                 var counter = 0;
-                var totalIteration = 100;
+                var totalIteration = 1000;
+                var ticketSectionNumber = new Random();
+                await Task.Delay(4000);
+               await  inventoryActor.Ask(new UpdateQuantityMessage("ticketsections-" + ticketSectionNumber.Next(216, 216), 10000000));
                 products.ForEach(p =>
                 {
                     for (var i = 0; i < totalIteration; i++)
                     {
                         try
                         {
-                          System.Threading.Thread.Sleep(100);
-                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Tell(new ReserveMessage("ticketsections-" + ticketSectionNumber.Next(216,216), i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+
+                           // inventoryActor.Tell(new ReserveMessage("ticketsections-" + ticketSectionNumber.Next(1,999), i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
                             //inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */

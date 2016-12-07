@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IPerformanceService.cs" />
     <Compile Include="OperationResult.cs" />
     <Compile Include="ProductInventoryOperations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

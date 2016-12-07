@@ -2,10 +2,9 @@
 using Akka.Event;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
+using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using System;
-using System.Collections.Generic;
-using InventoryService.Messages.Request;
 
 namespace InventoryService
 {
@@ -16,28 +15,20 @@ namespace InventoryService
             , IRequestMessage requestMessage
             , Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage
             , IRealTimeInventory realTimeInventory
-            , IActorRef notificationActorRef)
+            , IActorRef notificationActorRef, IPerformanceService performanceService)
         {
-            return result.ProcessAndSendResult(requestMessage, successResponseCompletedMessage, null, realTimeInventory, null, notificationActorRef);
+            return result.ProcessAndSendResult(requestMessage, successResponseCompletedMessage, null, realTimeInventory, null, notificationActorRef, performanceService);
         }
 
-        public static RealTimeInventoryFinalResult ProcessAndSendResult(
-            this OperationResult<IRealTimeInventory> result
-            , IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage
-            , ILoggingAdapter logger
-            , IRealTimeInventory realTimeInventory
-            , IActorRef sender
-            , IActorRef notificationActorRef)
+        public static RealTimeInventoryFinalResult ProcessAndSendResult(this OperationResult<IRealTimeInventory> result, IRequestMessage requestMessage, Func<IRealTimeInventory, IInventoryServiceCompletedMessage> successResponseCompletedMessage, ILoggingAdapter logger, IRealTimeInventory realTimeInventory, IActorRef sender, IActorRef notificationActorRef, IPerformanceService performanceService)
         {
-
             logger?.Info(requestMessage.GetType().Name + " Request was " + (!result.IsSuccessful ? " NOT " : "") + " successful.  Current Inventory :  " + realTimeInventory.GetCurrentQuantitiesReport());
 
             IInventoryServiceCompletedMessage response;
-            notificationActorRef?.Tell(requestMessage);
             if (!result.IsSuccessful)
             {
                 response = result.ToInventoryOperationErrorMessage(requestMessage.ProductId);
-                var message = "Error while trying to " + requestMessage.GetType() + " - The sender of the message is " +sender?.Path + result.Exception.ErrorMessage;
+                var message = "Error while trying to " + requestMessage.GetType() + " - The sender of the message is " + sender?.Path + result.Exception.ErrorMessage;
                 notificationActorRef?.Tell(message);
                 logger?.Error(message, requestMessage, result, realTimeInventory.GetCurrentQuantitiesReport());
             }
@@ -47,10 +38,9 @@ namespace InventoryService
                 response = successResponseCompletedMessage(realTimeInventory);
                 logger?.Info(response.GetType().Name + " Response was sent back. Current Inventory : " + realTimeInventory.GetCurrentQuantitiesReport() + " - The sender of the message is " + sender.Path);
             }
-
-            notificationActorRef?.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { realTimeInventory }));
             sender?.Tell(response);
-       
+            notificationActorRef?.Tell(new RealTimeInventoryChangeMessage(realTimeInventory));
+            performanceService.Increment("Completed processing");
             return new RealTimeInventoryFinalResult(realTimeInventory as RealTimeInventory, response, result);
         }
 

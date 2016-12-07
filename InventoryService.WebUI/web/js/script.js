@@ -157,7 +157,12 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         $scope.operationNames = operationNames;
     });
     hub.client("inventoryData", function (response) {
+        if (!response) return;
+         console.log("PeakMessageSpeed: " + response.PeakMessageSpeed + "m/s   Speed: " + response.Speed+"m/s");
         hasLoaded = false;
+        if (response.RealTimeInventories&& response.RealTimeInventories.length>1) {
+            console.log("Got inventory " );
+        }
         for (var i = 0; i < response.RealTimeInventories.length; i++) {
             var newInventory = response.RealTimeInventories[i];
             var productId = newInventory.ProductId;
