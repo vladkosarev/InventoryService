@@ -1,14 +1,13 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using InventoryService.ActorMailBoxes;
 using InventoryService.Messages;
-using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using InventoryService.ActorMailBoxes;
 
 namespace InventoryService.Actors
 {
@@ -22,9 +21,9 @@ namespace InventoryService.Actors
         public IActorRef NotificationActorRef { get; set; }
         public IActorRef InventoryServicePingActor { set; get; }
 
-        public InventoryActor(IInventoryStorage inventoryStorage,IPerformanceService performanceService, bool withCache = true)
+        public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
         {
-           PerformanceService=  performanceService;
+            PerformanceService = performanceService;
             PerformanceService.Init();
             Logger.Debug("Starting Inventory Actor ....");
             InventoryStorage = inventoryStorage;
@@ -48,7 +47,7 @@ namespace InventoryService.Actors
                     foreach (var s in inventoryIdsResult.Result)
                     {
                         Logger.Debug("Initializing asking " + s + " for its inventory ....");
-                        var invActorRef = GetActorRef(InventoryStorage, s,PerformanceService);
+                        var invActorRef = GetActorRef(InventoryStorage, s, PerformanceService);
                         invActorRef.Tell(new GetInventoryMessage(s));
                     }
                 }
@@ -57,7 +56,6 @@ namespace InventoryService.Actors
                     var errorMsg = "Failed to read inventories from storage " + InventoryStorage.GetType().FullName + " - " + inventoryIdsResult.Errors.Flatten().Message;
                     Logger.Error("Inventory Actor Initialization Failed " + errorMsg);
                     throw new Exception(errorMsg, inventoryIdsResult.Errors.Flatten());
-
                 }
             });
         }
@@ -97,8 +95,8 @@ namespace InventoryService.Actors
             Receive<GetInventoryCompletedMessage>(message =>
             {
                 //todo remove this
-               // _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
-               // NotificationActorRef.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { message.RealTimeInventory }));
+                // _realTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
+                // NotificationActorRef.Tell(new QueryInventoryListCompletedMessage(new List<IRealTimeInventory>() { message.RealTimeInventory }));
             });
 
             Receive<IRequestMessage>(message =>
@@ -112,8 +110,8 @@ namespace InventoryService.Actors
             {
                 PerformanceService.PrintMetrics();
             });
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self,new GetMetrics(),Nobody.Instance);
-         }
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
+        }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId, IPerformanceService performanceService)
         {

@@ -1,8 +1,10 @@
 ﻿using Akka.Actor;
 using Autofac;
 using Autofac.Integration.SignalR;
+using InventoryService.ActorMailBoxes;
 using InventoryService.ActorSystemFactoryLib;
 using InventoryService.WebUIHost;
+using Microsoft.AspNet.SignalR;
 using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.StaticFiles;
@@ -11,9 +13,6 @@ using Owin;
 using System;
 using System.Configuration;
 using System.IO;
-using System.Reflection;
-using InventoryService.ActorMailBoxes;
-using Microsoft.AspNet.SignalR;
 
 namespace InventoryService.WebUIDeployment
 {
@@ -52,8 +51,8 @@ namespace InventoryService.WebUIDeployment
                        {
                            var builder = new ContainerBuilder();
                            builder.Register(c => signalRNotificationsActorRef).ExternallyOwned();
-                            // Register your SignalR hubs.
-                            builder.RegisterType<InventoryServiceHub>().ExternallyOwned();
+                           // Register your SignalR hubs.
+                           builder.RegisterType<InventoryServiceHub>().ExternallyOwned();
 
                            var container = builder.Build();
                            //var config = new HubConfiguration {Resolver = new AutofacDependencyResolver(container)};
@@ -73,8 +72,8 @@ namespace InventoryService.WebUIDeployment
                            appBuilder.UseFileServer(options);
                        }
 
-                        //  InventoryServiceSignalRContext.Push();
-                    });
+                       //  InventoryServiceSignalRContext.Push();
+                   });
                 }
 
                 Log.Debug("WebUIDeployment initialized successfully");

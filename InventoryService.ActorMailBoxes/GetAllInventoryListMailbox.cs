@@ -1,18 +1,15 @@
 ﻿using Akka.Actor;
 using Akka.Configuration;
 using Akka.Dispatch;
-using InventoryService.Messages;
-using InventoryService.Messages.NotificationSubscriptionMessages;
 
 namespace InventoryService.ActorMailBoxes
 {
     public class GetAllInventoryListMailbox : UnboundedPriorityMailbox
     {
-       
         protected override int PriorityGenerator(object message)
         {
-            //return message is GetAllInventoryListMessage 
-            //    || message is CheckIfNotificationSubscriptionExistsMessage 
+            //return message is GetAllInventoryListMessage
+            //    || message is CheckIfNotificationSubscriptionExistsMessage
             //    || message is SubScribeToNotificationMessage ? 0 : 1;
 
             return 1;

@@ -73,7 +73,6 @@
  */
 
 ; (function (exports) {
-
     var Util = {
         extend: function () {
             arguments[0] = arguments[0] || {};
@@ -754,6 +753,4 @@
 
     exports.TimeSeries = TimeSeries;
     exports.SmoothieChart = SmoothieChart;
-
 })(typeof exports === 'undefined' ? this : exports);
-

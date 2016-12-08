@@ -120,7 +120,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         verticalSections: 6
     } });
     smoothie.addTimeSeries(line1);
-   smoothie.streamTo(document.getElementById("mycanvas"), 1000 /*delay*/); 
+   smoothie.streamTo(document.getElementById("mycanvas"), 1000 /*delay*/);
     $scope. updateGrid = function () {
         $scope.newUpdateAvailable = 0;
 

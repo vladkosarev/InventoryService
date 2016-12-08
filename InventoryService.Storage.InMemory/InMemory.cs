@@ -8,7 +8,7 @@ namespace InventoryService.Storage.InMemoryLib
 {
     public class InMemory : IInventoryStorage
     {
-        private  ConcurrentDictionary<string, IRealTimeInventory> _productInventories =
+        private ConcurrentDictionary<string, IRealTimeInventory> _productInventories =
             new ConcurrentDictionary<string, IRealTimeInventory>();
 
         public Task<StorageOperationResult<IRealTimeInventory>> ReadInventoryAsync(string productId)
@@ -37,7 +37,7 @@ namespace InventoryService.Storage.InMemoryLib
 
         public Task<bool> FlushAsync()
         {
-            _productInventories=new ConcurrentDictionary<string, IRealTimeInventory>();
+            _productInventories = new ConcurrentDictionary<string, IRealTimeInventory>();
             return Task.FromResult(true);
         }
 

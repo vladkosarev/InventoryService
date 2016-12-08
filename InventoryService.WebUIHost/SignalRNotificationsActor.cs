@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Event;
 using InventoryService.Messages;
+using InventoryService.Messages.Models;
 using InventoryService.Messages.NotificationSubscriptionMessages;
 using InventoryService.Messages.Request;
 using Newtonsoft.Json;
@@ -8,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using InventoryService.Messages.Models;
 
 namespace InventoryService.WebUIHost
 {
@@ -18,13 +18,13 @@ namespace InventoryService.WebUIHost
         private SignalRNotificationService SignalRNotificationService { set; get; }
         private readonly List<Type> _requestmessageTypes;
         private string SubscriptionId { set; get; }
-       
+
         private QueryInventoryCompletedMessage CurrentInventoryCompletedMessage { set; get; }
         protected double MessageSpeed = 0;
         protected double PeakMessageSpeed = 0;
+
         public SignalRNotificationsActor(string inventoryActorAddress, string remoteInventoryActorAddress)
         {
-           
             var type = typeof(IRequestMessage);
             _requestmessageTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
@@ -36,7 +36,6 @@ namespace InventoryService.WebUIHost
                  ).ToList();
 
             SignalRNotificationService = new SignalRNotificationService();
-           
 
             Receive<RequestInstructionIntoRemoteServermessage>(message =>
            {
@@ -100,7 +99,6 @@ namespace InventoryService.WebUIHost
 
             Receive<RealTimeInventoryChangeMessage>(message =>
             {
-               
                 CurrentInventoryCompletedMessage = new QueryInventoryCompletedMessage(new List<IRealTimeInventory>() { message.RealTimeInventory }, MessageSpeed, PeakMessageSpeed);
                 //MessageCount++;
                 //var secondsPast = (int)(DateTime.UtcNow - lastUpadteTime).TotalSeconds;
@@ -120,7 +118,7 @@ namespace InventoryService.WebUIHost
                 // SignalRNotificationService.SendInventoryList(new QueryInventoryCompletedMessage(message.RealTimeInventories?? new List<IRealTimeInventory>() , MessageSpeed, PeakMessageSpeed), _requestmessageTypes.Select(x => x.Name).ToList());
                 SignalRNotificationService.SendInventoryList(message, _requestmessageTypes.Select(x => x.Name).ToList());
             });
-                
+
             Receive<SendNotificationToClientMessage>(message =>
             {
                 SignalRNotificationService.SendInventoryList(CurrentInventoryCompletedMessage, _requestmessageTypes.Select(x => x.Name).ToList());
@@ -137,7 +135,7 @@ namespace InventoryService.WebUIHost
                 SignalRNotificationService.SendServerNotification(message.ServerMessage);
                 Logger.Debug("received  - " + message.GetType().Name + " -  ServerMessage : " + message.ServerMessage);
             });
-          
+
             Receive<GetAllInventoryListMessage>(message =>
             {
                 if (NotificationsActorRef != null && !NotificationsActorRef.IsNobody())
@@ -150,7 +148,7 @@ namespace InventoryService.WebUIHost
                     Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(5), Self, new GetAllInventoryListMessage(), Self);
                 }
             });
-          //  Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1), Self, new GetAllInventoryListMessage(), Self);
+            //  Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1), Self, new GetAllInventoryListMessage(), Self);
 
             ReceiveAsync<UnSubscribedNotificationMessage>(async _ =>
             {
@@ -224,8 +222,6 @@ namespace InventoryService.WebUIHost
         {
         }
     }
-
- 
 
     public class MonitorHealthMessage
     {

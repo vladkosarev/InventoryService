@@ -6,7 +6,6 @@ using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Messages.Response;
 using InventoryService.Storage;
-using System;
 
 namespace InventoryService.Actors
 {
@@ -18,6 +17,7 @@ namespace InventoryService.Actors
         private IInventoryStorage InventoryStorage { set; get; }
         public readonly ILoggingAdapter Logger = null;// Context.GetLogger();
         public IActorRef NotificationActorRef { get; set; }
+
         public ProductInventoryActor(IInventoryStorage inventoryStorage, IActorRef notificationsActorRef, string id, bool withCache, IPerformanceService performanceService)
         {
             PerformanceService = performanceService;
@@ -28,7 +28,6 @@ namespace InventoryService.Actors
             NotificationActorRef = notificationsActorRef;
             ReceiveAsync<GetInventoryMessage>(async message =>
             {
-               
                 if (!CanProcessMessage(message.ProductId, message))
                 {
                     return;
@@ -43,7 +42,6 @@ namespace InventoryService.Actors
                 {
                     RealTimeInventory = RealTimeInventory.ToSuccessOperationResult().ProcessAndSendResult(message, (rti) => new GetInventoryCompletedMessage(rti, true), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
                 }
-
             });
 
             ReceiveAsync<ReserveMessage>(async message =>
@@ -54,7 +52,6 @@ namespace InventoryService.Actors
                 }
                 var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
                 RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
-              
             });
 
             ReceiveAsync<UpdateQuantityMessage>(async message =>
@@ -124,17 +121,17 @@ namespace InventoryService.Actors
             });
 
 #if DEBUG
-//            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Nobody.Instance, RealTimeInventory, Self);
+            //            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5), Nobody.Instance, RealTimeInventory, Self);
 #endif
         }
 
         public IPerformanceService PerformanceService { get; set; }
 
-        private bool CanProcessMessage(string productId,IRequestMessage message)
+        private bool CanProcessMessage(string productId, IRequestMessage message)
         {
             if (_id == productId) return true;
 
-            var errorMessage = "Invalid request made to " + nameof(ProductInventoryActor) + " with an id of " +productId + " but my Id is " + _id + ". Message will not be processed ";
+            var errorMessage = "Invalid request made to " + nameof(ProductInventoryActor) + " with an id of " + productId + " but my Id is " + _id + ". Message will not be processed ";
             Logger.Error(errorMessage);
             new OperationResult<IRealTimeInventory>()
             {
@@ -143,7 +140,7 @@ namespace InventoryService.Actors
                 {
                     ErrorMessage = errorMessage
                 }
-            }.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message,false), Logger,RealTimeInventory, Sender, NotificationActorRef, PerformanceService);
+            }.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message, false), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService);
             NotificationActorRef.Tell(errorMessage);
             return false;
         }

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +8,9 @@ namespace InventoryService
     public interface IPerformanceService
     {
         void Init();
+
         void PrintMetrics();
+
         void Increment(string counter);
     }
 
@@ -48,7 +49,6 @@ namespace InventoryService
                 var value = (counter.Value - lastValue) / _stopwatch.Elapsed.TotalSeconds;
                 _counters.AddOrUpdate(lastKey, 0, (id, count) => counter.Value);
                 Console.Write($"\r\n{counter.Key} - {(int)value} m/s {counter.Value} total".PadRight(width));
-
             }
             _stopwatch.Restart();
         }
@@ -58,17 +58,14 @@ namespace InventoryService
     {
         public void Init()
         {
-
         }
 
         public void PrintMetrics()
         {
-
         }
 
         public void Increment(string counter)
         {
-
         }
     }
 }

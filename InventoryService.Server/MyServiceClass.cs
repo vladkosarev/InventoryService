@@ -1,9 +1,6 @@
 ﻿using Akka.Actor;
 using NLog;
 using System;
-using System.Configuration;
-using InventoryService.ServiceClientDeployment;
-using Microsoft.Owin.Hosting;
 
 namespace InventoryService.Server
 {
@@ -11,7 +8,7 @@ namespace InventoryService.Server
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public void Start(IPerformanceService performanceService,  Action<IActorRef, ActorSystem> onReady = null,
+        public void Start(IPerformanceService performanceService, Action<IActorRef, ActorSystem> onReady = null,
             Type storageType = null
             , string serverEndPoint = null
             , string serverActorSystemName = null
@@ -22,7 +19,7 @@ namespace InventoryService.Server
             try
             {
                 InventoryServiceServerApp = new InventoryServiceServerApp();
-                InventoryServiceServerApp.StartServer( performanceService,onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
+                InventoryServiceServerApp.StartServer(performanceService, onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
             }
             catch (Exception e)
             {
@@ -34,11 +31,9 @@ namespace InventoryService.Server
 
         public InventoryServiceServerApp InventoryServiceServerApp { get; set; }
 
-     
-
         public void Stop()
         {
-              InventoryServiceServerApp.StopServer();
+            InventoryServiceServerApp.StopServer();
         }
     }
 }

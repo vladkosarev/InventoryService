@@ -4,12 +4,12 @@ using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.Request;
 using InventoryService.Server;
+using InventoryService.ServiceClientDeployment;
 using InventoryService.Storage;
+using Microsoft.Owin.Hosting;
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
-using InventoryService.ServiceClientDeployment;
-using Microsoft.Owin.Hosting;
 
 namespace InventoryService.AkkaInMemoryServer
 {

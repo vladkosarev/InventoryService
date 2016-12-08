@@ -45,13 +45,12 @@ namespace InventoryService.Actors
             {
                 RealTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
                 NotifySubscribersAndRemoveStaleSubscribers(message);
-                Logger.Debug("total inventories in inventory service : " +RealTimeInventories.Count);
+                Logger.Debug("total inventories in inventory service : " + RealTimeInventories.Count);
             });
-           
 
             Receive<GetAllInventoryListMessage>(message =>
             {
-               Sender.Tell(new QueryInventoryCompletedMessage(RealTimeInventories.Select(x => x.Value).ToList(), 0, 0));
+                Sender.Tell(new QueryInventoryCompletedMessage(RealTimeInventories.Select(x => x.Value).ToList(), 0, 0));
             });
 
             Receive<IRequestMessage>(message =>
@@ -70,7 +69,7 @@ namespace InventoryService.Actors
                 lastUpadteTime = DateTime.UtcNow;
                 MessageCount = 0;
             });
-        
+
             /*
              TODO REMOVING THESE COZ USING INFRASTR..
                       Receive<ActorAliveMessage>(message =>
@@ -106,15 +105,14 @@ namespace InventoryService.Actors
 
                      Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), Self, new PurgeInvalidSubscribers(), Self);
                       */
-            Receive<Terminated>(t => {
+            Receive<Terminated>(t =>
+            {
                 Logger.Error("Removing subscriber " + t.ActorRef.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
                 Self.Tell(new UnSubScribeToNotificationMessage(t.ActorRef.Path.ToStringWithUid()));
             });
 
-
             Receive<SubScribeToNotificationMessage>(message =>
             {
-              
                 if (Sender.IsNobody())
                 {
                     Logger.Error("No subscriber specified or subscriber is nobody");
@@ -152,9 +150,6 @@ namespace InventoryService.Actors
             });
         }
 
-      
-
-
         protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
         {
             foreach (var subscriber in Subscribers)
@@ -177,8 +172,6 @@ namespace InventoryService.Actors
                 }
             }
         }
-
-       
     }
 
     public class PurgeInvalidSubscribers

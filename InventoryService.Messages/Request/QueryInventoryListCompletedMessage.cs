@@ -8,11 +8,10 @@ namespace InventoryService.Messages.Request
         public RealTimeInventoryChangeMessage(IRealTimeInventory realTimeInventory)
         {
             RealTimeInventory = realTimeInventory;
-        
         }
+
         public IRealTimeInventory RealTimeInventory { get; }
     }
-
 
     public class QueryInventoryCompletedMessage
     {
@@ -22,6 +21,7 @@ namespace InventoryService.Messages.Request
             Speed = speed;
             PeakMessageSpeed = peakMessageSpeed;
         }
+
         public List<IRealTimeInventory> RealTimeInventories { get; }
         public double Speed { get; }
         public double PeakMessageSpeed { get; }

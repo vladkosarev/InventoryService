@@ -18,7 +18,7 @@ namespace InventoryService.WebUIHost
             NumberOfTimes = numberOfTimes;
         }
 
-        public IRequestMessage Message {  get; }
+        public IRequestMessage Message { get; }
 
         public string OperationName { get; }
         public string ProductId { get; }

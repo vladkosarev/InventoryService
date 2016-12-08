@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Configuration;
+using InventoryService;
 using InventoryService.AkkaInMemoryServer;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
@@ -8,7 +9,6 @@ using InventoryService.Storage.InMemoryLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
-using InventoryService;
 
 namespace PackageQA
 {

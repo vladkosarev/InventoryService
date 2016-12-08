@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace InventoryService.Messages.NotificationSubscriptionMessages
+﻿namespace InventoryService.Messages.NotificationSubscriptionMessages
 {
     public class CheckIfNotificationSubscriptionExistsMessage
     {

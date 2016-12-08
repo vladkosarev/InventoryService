@@ -1,18 +1,16 @@
-﻿using System.Collections.Generic;
-using InventoryService.Messages.Request;
+﻿using InventoryService.Messages.Request;
 using Microsoft.AspNet.SignalR;
+using System.Collections.Generic;
 
 namespace InventoryService.WebUIHost
 {
     public class SignalRNotificationService
     {
-        public void SendInventoryList(QueryInventoryCompletedMessage inventoryListCompletedMessage,List<string> operationNames)
+        public void SendInventoryList(QueryInventoryCompletedMessage inventoryListCompletedMessage, List<string> operationNames)
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.inventoryData(inventoryListCompletedMessage);
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.operationNames(operationNames);
         }
-
-       
 
         public void SendMessageSpeed(double speed)
         {
@@ -23,10 +21,12 @@ namespace InventoryService.WebUIHost
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.serverNotificationMessages(serverNotification);
         }
+
         public void SendJsonResultNotification(string json)
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.jsonNotificationMessages(json);
         }
+
         public void SendIncomingMessage(string incomingMessage)
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.incomingMessage(incomingMessage);

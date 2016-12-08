@@ -10,16 +10,15 @@ namespace InventoryService.Messages.Models
             Quantity = quantity;
             Reserved = reserved;
             Holds = holds;
-            ETag= Guid.NewGuid();
+            ETag = Guid.NewGuid();
         }
 
         public int Quantity { get; }
-        public int Reserved {  get; }
+        public int Reserved { get; }
         public int Holds { get; }
         public string ProductId { get; }
         public Guid ETag { get; }
     }
-
 
     //public class RealTimeInventory : IRealTimeInventory
     //{

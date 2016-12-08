@@ -68,7 +68,7 @@ namespace InventoryService
 
         public static string GetCurrentQuantitiesReport(this IRealTimeInventory realTimeInventory)
         {
-            return " [ product : "+realTimeInventory.ProductId+" / quantity : " + realTimeInventory.Quantity + " / reservations: " + realTimeInventory.Reserved + " / holds: " + realTimeInventory.Holds + "  / etag: " + realTimeInventory.ETag + " ]";
+            return " [ product : " + realTimeInventory.ProductId + " / quantity : " + realTimeInventory.Quantity + " / reservations: " + realTimeInventory.Reserved + " / holds: " + realTimeInventory.Holds + "  / etag: " + realTimeInventory.ETag + " ]";
         }
 
         public static OperationResult<IRealTimeInventory> ToFailedOperationResult(

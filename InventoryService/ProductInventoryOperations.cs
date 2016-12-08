@@ -58,7 +58,7 @@ namespace InventoryService
             if ((reservationQuantity > 0) && (newReserved > realTimeInventory.Quantity - realTimeInventory.Holds))
                 return InventoryServiceErrorMessageGenerator.Generate(ErrorType.RESERVATION_EXCEED_QUANTITY, realTimeInventory, reservationQuantity).ToFailedOperationResult(realTimeInventory, productId);
 
-            var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved,realTimeInventory.Holds);
+            var newRealTimeInventory = new RealTimeInventory(productId, realTimeInventory.Quantity, newReserved, realTimeInventory.Holds);
 
             var result = await inventoryStorage.WriteInventoryAsync(newRealTimeInventory);
 
