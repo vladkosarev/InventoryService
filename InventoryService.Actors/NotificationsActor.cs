@@ -7,6 +7,7 @@ using InventoryService.Messages.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using InventoryService.Actors.Messages;
 
 namespace InventoryService.Actors
 {
@@ -34,8 +35,20 @@ namespace InventoryService.Actors
             Receive<string>(message =>
             {
                 LastReceivedServerMessage = string.IsNullOrEmpty(message) ? LastReceivedServerMessage : message;
-                //NotifySubscribersAndRemoveStaleSubscribers(new ServerNotificationMessage(LastReceivedServerMessage));
                 Logger.Debug(LastReceivedServerMessage);
+            });
+            Receive<ExportAllInventoryMessage>(message =>
+            {
+                try
+                {
+                    var inventories = RealTimeInventories.Select(x => x.Value as RealTimeInventory).ToList();
+                    var csv = inventories.ToDelimitedText(",", true);
+                    Sender.Tell(new ExportAllInventoryCompletedMessage(csv));
+                }
+                catch (Exception)
+                {
+                    Sender.Tell(new ExportAllInventoryCompletedMessage(""));
+                }
             });
             Receive<QueryInventoryListMessage>(message =>
             {
@@ -70,41 +83,7 @@ namespace InventoryService.Actors
                 MessageCount = 0;
             });
 
-            /*
-             TODO REMOVING THESE COZ USING INFRASTR..
-                      Receive<ActorAliveMessage>(message =>
-                     {
-                         Logger.Debug(message.SubscriptionId + " from " + Sender.Path + " says it is still alive");
-                         ActorAliveList = ActorAliveList ?? new HashSet<string>();
-                         var sub = Subscribers.FirstOrDefault(x => x.Item1 == message.SubscriptionId);
-                         if (sub != null)
-                         {
-                             ActorAliveList.Add(message.SubscriptionId);
-                             sub.Item2.Tell(new ActorAliveReceivedMessage());
-                         }
-                     });
-
-                     Receive<PurgeInvalidSubscribers>(message =>
-                     {
-                         ActorAliveList = ActorAliveList ?? new HashSet<string>();
-                         foreach (var subscriber in Subscribers)
-                         {
-                             if (!ActorAliveList.Contains(subscriber.Item1))
-                             {
-                                 Logger.Error("Removing subscriber " + subscriber.Item1 + " because no ActorAliveMessage was received over time ....");
-                                 Self.Tell(new UnSubScribeToNotificationMessage(subscriber.Item1));
-                                 subscriber.Item2.Tell(new UnSubscribedNotificationMessage(subscriber.Item1));
-                             }
-                             else
-                             {
-                                 Logger.Debug("Subscriber " + subscriber.Item1 + " is still connected!!");
-                             }
-                         }
-                         ActorAliveList = new HashSet<string>();
-                     });
-
-                     Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), Self, new PurgeInvalidSubscribers(), Self);
-                      */
+       
             Receive<Terminated>(t =>
             {
                 Logger.Error("Removing subscriber " + t.ActorRef.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
@@ -148,6 +127,7 @@ namespace InventoryService.Actors
                 var subscriptionExists = Subscribers.Exists(x => x.Item1 == message.SubscriptionId);
                 Sender.Tell(new CheckIfNotificationSubscriptionExistsCompletedMessage(subscriptionExists));
             });
+            
         }
 
         protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
@@ -173,6 +153,18 @@ namespace InventoryService.Actors
             }
         }
     }
+
+    public class ExportAllInventoryCompletedMessage
+    {
+        public ExportAllInventoryCompletedMessage(string inventoriesCsv)
+        {
+            InventoriesCsv = inventoriesCsv;
+        }
+
+        public string InventoriesCsv { get; }
+    }
+
+
 
     public class PurgeInvalidSubscribers
     {

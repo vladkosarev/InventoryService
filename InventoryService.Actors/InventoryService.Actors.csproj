@@ -87,6 +87,8 @@
   <ItemGroup>
     <Compile Include="InventoryActor.cs" />
     <Compile Include="InventoryServicePingActor.cs" />
+    <Compile Include="ListOfTExtentions.cs" />
+    <Compile Include="Messages\ExportAllInventoryMessage.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
     <Compile Include="Messages\LoadedInventoryMessage.cs" />
     <Compile Include="Messages\WriteInventoryMessage.cs" />

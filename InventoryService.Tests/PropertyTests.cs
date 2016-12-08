@@ -5,7 +5,9 @@ using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Xunit;
 using Random = System.Random;
@@ -29,6 +31,14 @@ namespace InventoryService.Tests
             // return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
             return new InventoryServiceServer(new TestPerformanceService(), new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = false });
         }
+
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = 100000)]
+        public void ETag_Test(RealTimeInventory existingRealTimeInventory, int toReserve)
+        {
+            var newRealTimeInventory=new RealTimeInventory(existingRealTimeInventory.ProductId, existingRealTimeInventory.Quantity, existingRealTimeInventory.Reserved, existingRealTimeInventory.Holds);
+            Assert.True(newRealTimeInventory.ToBigInteger() > existingRealTimeInventory.ToBigInteger());
+        }
+
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Reservation_Test(RealTimeInventory inventory, int toReserve)
