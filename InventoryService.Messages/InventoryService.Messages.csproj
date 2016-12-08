@@ -45,6 +45,7 @@
     <Compile Include="ActorAliveReceivedMessage.cs" />
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
+    <Compile Include="ExportAllInventoryCompletedMessage.cs" />
     <Compile Include="GetAllInventoryListMessage.cs" />
     <Compile Include="GetMetricsCompletedMessage.cs" />
     <Compile Include="GetMetricsMessage.cs" />

@@ -7,6 +7,7 @@ namespace InventoryService.Messages.Models
 {
     public static class EtagGeneratorExtention
     {
+
         public static long GlobalEtagGeneratorCounter = 0;
 
         public static Guid GenerateNextGuid(this IRealTimeInventory inventory)
@@ -34,9 +35,9 @@ namespace InventoryService.Messages.Models
         {
             return thisRealTimeInventory.ETag!=null && thisRealTimeInventory.ETag.IsLessRecentThan(comparedToRealTimeInventory.ETag);
         }
-        public static bool IsLessRecentThan(this Guid? thisRtag, Guid? comparedToEtag)
+        public static bool IsLessRecentThan(this Guid? thisEtag, Guid? comparedToEtag)
         {
-            return (thisRtag != null && comparedToEtag != null &&(thisRtag).ToEtagComparable() < comparedToEtag.ToEtagComparable());
+            return (thisEtag != null && comparedToEtag != null &&(thisEtag).ToEtagComparable() < comparedToEtag.ToEtagComparable());
         }
     }
 }

@@ -45,9 +45,9 @@ namespace InventoryService.Tests
             Assert.True(newRealTimeInventory.IsLessRecentThan(new RealTimeInventory(null, 0, 0, 0)));
 
             Assert.True(newRealTimeInventory.IsLessRecentThan(first));
-            Assert.True(first .IsLessRecentThan(second));
-            Assert.True(second .IsLessRecentThan(third));
-            Assert.True(third .IsLessRecentThan(forth));
+            Assert.True(first.IsLessRecentThan(second));
+            Assert.True(second.IsLessRecentThan(third));
+            Assert.True(third.IsLessRecentThan(forth));
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
