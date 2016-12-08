@@ -5,9 +5,7 @@ using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using Xunit;
 using Random = System.Random;
@@ -32,13 +30,25 @@ namespace InventoryService.Tests
             return new InventoryServiceServer(new TestPerformanceService(), new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = false });
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = 100000)]
-        public void ETag_Test(RealTimeInventory existingRealTimeInventory, int toReserve)
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = 1000)]
+        public void ETag_Test(RealTimeInventory existingRealTimeInventory, int quantity, int reserve, int hold)
         {
-            var newRealTimeInventory=new RealTimeInventory(existingRealTimeInventory.ProductId, existingRealTimeInventory.Quantity, existingRealTimeInventory.Reserved, existingRealTimeInventory.Holds);
-            Assert.True(newRealTimeInventory.ToBigInteger() > existingRealTimeInventory.ToBigInteger());
-        }
+            var newRealTimeInventory = new RealTimeInventory(existingRealTimeInventory.ProductId, existingRealTimeInventory.Quantity, existingRealTimeInventory.Reserved, existingRealTimeInventory.Holds);
 
+            var first = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0).ToBigInteger();
+            var second = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0).ToBigInteger();
+            var third = new RealTimeInventory("ticketsections-"+quantity, quantity, reserve, hold).ToBigInteger();
+            var forth = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold).ToBigInteger();
+
+            Assert.True(newRealTimeInventory.ToBigInteger() > existingRealTimeInventory.ToBigInteger());
+            Assert.True(new RealTimeInventory(null, 0, 0, 0).ToBigInteger() > existingRealTimeInventory.ToBigInteger());
+            Assert.True(newRealTimeInventory.ToBigInteger() < new RealTimeInventory(null, 0, 0, 0).ToBigInteger());
+
+            Assert.True(newRealTimeInventory.ToBigInteger() < first);
+            Assert.True(first < second);
+            Assert.True(second < third);
+            Assert.True(third < forth);
+        }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Reservation_Test(RealTimeInventory inventory, int toReserve)
