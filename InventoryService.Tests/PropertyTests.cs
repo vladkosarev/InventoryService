@@ -35,19 +35,19 @@ namespace InventoryService.Tests
         {
             var newRealTimeInventory = new RealTimeInventory(existingRealTimeInventory.ProductId, existingRealTimeInventory.Quantity, existingRealTimeInventory.Reserved, existingRealTimeInventory.Holds);
 
-            var first = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0).ToBigInteger();
-            var second = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0).ToBigInteger();
-            var third = new RealTimeInventory("ticketsections-"+quantity, quantity, reserve, hold).ToBigInteger();
-            var forth = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold).ToBigInteger();
+            var first = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0);
+            var second = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0);
+            var third = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold);
+            var forth = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold);
 
-            Assert.True(newRealTimeInventory.ToBigInteger() > existingRealTimeInventory.ToBigInteger());
-            Assert.True(new RealTimeInventory(null, 0, 0, 0).ToBigInteger() > existingRealTimeInventory.ToBigInteger());
-            Assert.True(newRealTimeInventory.ToBigInteger() < new RealTimeInventory(null, 0, 0, 0).ToBigInteger());
+            Assert.True(existingRealTimeInventory.IsLessRecentThan(newRealTimeInventory));
+            Assert.True(existingRealTimeInventory.IsLessRecentThan(new RealTimeInventory(null, 0, 0, 0)));
+            Assert.True(newRealTimeInventory.IsLessRecentThan(new RealTimeInventory(null, 0, 0, 0)));
 
-            Assert.True(newRealTimeInventory.ToBigInteger() < first);
-            Assert.True(first < second);
-            Assert.True(second < third);
-            Assert.True(third < forth);
+            Assert.True(newRealTimeInventory.IsLessRecentThan(first));
+            Assert.True(first .IsLessRecentThan(second));
+            Assert.True(second .IsLessRecentThan(third));
+            Assert.True(third .IsLessRecentThan(forth));
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]

@@ -8,6 +8,6 @@ namespace InventoryService.Messages.Models
         int Quantity { get; }
         int Holds { get; }
         string ProductId { get; }
-        Guid ETag { get; }
+        Guid? ETag { get; }
     }
 }

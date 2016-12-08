@@ -25,6 +25,8 @@ namespace InventoryService.Actors
         protected double PeakMessageSpeed = 0;
         public double MessageSampleRate = 1;
 
+        public Guid? LastEtag { set; get; }
+
         public NotificationsActor()
         {
             var lastUpadteTime = DateTime.UtcNow;
@@ -57,6 +59,9 @@ namespace InventoryService.Actors
             Receive<RealTimeInventoryChangeMessage>(message =>
             {
                 RealTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
+
+                LastEtag = LastEtag.IsLessRecentThan(message.RealTimeInventory.ETag) ? message.RealTimeInventory.ETag : LastEtag;
+
                 NotifySubscribersAndRemoveStaleSubscribers(message);
                 Logger.Debug("total inventories in inventory service : " + RealTimeInventories.Count);
             });

@@ -52,6 +52,7 @@
     <Compile Include="InventoryServiceErrorMessageGenerator.cs" />
     <Compile Include="InventoryServicePingMessage.cs" />
     <Compile Include="InventoryServicePongMessage.cs" />
+    <Compile Include="Models\EtagGeneratorExtention.cs" />
     <Compile Include="Models\IRealTimeInventory.cs" />
     <Compile Include="Models\RealTimeInventory.cs" />
     <Compile Include="NotificationSubscriptionMessages\CheckIfNotificationSubscriptionExistsCompletedMessage.cs" />
