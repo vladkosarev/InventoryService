@@ -22,6 +22,7 @@ namespace InventoryService.ActorSystemFactoryLib
             actorSystemName = string.IsNullOrEmpty(serverActorSystemName) ? ConfigurationManager.AppSettings["ServerActorSystemName"] : serverActorSystemName;
             InventoryServiceDiagnostics.Debug(() =>
             {
+                
                 InventoryServiceActorSystem = string.IsNullOrEmpty(actorSystemName)
                   ? actorSystem
                   : (string.IsNullOrEmpty(actorSystemConfig)

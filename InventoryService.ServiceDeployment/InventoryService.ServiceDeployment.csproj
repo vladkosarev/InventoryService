@@ -203,6 +203,10 @@
       <Project>{27535ad8-f451-45c1-a819-2e99e79fa202}</Project>
       <Name>InventoryService.WebUI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
+      <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
+      <Name>InventoryService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.TXT" />

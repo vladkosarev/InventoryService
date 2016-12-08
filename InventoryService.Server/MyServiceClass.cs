@@ -8,7 +8,7 @@ namespace InventoryService.Server
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public void Start(Action<IActorRef, ActorSystem> onReady = null,
+        public void Start(IPerformanceService performanceService,  Action<IActorRef, ActorSystem> onReady = null,
             Type storageType = null
             , string serverEndPoint = null
             , string serverActorSystemName = null
@@ -28,7 +28,7 @@ namespace InventoryService.Server
                 //}
 
                 InventoryServiceServerApp = new InventoryServiceServerApp();
-                InventoryServiceServerApp.StartServer(onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
+                InventoryServiceServerApp.StartServer( performanceService,onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
             }
             catch (Exception e)
             {

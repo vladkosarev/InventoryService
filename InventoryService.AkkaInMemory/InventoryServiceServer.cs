@@ -18,13 +18,15 @@ namespace InventoryService.AkkaInMemoryServer
         private InventoryServerOptions Options { set; get; }
         private bool DontUseActorSystem { set; get; }
 
-        public InventoryServiceServer(InventoryServerOptions options = null)
+        public InventoryServiceServer(IPerformanceService performanceService,   InventoryServerOptions options = null)
         {
             Options = options ?? new InventoryServerOptions();
             if (Options.DontUseActorSystem)
             {
                 DontUseActorSystem = Options.DontUseActorSystem;
-                TestInventoryStorage = Options.StorageType != null ? (IInventoryStorage)Activator.CreateInstance(Options.StorageType) : new Storage.InMemoryLib.InMemory();
+                TestInventoryStorage = Options.StorageType != null
+                    ? (IInventoryStorage)Activator.CreateInstance(Options.StorageType)
+                    : new Storage.InMemoryLib.InMemory();
                 if (Options.InitialInventory != null)
                 {
                     TestInventoryStorage.WriteInventoryAsync(Options.InitialInventory);
@@ -40,10 +42,17 @@ namespace InventoryService.AkkaInMemoryServer
                     Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
                 }
 
-                InventoryServiceApplication.Start(Options.OnInventoryActorSystemReady, Options.StorageType, serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName, serverActorSystem: Options.ServerActorSystem, serverActorSystemConfig: Options.ServerActorSystemConfig);
+                InventoryServiceApplication.Start(performanceService, Options.OnInventoryActorSystemReady, Options.StorageType,
+                    serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName,
+                    serverActorSystem: Options.ServerActorSystem,
+                    serverActorSystemConfig: Options.ServerActorSystemConfig);
 
                 Sys = Sys ?? InventoryServiceApplication.InventoryServiceServerApp.ActorSystem;
-                inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
+                var selection = Sys.ActorSelection(Options.InventoryActorAddress);
+
+                inventoryActor = TryResolveActorSelection(selection);
+
+              //  inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
 
                 if (Options.InitialInventory != null)
                 {
@@ -52,14 +61,47 @@ namespace InventoryService.AkkaInMemoryServer
             }
         }
 
+        private static IActorRef TryResolveActorSelection(ActorSelection selection)
+        {
+            return Task.Run(async () =>
+            {
+                var counter = 0;
+                IActorRef result = null;
+                var lastException = new Exception();
+                while (result == null && counter < 3)
+                {
+                    try
+                    {
+                        var identity = await selection.Ask<ActorIdentity>(new Identify(null), TimeSpan.FromSeconds(30));
+                        if (identity.Subject == null)
+                        {
+                            throw new Exception("Unable to obtain iactorref of address " + selection.PathString +" even after obtaining a response with identity " + identity + " with message ID : " +identity?.MessageId);
+                        }
+                        result = identity.Subject;
+                    }
+                    catch (Exception e)
+                    {
+                        lastException = e;
+                        counter++;
+                        await Task.Delay(TimeSpan.FromMilliseconds(500 * counter));
+                    }
+                }
+                if (result == null)
+                {
+                    throw lastException;
+                }
+                return result;
+            }).Result;
+        }
+
         private void InitializeWithInventorydata(InventoryServerOptions options)
         {
             Task.Run(async () =>
        {
            await UpdateQuantityAsync(options.InitialInventory, Options.InitialInventory.Quantity);//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                await ReserveAsync(options.InitialInventory, Options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                await PlaceHoldAsync(options.InitialInventory, Options.InitialInventory.Holds);//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                var result = await GetInventoryAsync(Options.InitialInventory.ProductId);
+           await ReserveAsync(options.InitialInventory, Options.InitialInventory.Reserved);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+           await PlaceHoldAsync(options.InitialInventory, Options.InitialInventory.Holds);//.TODO /* USE PROPER ASYNC AWAIT HERE */
+           var result = await GetInventoryAsync(Options.InitialInventory.ProductId);
            if (!result.Successful ||
                result.RealTimeInventory == null ||
                result.RealTimeInventory.ProductId != Options.InitialInventory.ProductId ||
@@ -80,9 +122,9 @@ namespace InventoryService.AkkaInMemoryServer
 
         public async Task<IInventoryServiceCompletedMessage> PerformOperation(IRequestMessage request, Task<OperationResult<IRealTimeInventory>> response, IRealTimeInventory originalInventory)
         {
-            var perf=new ConsolePerformanceService();
+            var perf = new TestPerformanceService();
             perf.Init();
-            return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetResponseCompletedMessage(request), originalInventory,null, perf).InventoryServiceCompletedMessage;
+            return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetResponseCompletedMessage(request), originalInventory, null, perf).InventoryServiceCompletedMessage;
         }
 
         public async Task<IInventoryServiceCompletedMessage> UpdateQuantityAsync(RealTimeInventory product, int quantity)
@@ -123,7 +165,7 @@ namespace InventoryService.AkkaInMemoryServer
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update),TestInventoryStorage.ReadInventoryAsync(request.ProductId).Result.Result);
+                return await PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update), TestInventoryStorage.ReadInventoryAsync(request.ProductId).Result.Result);
             }
             return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }

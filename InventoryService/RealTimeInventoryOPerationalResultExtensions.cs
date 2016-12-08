@@ -40,7 +40,7 @@ namespace InventoryService
             }
             sender?.Tell(response);
             notificationActorRef?.Tell(new RealTimeInventoryChangeMessage(realTimeInventory));
-            performanceService.Increment("Completed processing");
+            performanceService?.Increment("Completed " + requestMessage.GetType().Name);
             return new RealTimeInventoryFinalResult(realTimeInventory as RealTimeInventory, response, result);
         }
 
@@ -68,7 +68,7 @@ namespace InventoryService
 
         public static string GetCurrentQuantitiesReport(this IRealTimeInventory realTimeInventory)
         {
-            return " [ quantity : " + realTimeInventory.Quantity + " / reservations: " + realTimeInventory.Reserved + " / holds: " + realTimeInventory.Holds + " ]";
+            return " [ product : "+realTimeInventory.ProductId+" / quantity : " + realTimeInventory.Quantity + " / reservations: " + realTimeInventory.Reserved + " / holds: " + realTimeInventory.Holds + "  / etag: " + realTimeInventory.ETag + " ]";
         }
 
         public static OperationResult<IRealTimeInventory> ToFailedOperationResult(

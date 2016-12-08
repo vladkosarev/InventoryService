@@ -43,6 +43,7 @@ namespace InventoryService.Actors
                 {
                     RealTimeInventory = RealTimeInventory.ToSuccessOperationResult().ProcessAndSendResult(message, (rti) => new GetInventoryCompletedMessage(rti, true), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
                 }
+
             });
 
             ReceiveAsync<ReserveMessage>(async message =>
@@ -53,7 +54,7 @@ namespace InventoryService.Actors
                 }
                 var result = await RealTimeInventory.ReserveAsync(InventoryStorage, message.ProductId, message.Update);
                 RealTimeInventory = result.ProcessAndSendResult(message, CompletedMessageFactory.GetResponseCompletedMessage(message), Logger, RealTimeInventory, Sender, NotificationActorRef, PerformanceService).RealTimeInventory;
-                PerformanceService.Increment("Done reserving");
+              
             });
 
             ReceiveAsync<UpdateQuantityMessage>(async message =>

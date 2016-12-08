@@ -134,6 +134,10 @@
       <Project>{69c4264a-cb21-47f8-a467-6072172da842}</Project>
       <Name>InventoryService.Storage</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
+      <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
+      <Name>InventoryService</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

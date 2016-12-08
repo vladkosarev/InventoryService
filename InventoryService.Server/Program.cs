@@ -8,10 +8,10 @@ namespace InventoryService.Server
 
         private static void Main(string[] args)
         {
-            new InventoryServiceApplication().Start((a, s) =>
-            {
-                Log.Debug("Server started ...");
-            }
+            new InventoryServiceApplication().Start(new TestPerformanceService(), (a, s) =>
+                {
+                    Log.Debug("Server started ...");
+                }
             );
         }
     }

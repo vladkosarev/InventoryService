@@ -158,6 +158,10 @@
       <Project>{66283baf-950e-4a48-92a5-f3446fda456f}</Project>
       <Name>InventoryService.Tests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
+      <Project>{D709C476-E572-470A-B948-1B05339F6C7E}</Project>
+      <Name>InventoryService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="finance.ico" />

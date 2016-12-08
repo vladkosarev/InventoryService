@@ -22,9 +22,9 @@ namespace InventoryService.Actors
         public IActorRef NotificationActorRef { get; set; }
         public IActorRef InventoryServicePingActor { set; get; }
 
-        public InventoryActor(IInventoryStorage inventoryStorage, bool withCache = true)
+        public InventoryActor(IInventoryStorage inventoryStorage,IPerformanceService performanceService, bool withCache = true)
         {
-           PerformanceService=  new ConsolePerformanceService();
+           PerformanceService=  performanceService;
             PerformanceService.Init();
             Logger.Debug("Starting Inventory Actor ....");
             InventoryStorage = inventoryStorage;
@@ -32,7 +32,7 @@ namespace InventoryService.Actors
             Become(Initializing);
         }
 
-        public ConsolePerformanceService PerformanceService { get; set; }
+        public IPerformanceService PerformanceService { get; set; }
 
         private void Initializing()
         {
