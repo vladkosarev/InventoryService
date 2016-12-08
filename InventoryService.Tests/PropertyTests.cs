@@ -40,14 +40,23 @@ namespace InventoryService.Tests
             var third = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold);
             var forth = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold);
 
-            Assert.True(existingRealTimeInventory.IsLessRecentThan(newRealTimeInventory));
-            Assert.True(existingRealTimeInventory.IsLessRecentThan(new RealTimeInventory(null, 0, 0, 0)));
-            Assert.True(newRealTimeInventory.IsLessRecentThan(new RealTimeInventory(null, 0, 0, 0)));
+            Assert.False(existingRealTimeInventory.IsMostRecentThan(newRealTimeInventory));
+            Assert.False(existingRealTimeInventory.IsMostRecentThan(new RealTimeInventory(null, 0, 0, 0)));
+            Assert.False(newRealTimeInventory.IsMostRecentThan(new RealTimeInventory(null, 0, 0, 0)));
 
-            Assert.True(newRealTimeInventory.IsLessRecentThan(first));
-            Assert.True(first.IsLessRecentThan(second));
-            Assert.True(second.IsLessRecentThan(third));
-            Assert.True(third.IsLessRecentThan(forth));
+            var mostRecentEtag = forth.ETag.GetMostRecentEtag(
+                newRealTimeInventory.ETag,
+                existingRealTimeInventory.ETag,
+                first.ETag,
+                second.ETag,
+                third.ETag,
+                forth.ETag
+            );
+            Assert.False(newRealTimeInventory.IsMostRecentThan(first));
+            Assert.False(first.IsMostRecentThan(second));
+            Assert.False(second.IsMostRecentThan(third));
+            Assert.False(third.IsMostRecentThan(forth));
+            Assert.Equal(mostRecentEtag, forth.ETag);
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]

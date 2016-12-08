@@ -60,7 +60,7 @@ namespace InventoryService.Actors
             {
                 RealTimeInventories[message.RealTimeInventory.ProductId] = message.RealTimeInventory;
 
-                LastEtag = LastEtag.IsLessRecentThan(message.RealTimeInventory.ETag) ? message.RealTimeInventory.ETag : LastEtag;
+                LastEtag = LastEtag.IsMostRecentThan(message.RealTimeInventory.ETag) ?  LastEtag: message.RealTimeInventory.ETag;
 
                 NotifySubscribersAndRemoveStaleSubscribers(message);
                 Logger.Debug("total inventories in inventory service : " + RealTimeInventories.Count);

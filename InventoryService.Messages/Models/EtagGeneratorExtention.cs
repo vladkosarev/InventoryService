@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Numerics;
 using System.Threading;
 
@@ -31,13 +32,18 @@ namespace InventoryService.Messages.Models
         {
             return BigInteger.Parse(eTag.ToString().Replace("-", ""), NumberStyles.AllowHexSpecifier);
         }
-        public static bool IsLessRecentThan(this IRealTimeInventory @thisRealTimeInventory,IRealTimeInventory comparedToRealTimeInventory)
+        public static bool IsMostRecentThan(this IRealTimeInventory @thisRealTimeInventory,IRealTimeInventory comparedToRealTimeInventory)
         {
-            return thisRealTimeInventory.ETag!=null && thisRealTimeInventory.ETag.IsLessRecentThan(comparedToRealTimeInventory.ETag);
+            return thisRealTimeInventory.ETag!=null && thisRealTimeInventory.ETag.IsMostRecentThan(comparedToRealTimeInventory.ETag);
         }
-        public static bool IsLessRecentThan(this Guid? thisEtag, Guid? comparedToEtag)
+        public static bool IsMostRecentThan(this Guid? thisEtag, Guid? comparedToEtag)
         {
-            return (thisEtag != null && comparedToEtag != null &&(thisEtag).ToEtagComparable() < comparedToEtag.ToEtagComparable());
+            return (thisEtag != null && comparedToEtag != null &&(thisEtag).ToEtagComparable() > comparedToEtag.ToEtagComparable());
+        }
+
+        public static Guid? GetMostRecentEtag(this Guid? thisEtag,params Guid?[] comparedToEtag)
+        {
+            return comparedToEtag!=null && comparedToEtag.Length>0? comparedToEtag.OrderByDescending(x => x.ToEtagComparable()).FirstOrDefault(): thisEtag;
         }
     }
 }
