@@ -40,8 +40,8 @@ namespace InventoryService.ActorSystemFactoryLib
 
         public void TerminateActorSystem()
         {
-            //InventoryServiceActorSystem.Terminate();
-            //InventoryServiceActorSystem.Dispose();
+            InventoryServiceActorSystem?.Terminate().Wait();
+            InventoryServiceActorSystem?.Dispose();
         }
     }
 }

@@ -8,6 +8,8 @@ using InventoryService.Storage;
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
+using InventoryService.ServiceClientDeployment;
+using Microsoft.Owin.Hosting;
 
 namespace InventoryService.AkkaInMemoryServer
 {
@@ -18,7 +20,7 @@ namespace InventoryService.AkkaInMemoryServer
         private InventoryServerOptions Options { set; get; }
         private bool DontUseActorSystem { set; get; }
 
-        public InventoryServiceServer(IPerformanceService performanceService,   InventoryServerOptions options = null)
+        public InventoryServiceServer(IPerformanceService performanceService, InventoryServerOptions options = null)
         {
             Options = options ?? new InventoryServerOptions();
             if (Options.DontUseActorSystem)
@@ -52,7 +54,11 @@ namespace InventoryService.AkkaInMemoryServer
 
                 inventoryActor = TryResolveActorSelection(selection);
 
-              //  inventoryActor = Sys.ActorSelection(Options.InventoryActorAddress).ResolveOne(TimeSpan.FromSeconds(3)).Result;
+                var serverEndPoint = Options.ServerEndPoint;//ConfigurationManager.AppSettings["ServerEndPoint"];
+                if (!string.IsNullOrEmpty(serverEndPoint))
+                {
+                    OwinRef = WebApp.Start<Startup>(url: serverEndPoint);
+                }
 
                 if (Options.InitialInventory != null)
                 {
@@ -60,6 +66,8 @@ namespace InventoryService.AkkaInMemoryServer
                 }
             }
         }
+
+        public IDisposable OwinRef { get; set; }
 
         private static IActorRef TryResolveActorSelection(ActorSelection selection)
         {
@@ -75,7 +83,7 @@ namespace InventoryService.AkkaInMemoryServer
                         var identity = await selection.Ask<ActorIdentity>(new Identify(null), TimeSpan.FromSeconds(30));
                         if (identity.Subject == null)
                         {
-                            throw new Exception("Unable to obtain iactorref of address " + selection.PathString +" even after obtaining a response with identity " + identity + " with message ID : " +identity?.MessageId);
+                            throw new Exception("Unable to obtain iactorref of address " + selection.PathString + " even after obtaining a response with identity " + identity + " with message ID : " + identity?.MessageId);
                         }
                         result = identity.Subject;
                     }
@@ -260,9 +268,10 @@ namespace InventoryService.AkkaInMemoryServer
 
         public void Dispose()
         {
-            //InventoryServiceApplication?.Stop();
-            //Sys?.Terminate().RunSynchronously();
-            //Sys?.Dispose();
+            OwinRef?.Dispose();
+            InventoryServiceApplication?.Stop();
+            Sys?.Terminate().Wait();
+            Sys?.Dispose();
         }
     }
 }

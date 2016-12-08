@@ -74,7 +74,7 @@ namespace InventoryService.Server
 
         public void StopServer()
         {
-            // ActorSystemFactory.TerminateActorSystem();
+             ActorSystemFactory.TerminateActorSystem();
         }
     }
 }
