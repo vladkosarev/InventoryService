@@ -135,13 +135,13 @@ namespace InventoryService.AkkaInMemoryServer
             return (await response).ProcessAndSendResult(request, CompletedMessageFactory.GetResponseCompletedMessage(request), originalInventory, null, perf).InventoryServiceCompletedMessage;
         }
 
-        public async Task<IInventoryServiceCompletedMessage> UpdateQuantityAsync(RealTimeInventory product, int quantity)
+        public Task<IInventoryServiceCompletedMessage> UpdateQuantityAsync(RealTimeInventory product, int quantity)
         {
             var request = new UpdateQuantityMessage(product.ProductId, quantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(
+                return PerformOperation(
                     request
                     , product.UpdateQuantityAsync(TestInventoryStorage, request.ProductId, request.Update),
                      TestInventoryStorage
@@ -149,36 +149,36 @@ namespace InventoryService.AkkaInMemoryServer
                    .Result.Result);
             }
 
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> ReserveAsync(RealTimeInventory product, int reserveQuantity)
+        public Task<IInventoryServiceCompletedMessage> ReserveAsync(RealTimeInventory product, int reserveQuantity)
         {
             var request = new ReserveMessage(product.ProductId, reserveQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.ReserveAsync(TestInventoryStorage, request.ProductId, request.Update),
+                return PerformOperation(request, product.ReserveAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
 
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> PurchaseAsync(RealTimeInventory product, int purchaseQuantity)
+        public Task<IInventoryServiceCompletedMessage> PurchaseAsync(RealTimeInventory product, int purchaseQuantity)
         {
             var request = new PurchaseMessage(product.ProductId, purchaseQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update), TestInventoryStorage.ReadInventoryAsync(request.ProductId).Result.Result);
+                return PerformOperation(request, product.PurchaseAsync(TestInventoryStorage, request.ProductId, request.Update), TestInventoryStorage.ReadInventoryAsync(request.ProductId).Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> ResetInventoryQuantityReserveAndHoldAsync(
+        public Task<IInventoryServiceCompletedMessage> ResetInventoryQuantityReserveAndHoldAsync(
             RealTimeInventory product,
             int quantity,
             int reserveQuantity,
@@ -188,82 +188,82 @@ namespace InventoryService.AkkaInMemoryServer
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.ResetInventoryQuantityReserveAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update, request.Reservations, request.Holds),
+                return PerformOperation(request, product.ResetInventoryQuantityReserveAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update, request.Reservations, request.Holds),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> PlaceHoldAsync(RealTimeInventory product, int holdQuantity)
+        public Task<IInventoryServiceCompletedMessage> PlaceHoldAsync(RealTimeInventory product, int holdQuantity)
         {
             var request = new PlaceHoldMessage(product.ProductId, holdQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.PlaceHoldAsync(TestInventoryStorage, request.ProductId, request.Update),
+                return PerformOperation(request, product.PlaceHoldAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> UpdateQuantityAndHoldAsync(RealTimeInventory product, int holdQuantity)
+        public Task<IInventoryServiceCompletedMessage> UpdateQuantityAndHoldAsync(RealTimeInventory product, int holdQuantity)
         {
             var request = new UpdateAndHoldQuantityMessage(product.ProductId, holdQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.UpdateQuantityAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update),
+                return PerformOperation(request, product.UpdateQuantityAndHoldAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> PurchaseFromHoldsAsync(RealTimeInventory product, int purchaseQuantity)
+        public Task<IInventoryServiceCompletedMessage> PurchaseFromHoldsAsync(RealTimeInventory product, int purchaseQuantity)
         {
             var request = new PurchaseFromHoldsMessage(product.ProductId, purchaseQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, product.PurchaseFromHoldsAsync(TestInventoryStorage, request.ProductId, request.Update),
+                return PerformOperation(request, product.PurchaseFromHoldsAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> GetInventoryAsync(string inventoryName)
+        public Task<IInventoryServiceCompletedMessage> GetInventoryAsync(string inventoryName)
         {
             var request = new GetInventoryMessage(inventoryName);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, Options.InitialInventory.ReadInventoryFromStorageAsync(TestInventoryStorage, request.ProductId),
+                return PerformOperation(request, Options.InitialInventory.ReadInventoryFromStorageAsync(TestInventoryStorage, request.ProductId),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
-        public async Task<IInventoryServiceCompletedMessage> ReserveAsync(ActorSelection inventoryActorSelection, int reserveQuantity, string productId = "product1")
+        public Task<IInventoryServiceCompletedMessage> ReserveAsync(ActorSelection inventoryActorSelection, int reserveQuantity, string productId = "product1")
         {
             var request = new ReserveMessage(productId, reserveQuantity);
 
             if (DontUseActorSystem)
             {
-                return await PerformOperation(request, Options.InitialInventory.ReserveAsync(TestInventoryStorage, request.ProductId, request.Update),
+                return PerformOperation(request, Options.InitialInventory.ReserveAsync(TestInventoryStorage, request.ProductId, request.Update),
                     TestInventoryStorage
                   .ReadInventoryAsync(request.ProductId)
                   .Result.Result);
             }
-            return await inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
+            return inventoryActor.Ask<IInventoryServiceCompletedMessage>(request, GENERAL_WAIT_TIME);
         }
 
         public void Dispose()
