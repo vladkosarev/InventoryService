@@ -110,7 +110,9 @@ namespace InventoryService.Actors
             {
                 PerformanceService.PrintMetrics();
             });
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
+            #if DEBUG
+                        Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
+            #endif
         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId, IPerformanceService performanceService)
@@ -138,9 +140,5 @@ namespace InventoryService.Actors
                     return Directive.Restart;
                 });
         }
-    }
-
-    internal class GetMetrics
-    {
     }
 }
