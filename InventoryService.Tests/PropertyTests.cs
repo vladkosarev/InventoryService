@@ -14,7 +14,9 @@ namespace InventoryService.Tests
 {
     public class PropertyTests
     {
-        public static InventoryServiceServer CreateInventoryServiceServer(RealTimeInventory inventory)
+        private const int MaxTest = 100;
+
+        public InventoryServiceServer CreateInventoryServiceServer(RealTimeInventory inventory)
         {
             /*
              * TODO USE THESE
@@ -24,13 +26,43 @@ namespace InventoryService.Tests
                        return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
            #endif
            */
-            return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
+            // return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
+            return new InventoryServiceServer(new TestPerformanceService(), new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = 1000)]
+        public void ETag_Test(RealTimeInventory existingRealTimeInventory, int quantity, int reserve, int hold)
+        {
+            var newRealTimeInventory = new RealTimeInventory(existingRealTimeInventory.ProductId, existingRealTimeInventory.Quantity, existingRealTimeInventory.Reserved, existingRealTimeInventory.Holds);
+
+            var first = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0);
+            var second = new RealTimeInventory(existingRealTimeInventory.ProductId, 0, 0, 0);
+            var third = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold);
+            var forth = new RealTimeInventory("ticketsections-" + quantity, quantity, reserve, hold);
+
+            Assert.False(existingRealTimeInventory.IsMostRecentThan(newRealTimeInventory));
+            Assert.False(existingRealTimeInventory.IsMostRecentThan(new RealTimeInventory(null, 0, 0, 0)));
+            Assert.False(newRealTimeInventory.IsMostRecentThan(new RealTimeInventory(null, 0, 0, 0)));
+
+            var mostRecentEtag = forth.ETag.GetMostRecentEtag(
+                newRealTimeInventory.ETag,
+                existingRealTimeInventory.ETag,
+                first.ETag,
+                second.ETag,
+                third.ETag,
+                forth.ETag
+            );
+            Assert.False(newRealTimeInventory.IsMostRecentThan(first));
+            Assert.False(first.IsMostRecentThan(second));
+            Assert.False(second.IsMostRecentThan(third));
+            Assert.False(third.IsMostRecentThan(forth));
+            Assert.Equal(mostRecentEtag, forth.ETag);
+        }
+
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Reservation_Test(RealTimeInventory inventory, int toReserve)
         {
-            IInventoryServiceCompletedMessage response;
+            IInventoryServiceCompletedMessage response = null;
 
             using (var testHelper = CreateInventoryServiceServer(inventory))
                 response = testHelper.ReserveAsync(inventory, toReserve).WaitAndGetOperationResult();
@@ -38,18 +70,33 @@ namespace InventoryService.Tests
             InventoryServiceSpecificationHelper.AssertReservations(inventory, toReserve, response);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Purchase_Test(RealTimeInventory inventory, uint toPurchase)
         {
             IInventoryServiceCompletedMessage response;
 
             using (var testHelper = CreateInventoryServiceServer(inventory))
+            {
                 response = testHelper.PurchaseAsync(inventory, (int)toPurchase).WaitAndGetOperationResult();
+            }
 
             InventoryServiceSpecificationHelper.AssertPurchase(inventory, toPurchase, response);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
+        public void ResetInventoryQuantityReserveAndHold_Test(RealTimeInventory inventory, int toUpdate, int toReserve, int toHold)
+        {
+            IInventoryServiceCompletedMessage response;
+
+            using (var testHelper = CreateInventoryServiceServer(inventory))
+            {
+                response = testHelper.ResetInventoryQuantityReserveAndHoldAsync(inventory, toUpdate, toReserve, toHold).WaitAndGetOperationResult();
+            }
+
+            InventoryServiceSpecificationHelper.AssertResetInventoryQuantityReserveAndHold(inventory, toUpdate, toReserve, toHold, response);
+        }
+
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Holds_Test(RealTimeInventory inventory, int toHold)
         {
             IInventoryServiceCompletedMessage response;
@@ -60,7 +107,7 @@ namespace InventoryService.Tests
             InventoryServiceSpecificationHelper.AssertHolds(inventory, toHold, response);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void UpadeteQuantityAndHold_Test(RealTimeInventory inventory, uint toHold)
         {
             IInventoryServiceCompletedMessage response;
@@ -71,7 +118,7 @@ namespace InventoryService.Tests
             InventoryServiceSpecificationHelper.AssertUpdateQuantityAndHold(inventory, toHold, response);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void UpdateQuantity_Test(RealTimeInventory inventory, int toUpdate)
         {
             IInventoryServiceCompletedMessage response;
@@ -82,7 +129,7 @@ namespace InventoryService.Tests
             InventoryServiceSpecificationHelper.AssertUpdateQuantity(inventory, toUpdate, response);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void PurchaseFromHolds_Test(RealTimeInventory inventory, uint toPurchase)
         {
             IInventoryServiceCompletedMessage response;
@@ -93,7 +140,7 @@ namespace InventoryService.Tests
             InventoryServiceSpecificationHelper.AssertPurchaseFromHolds(inventory, toPurchase, response);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Holds_Reservation_PurchaseFromHold_And_Purchase_Test(RealTimeInventory inventory, int toUpdate)
         {
             using (var testHelper = CreateInventoryServiceServer(inventory))
@@ -112,7 +159,7 @@ namespace InventoryService.Tests
             }
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Concurrent_Holds_Reservation_PurchaseFromHold_And_Purchase_Sync_Test(RealTimeInventory inventory, int toUpdate)
         {
             const int looplength = 5;
@@ -134,7 +181,7 @@ namespace InventoryService.Tests
             Assert.Equal(currentInventoryAfterFirstOperation.Holds, currentInventoryAfterLastOperation.Holds);
         }
 
-        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) })]
+        [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = MaxTest)]
         public void Concurrent_Holds_Reservation_PurchaseFromHold_And_Purchase_Async_Test(RealTimeInventory inventory, int toUpdate)
         {
             const int looplength = 5;
@@ -155,7 +202,7 @@ namespace InventoryService.Tests
             Assert.Equal(currentInventoryAfterFirstOperation.Holds, currentInventoryAfterLastOperation.Holds);
         }
 
-        private static List<Tuple<int, RealTimeInventory, int>> CreateInventoryOperationEvents(RealTimeInventory inventory, int toUpdate, int looplength)
+        private List<Tuple<int, RealTimeInventory, int>> CreateInventoryOperationEvents(RealTimeInventory inventory, int toUpdate, int looplength)
         {
             List<Tuple<int, RealTimeInventory, int>> events = new List<Tuple<int, RealTimeInventory, int>>();
             var operations = InventoryServiceSpecificationHelper.GetOperations(null);
@@ -168,7 +215,7 @@ namespace InventoryService.Tests
             return events;
         }
 
-        private static RealTimeInventory RunSomeInventoryOperationUsingEventsSync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceServer testHelper)
+        private RealTimeInventory RunSomeInventoryOperationUsingEventsSync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceServer testHelper)
         {
             var operations = InventoryServiceSpecificationHelper.GetOperations(testHelper);
 
@@ -181,7 +228,7 @@ namespace InventoryService.Tests
             return currentInventoryAfterLastOperation as RealTimeInventory;
         }
 
-        private static RealTimeInventory RunSomeInventoryOperationUsingEventsAsync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceServer testHelper)
+        private RealTimeInventory RunSomeInventoryOperationUsingEventsAsync(List<Tuple<int, RealTimeInventory, int>> events, InventoryServiceServer testHelper)
         {
             var operations2 = InventoryServiceSpecificationHelper.GetOperations(testHelper);
 
@@ -219,7 +266,7 @@ namespace InventoryService.Tests
         }
 
         /*
-              var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+              var inventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
               var serverOptions = new InventoryServerOptions()
               {
                   InitialInventory = inventory,
@@ -234,7 +281,7 @@ namespace InventoryService.Tests
                   ServerActorSystemConfig = @"
                      akka {
                      loggers = [""Akka.Logger.NLog.NLogLogger,Akka.Logger.NLog""]
-                     stdout-loglevel = DEBUG
+                     #stdout-loglevel = DEBUG
                      loglevel = DEBUG
                      log-config-on-start = on
                       }

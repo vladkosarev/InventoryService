@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -64,10 +64,6 @@
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>
       <Name>InventoryService.Storage</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
-      <Project>{d709c476-e572-470a-b948-1b05339f6c7e}</Project>
-      <Name>InventoryService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

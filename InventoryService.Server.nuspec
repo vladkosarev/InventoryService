@@ -25,9 +25,7 @@
     <file src="InventoryService.Storage.dll" target="lib\net40" />
     <file src="InventoryService.ActorSystemFactoryLib.dll" target="lib\net40" />
     <file src="InventoryService.Actors.dll" target="lib\net40" />
-    <file src="InventoryService.NotificationActor.dll" target="lib\net40" />
     <file src="InventoryService.dll" target="lib\net40" />
-    <file src="web\**\*.*" target="web"  />
     <file src="readme.txt" target="" />
   </files>
 

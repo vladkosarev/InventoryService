@@ -72,6 +72,16 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
     var messageCount = 0;
+
+    $scope.performOperation = function (operationName,id, quantity,messageQty) {
+        hub.server.performOperation(operationName, id, quantity, messageQty);
+    };
+
+    $scope.messageQuantity = 1;
+    $scope.current = {};
+    $scope . setCurrent = function(inv) {
+        $scope.current = inv;
+    };
     $scope.model = {};
     $scope.model.logMessages = true;
     var storage = function(a,b) {
@@ -88,8 +98,8 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         }
     };
     var initStorage = function() {
-        $scope.model.realtime=  storage("model.realtime")?true:false;
-        $scope.model.logMessages = storage("model.logMessages") ? true : false;
+        $scope.model.realtime=  storage("model.realtime");
+        $scope.model.logMessages = false;// storage("model.logMessages") ;
     };
     $scope.updateStorage=function () {
         storage("model.realtime", $scope.model.realtime);
@@ -99,29 +109,60 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     var hasLoaded = false;
     var lastResponse = {};
     var lastResponseDict = {};
+    $scope.realTimeInventories = [];
+
+    var line1 = new TimeSeries();
+    var smoothie = new SmoothieChart({ grid: {
+        strokeStyle: 'rgb(125, 0, 0)',
+        fillStyle: 'rgb(60, 0, 0)',
+        lineWidth: 1,
+        millisPerLine: 250,
+        verticalSections: 6
+    } });
+    smoothie.addTimeSeries(line1);
+   smoothie.streamTo(document.getElementById("mycanvas"), 1000 /*delay*/);
     $scope. updateGrid = function () {
         $scope.newUpdateAvailable = 0;
-        $("#jsGrid1")
-            .jsGrid({
-                width: "100%",
-                height: "500px",
-                inserting: false,
-                editing: false,
-                sorting: true,
-                paging: false,
 
-                data: lastResponse.RealTimeInventories,
+        $scope.realTimeInventories = $.map(lastResponseDict, function (value, index) {
+            return [value];
+        });
+        //$("#jsGrid1")
+        //    .jsGrid({
+        //        width: "100%",
+        //        height: "500px",
+        //        inserting: false,
+        //        editing: false,
+        //        sorting: true,
+        //        paging: false,
 
-                fields: [
-                    { name: "ProductId", type: "text", width: 200 },
-                    { name: "Quantity", type: "text", width: 200 },
-                    { name: "Reserved", type: "text", width: 200 },
-                    { name: "Holds", type: "text", width: 200 }
-                ]
-            });
+        //        data: lastResponse.RealTimeInventories,
+
+        //        fields: [
+        //            { name: "ProductId", type: "text", width: 200 },
+        //            { name: "Quantity", type: "text", width: 200 },
+        //            { name: "Reserved", type: "text", width: 200 },
+        //            { name: "Holds", type: "text", width: 200 }
+        //        ]
+        //    });
     }
+    $scope.sortType = 'ProductId'; // set the default sort type
+    $scope.sortReverse = false;  // set the default sort order
+    $scope.searchFish = '';     // set the default search/filter term
     $scope.newUpdateAvailable = 0;
+
+    $scope.operationNames = [];
+
+    hub.client("operationNames", function(operationNames) {
+        $scope.operationNames = operationNames;
+    });
     hub.client("inventoryData", function (response) {
+        if (!response) return;
+         console.log("PeakMessageSpeed: " + response.PeakMessageSpeed + "m/s   Speed: " + response.Speed+"m/s");
+        hasLoaded = false;
+        if (response.RealTimeInventories&& response.RealTimeInventories.length>1) {
+            console.log("Got inventory " );
+        }
         for (var i = 0; i < response.RealTimeInventories.length; i++) {
             var newInventory = response.RealTimeInventories[i];
             var productId = newInventory.ProductId;
@@ -136,17 +177,26 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
             lastResponseDict[productId] = newInventory;
         }
         lastResponse = response;
-        if ($scope.model.realtime || !hasLoaded) {
-             $timeout(function() {
-                 $scope.updateGrid();
-                 hasLoaded = true;
-             });
+        hasLoaded = true;
+        if ($scope.model.realtime ) {
+            $timeout(function () {
+                if (hasLoaded) {
+                   $scope.updateGrid();
+                   hasLoaded = true;
+                }
+             },10);
         }
     });
 
     $scope.serverNotificationMessages = "";
+    $scope.jsonNotificationMessages = "";
     $scope.messageSpeed = "";
     $scope.model.incomingMessages = [];
+
+    hub.client("jsonNotificationMessages",
+       function (response) {
+           $scope.jsonNotificationMessages = response;
+       });
 
     hub.client("serverNotificationMessages",
         function(response) {
@@ -157,6 +207,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         function(response) {
             var speed = parseInt(response, 10);
             $scope.messageSpeed = speed;
+            line1.append(new Date().getTime(), speed);
             if ($scope.peekMessageCount < speed) {
                 $scope.peekMessageCount = speed;
             }
@@ -165,6 +216,9 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     hub.client("incomingMessage",
         function (response) {
             messageCount++;
+            if (!$scope.model.logMessages) {
+                return;
+            }
             $timeout(function() {
                 $scope.model.incomingMessagesFirst =messageCount+" : "+ response;
                     if ($scope.model.logMessages) {

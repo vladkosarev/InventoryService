@@ -23,7 +23,7 @@ NOTE : THERE IS A DEPENDENCY ON InventoryService.Messages PACKAGE THAT HAS TO BE
                 ServerActorSystemConfig = @"
                    akka {
                    loggers = [""Akka.Logger.NLog.NLogLogger,Akka.Logger.NLog""]
-                   stdout-loglevel = DEBUG
+                   #stdout-loglevel = DEBUG
                    loglevel = DEBUG
                    log-config-on-start = on
 
@@ -110,11 +110,11 @@ NOTE : THERE IS A DEPENDENCY ON InventoryService.Messages PACKAGE THAT HAS TO BE
 
                     if (result.Result.Successful)
                     {
-                        Console.WriteLine(result.Result.RealTimeInventory);
+                       Log.Debug(result.Result.RealTimeInventory);
                     }
                     else
                     {
-                        Console.WriteLine(result.Result.RealTimeInventory);
+                       Log.Debug(result.Result.RealTimeInventory);
                     }
                 }
             }
@@ -132,7 +132,7 @@ THE CONFIG SECTION LOOKS SOMETHING LIKE THIS
   </configSections>
   <appSettings>
     <add key="Storage" value="InventoryService.Storage.InMemoryLib.InMemory, InventoryService.Storage.InMemoryLib" />
-    <add key="RemoteActorAddress" value="akka.tcp://InventoryService-Server@localhost:10000/user/InventoryActor" />
+    <add key="RemoteInventoryActorAddress" value="akka.tcp://InventoryService-Server@localhost:10000/user/InventoryActor" />
     <add key="ServerEndPoint" value="http://*:10080/" />
     <add key="ServerActorSystemName" value="InventoryService-Server" />
   </appSettings>

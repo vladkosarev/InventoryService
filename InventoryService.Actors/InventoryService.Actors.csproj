@@ -38,8 +38,8 @@
       <HintPath>..\packages\Akka.Cluster.1.1.2\lib\net45\Akka.Cluster.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Akka.Logger.NLog, Version=1.0.8.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Akka.Logger.NLog.1.0.8\lib\net45\Akka.Logger.NLog.dll</HintPath>
+    <Reference Include="Akka.Logger.NLog, Version=1.1.2.5, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Logger.NLog.1.1.2\lib\net45\Akka.Logger.NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Akka.Remote, Version=1.1.2.29, Culture=neutral, processorArchitecture=MSIL">
@@ -63,7 +63,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.7\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.4.0-betaV15\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -71,7 +71,13 @@
       <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -80,13 +86,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GetMetrics.cs" />
     <Compile Include="InventoryActor.cs" />
+    <Compile Include="InventoryServicePingActor.cs" />
+    <Compile Include="ListOfTExtentions.cs" />
+    <Compile Include="Messages\ExportAllInventoryMessage.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
     <Compile Include="Messages\LoadedInventoryMessage.cs" />
     <Compile Include="Messages\WriteInventoryMessage.cs" />
     <Compile Include="Messages\WriteReservationsMessage.cs" />
     <Compile Include="Messages\WroteInventoryMessage.cs" />
     <Compile Include="Messages\WroteReservationsMessage.cs" />
+    <Compile Include="NotificationsActor.cs" />
     <Compile Include="ProductInventoryActor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -95,13 +106,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\InventoryService.ActorMailBoxes\InventoryService.ActorMailBoxes.csproj">
+      <Project>{a32b3eb0-b7cb-470b-a5a0-2fc083b774d5}</Project>
+      <Name>InventoryService.ActorMailBoxes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InventoryService.NotificationActor\InventoryService.NotificationActor.csproj">
-      <Project>{058A90E4-0069-4606-BEC1-B804A00BD2A2}</Project>
-      <Name>InventoryService.NotificationActor</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage\InventoryService.Storage.csproj">
       <Project>{69C4264A-CB21-47F8-A467-6072172DA842}</Project>

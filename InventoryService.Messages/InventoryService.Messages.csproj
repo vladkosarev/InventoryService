@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,13 +41,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActorAliveMessage.cs" />
+    <Compile Include="ActorAliveReceivedMessage.cs" />
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
+    <Compile Include="ExportAllInventoryCompletedMessage.cs" />
+    <Compile Include="GetAllInventoryListMessage.cs" />
+    <Compile Include="GetMetricsCompletedMessage.cs" />
     <Compile Include="GetMetricsMessage.cs" />
     <Compile Include="InitializeInventoriesFromStorageMessage.cs" />
     <Compile Include="InventoryServiceErrorMessageGenerator.cs" />
+    <Compile Include="InventoryServicePingMessage.cs" />
+    <Compile Include="InventoryServicePongMessage.cs" />
+    <Compile Include="Models\EtagGeneratorExtention.cs" />
     <Compile Include="Models\IRealTimeInventory.cs" />
     <Compile Include="Models\RealTimeInventory.cs" />
+    <Compile Include="NotificationSubscriptionMessages\CheckIfNotificationSubscriptionExistsCompletedMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\CheckIfNotificationSubscriptionExistsMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\UnSubScribeToNotificationMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationCompletedMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationFailedMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\SubScribeToNotificationMessage.cs" />
+    <Compile Include="NotificationSubscriptionMessages\UnSubScribeToNotificationCompletedMessage.cs" />
     <Compile Include="RealTimeInventoryException.cs" />
     <Compile Include="Request\GetInventoryMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,6 +71,8 @@
     <Compile Include="Request\QueryInventoryListCompletedMessage.cs" />
     <Compile Include="Request\QueryInventoryListMessage.cs" />
     <Compile Include="Request\RemoveProductMessage.cs" />
+    <Compile Include="Request\ResetInventoryQuantityReserveAndHoldMessage.cs" />
+    <Compile Include="Request\ServerNotificationMessage.cs" />
     <Compile Include="Request\UpdateAndHoldQuantityMessage.cs" />
     <Compile Include="IInventoryServiceCompletedMessage.cs" />
     <Compile Include="Response\GetRemovedProductCompletedMessage.cs" />
@@ -64,6 +82,7 @@
     <Compile Include="Request\PurchaseFromHoldsMessage.cs" />
     <Compile Include="Request\PurchaseMessage.cs" />
     <Compile Include="Response\PlaceHoldCompletedMessage.cs" />
+    <Compile Include="Response\ResetInventoryQuantityReserveAndHoldCompletedMessage.cs" />
     <Compile Include="Response\UpdateAndHoldQuantityCompletedMessage.cs" />
     <Compile Include="Response\UpdateQuantityCompletedMessage.cs" />
     <Compile Include="Response\ReserveCompletedMessage.cs" />
@@ -71,6 +90,7 @@
     <Compile Include="Request\UpdateQuantityMessage.cs" />
     <Compile Include="Request\ReserveMessage.cs" />
     <Compile Include="Response\GetInventoryCompletedMessage.cs" />
+    <Compile Include="UnSubscribedNotificationMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

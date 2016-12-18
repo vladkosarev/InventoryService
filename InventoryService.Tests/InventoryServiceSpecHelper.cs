@@ -208,5 +208,33 @@ namespace InventoryService.Tests
                 Assert.Equal(r.RealTimeInventory.Holds, inventory.Holds);
             }
         }
+
+        public static void AssertResetInventoryQuantityReserveAndHold(RealTimeInventory inventory, int toUpdate, int toReserve, int toHold, IInventoryServiceCompletedMessage r)
+        {
+            if ((toUpdate - toReserve >= 0) || toReserve <= 0)
+            {
+                if (toUpdate - toHold >= 0)
+                {
+                    Assert.True(r.Successful);
+                    var newReserved = Math.Max(0, toReserve);
+                    Assert.Equal(r.RealTimeInventory.Reserved, newReserved);
+                    Assert.Equal(r.RealTimeInventory.Holds, toHold);
+                }
+                else
+                {
+                    Assert.False(r.Successful);
+                }
+            }
+            else
+            {
+                Assert.False(r.Successful);
+            }
+
+            if (r.Successful) return;
+            //else things remain same
+            Assert.Equal(r.RealTimeInventory.Quantity, inventory.Quantity);
+            Assert.Equal(r.RealTimeInventory.Reserved, inventory.Reserved);
+            Assert.Equal(r.RealTimeInventory.Holds, inventory.Holds);
+        }
     }
 }

@@ -8,8 +8,6 @@ namespace InventoryService.Messages.Response
         {
             RealTimeInventory = realTimeInventory;
             Successful = successful;
-
-            Successful = true;
         }
 
         public IRealTimeInventory RealTimeInventory { get; }

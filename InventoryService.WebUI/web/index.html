@@ -66,43 +66,136 @@
                 <section id="grid">
                     <div class="container">
                         <div class="row">
-                            <div class="col-lg-8 text-center">
-
-                                <br />
-                                <div id="jsGrid1"></div>
-                            </div>
-                            <div class="col-lg-4">
-
+                            <div class="col-lg-4 well">
                                 <div class="row">
+
+                                    <br />
+                                    <div class="well">
+                                        <pre> Current Item <input type="text" ng-model="current.ProductId" /></pre>
+                                        <hr />
+                                        Amount <input type="text" ng-model="quantityToPurchase" />
+
+                                        <hr />
+                                        Message Qty <input type="text" ng-model="messageQuantity" />
+
+                                        <hr />
+                                        <!-- Single button -->
+
+                                        <ul class="list-group">
+                                            <li class="list-group-item" ng-repeat="operationName in operationNames">
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        {{operationName}} <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" ng-show="current.ProductId && quantityToPurchase">
+                                                        <li><a>Are you sure ?</a></li>
+                                                        <li role="separator" class="divider"></li>
+                                                        <li><a class="btn" ng-click="performOperation(operationName, current.ProductId,quantityToPurchase,messageQuantity)">Yes send {{messageQuantity}} {{operationName}}(s) Qty: {{quantityToPurchase}} Prod: {{current.ProductId}} </a></li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        </ul>
+
+                                        <hr />
+
+                                        <pre>{{jsonNotificationMessages||'...'}}</pre>
+                                    </div>
                                     <br />
                                     <div>
-                                        <a class="btn btn-success" ng-click="updateGrid()" ng-show="newUpdateAvailable">{{newUpdateAvailable}} Updates Available</a>
+
                                         <a class="btn btn-primary" ng-click="model.realtime=!model.realtime;updateStorage()" ng-show="model.realtime">Disable Realtime</a>
                                         <a class="btn btn-primary" ng-click="model.realtime=!model.realtime;updateStorage()" ng-hide="model.realtime">Enable Realtime</a>
                                         <a class="btn btn-primary" ng-click="model.logMessages=!model.logMessages;updateStorage()" ng-show="model.logMessages">Disable Message Logs</a>
                                         <a class="btn btn-primary" ng-click="model.logMessages=!model.logMessages;updateStorage()" ng-hide="model.logMessages">Enable  Message Logs</a>
                                         <a class="btn btn-danger" ng-click="model.incomingMessages=[]">Clear List</a>
-                                     </div>
+                                    </div>
                                     <br />
                                     <div class="well"><a class="btn btn-info">{{serverNotificationMessages||'...'}}</a></div>
                                     <div class="well"><a class="">{{messageSpeed}} messages/sec | Peak At {{peekMessageCount}}  messages/sec</a></div>
+                                    <div class="well">
+                                        <canvas id="mycanvas" style="width:100%" height="100"></canvas>
+                                    </div>
 
                                     <div class="well">
-
-                                         Message Limit <input type="text" ng-model="maxMessageCount" />
+                                        Message Limit <input type="text" ng-model="maxMessageCount" />
                                         <br /><br />
                                         <ul class="list-group">
-                                            <li ng-show="model.incomingMessagesFirst"  class="list-group-item animated zoomIn  "><span >{{model.incomingMessagesFirst}}</span></li>
+                                            <li ng-show="model.incomingMessagesFirst" class="list-group-item animated zoomIn  "><span>{{model.incomingMessagesFirst}}</span></li>
                                             <li ng-repeat="message in model.incomingMessages  track by $index" class="list-group-item zoomOut"><span class="animated bounceIn ">{{message}}</span></li>
                                         </ul>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 text-center">
+
+                                <br />
+                                <!--<div id="jsGrid1"></div>-->
+
+                                <a class="btn btn-success" ng-click="updateGrid()" ng-show="newUpdateAvailable && !model.realtime" style="position: fixed; right: 0; z-index: 999;">{{newUpdateAvailable}} Updates Available</a>
+                                <div class="well">
+                                    <div class="alert alert-info text-left">
+                                        <span>Sort Type: {{ sortType }}</span>
+                                        <span>Sort Reverse: {{ sortReverse }}</span>
+                                        <span>Search Query: {{ searchFish }}</span>
+                                    </div>
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchFish">
+                                    <table class="table table-striped">
+                                        <!--<thead>
+                                        <tr>
+                                            <th>ProductId</th>
+                                            <th>Quantity</th>
+                                            <th>Reserved</th>
+                                            <th>Holds</th>
+                                        </tr>
+                                        </thead>-->
+                                        <thead>
+                                        <tr>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'ProductId'; sortReverse = !sortReverse">
+                                                    ProductId
+                                                    <span ng-show="sortType == 'ProductId' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'ProductId' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'Quantity'; sortReverse = !sortReverse">
+                                                    Quantity
+                                                    <span ng-show="sortType == 'Quantity' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'Quantity' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'Reserved'; sortReverse = !sortReverse">
+                                                    Reserved
+                                                    <span ng-show="sortType == 'Reserved' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'Reserved' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" ng-click="sortType = 'Holds'; sortReverse = !sortReverse">
+                                                    Holds
+                                                    <span ng-show="sortType == 'Holds' && !sortReverse" class="fa fa-caret-down"></span>
+                                                    <span ng-show="sortType == 'Holds' && sortReverse" class="fa fa-caret-up"></span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr ng-repeat="inv in realTimeInventories | orderBy:sortType:sortReverse | filter:searchFish">
+                                            <td><button class="btn btn-primary" ng-click="setCurrent(inv)">{{inv.ProductId}}</button></td>
+                                            <td>{{inv.Quantity}}</td>
+                                            <td>{{inv.Reserved}}</td>
+                                            <td>{{inv.Holds}}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
             </div>
-            </div>
+        </div>
     </div>
 
     <!-- About Section -->
@@ -114,7 +207,9 @@
         </a>
     </div>
 
-    <script src="/signalr/hubs"></script>
+<script src="/signalr/hubs"></script>
+
+    <script type="text/javascript"  src="js/smoothie.js"></script>
     <script src="js/script.js"></script>
 
     <!-- Bootstrap Core JavaScript -->

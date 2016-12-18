@@ -9,6 +9,7 @@ namespace InventoryService.Tests
         {
             task.ConfigureAwait(false);
             Task.WaitAll(task);
+
             return task.Result;
         }
     }

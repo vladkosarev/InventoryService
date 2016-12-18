@@ -28,7 +28,7 @@ namespace InventoryService.TestUitlity
                     Convert.ToInt32(InitialQuantity.Text),
                     Convert.ToInt32(InitialReservation.Text),
                     Convert.ToInt32(InitialHold.Text));
-                InventoryServiceServer helper = new InventoryServiceServer(new InventoryServerOptions()
+                InventoryServiceServer helper = new InventoryServiceServer(new TestPerformanceService(), new InventoryServerOptions()
                 {
                     StorageType = typeof(Storage.InMemoryLib.InMemory),
                     InitialInventory = inventory,
@@ -107,7 +107,7 @@ namespace InventoryService.TestUitlity
         {
             cmbOoperation.SelectedIndex = 1;
             ActorSystem = ActorSystem.Create("InventoryService-Client");
-            textBox1.Text = ConfigurationManager.AppSettings["RemoteActorAddress"];
+            textBox1.Text = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
 
             button1.PerformClick();
         }

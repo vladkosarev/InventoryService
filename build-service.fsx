@@ -15,7 +15,7 @@ open Fake.Testing
 
 let buildParam = getBuildParamOrDefault  "buildType" "release" 
 // Directories
-let root="./.build/build-"+buildParam
+let root="./.build/build-"+buildParam+"-service"
 let buildDir  = root+"/app/"
 let testDir   =root+ "/test"
 let deployDir = root+"/deploy/"
@@ -63,7 +63,7 @@ let NugetDeployPath= match nugetDeployPath with
 let version =
   match buildServer with
   | TeamCity -> (buildVersion+BuildVersionType)
-  | _        -> ("0.2.5"+BuildVersionType)
+  | _        -> ("1.0.6"+BuildVersionType)
 
 // Targets
 Target "Clean" (fun _ -> 
@@ -153,8 +153,8 @@ Target "RemotePublishNuGet" (fun _ ->
 // Build order
 "Clean"
   ==> "BuildMessages"
- // ==> "BuildTest"
- // ==> "xUnitTest" 
+  ==> "BuildTest"
+  ==> "xUnitTest" 
   ==> "BuildService"
   ==> "CreateNuget"
   ==> "RemotePublishNuGet"

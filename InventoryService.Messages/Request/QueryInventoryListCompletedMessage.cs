@@ -3,13 +3,27 @@ using System.Collections.Generic;
 
 namespace InventoryService.Messages.Request
 {
-    public class QueryInventoryListCompletedMessage
+    public class RealTimeInventoryChangeMessage
     {
-        public QueryInventoryListCompletedMessage(List<RealTimeInventory> realTimeInventories)
+        public RealTimeInventoryChangeMessage(IRealTimeInventory realTimeInventory)
         {
-            RealTimeInventories = realTimeInventories;
+            RealTimeInventory = realTimeInventory;
         }
 
-        public List<RealTimeInventory> RealTimeInventories { get; private set; }
+        public IRealTimeInventory RealTimeInventory { get; }
+    }
+
+    public class QueryInventoryCompletedMessage
+    {
+        public QueryInventoryCompletedMessage(List<IRealTimeInventory> realTimeInventory, double speed, double peakMessageSpeed)
+        {
+            RealTimeInventories = realTimeInventory;
+            Speed = speed;
+            PeakMessageSpeed = peakMessageSpeed;
+        }
+
+        public List<IRealTimeInventory> RealTimeInventories { get; }
+        public double Speed { get; }
+        public double PeakMessageSpeed { get; }
     }
 }

@@ -7,6 +7,7 @@ namespace InventoryService.ServiceClientDeployment
     {
         public void Configuration(IAppBuilder appBuilder)
         {
+            System.Threading.Thread.Sleep(5000);
             new SampleClientClass().StartSampleClientAsync();
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Configuration;
+using InventoryService;
 using InventoryService.AkkaInMemoryServer;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
@@ -33,7 +34,7 @@ namespace PackageQA
                   }
               "
             };
-            var InventoryserviceServer = new InventoryServiceServer(serverOptions);
+            var InventoryserviceServer = new InventoryServiceServer(new TestPerformanceService(), serverOptions);
 
             var res = InventoryserviceServer.inventoryActor.Path;
             var res2 = InventoryserviceServer.inventoryActor.Ask(new GetInventoryMessage("sample")).Result;
@@ -61,7 +62,7 @@ namespace PackageQA
               "
             };
 
-            using (var server = new InventoryServiceServer(serverOptions))
+            using (var server = new InventoryServiceServer(new TestPerformanceService(), serverOptions))
             {
                 var mySystem = Akka.Actor.ActorSystem.Create("mySystem", ConfigurationFactory.ParseString(@"
                   akka.actor{provider= ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""}

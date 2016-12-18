@@ -17,13 +17,32 @@ namespace InventoryService.Console
             const int initialQuantity = 1;
 
             IList<Tuple<string, int, int>> products = new List<Tuple<string, int, int>>();
-            products.Add(new Tuple<string, int, int>("ticketsections-216", initialQuantity, 0));
-            products.Add(new Tuple<string, int, int>("ticketsections-217", initialQuantity, 0));
+
+            for (var i = 0; i < 100000; i++)
+            {
+                products.Add(new Tuple<string, int, int>("ticketsections-" + i, initialQuantity, 0));
+            }
+
+            //products.Add(new Tuple<string, int, int>("ticketsections-2", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-3", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-4", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-5", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("ticketsections-6", initialQuantity, 0));
+
+            //products.Add(new Tuple<string, int, int>("me-216", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-217", initialQuantity, 0));
+
+            //products.Add(new Tuple<string, int, int>("me-1", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-2", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-3", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-4", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-5", initialQuantity, 0));
+            //products.Add(new Tuple<string, int, int>("me-6", initialQuantity, 0));
 
             System.Console.WriteLine("Starting Client");
             var actorSystem = ActorSystem.Create("InventoryService-Client");
             {
-                var remoteAddress = ConfigurationManager.AppSettings["RemoteActorAddress"];
+                var remoteAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
                 var inventoryActorSelection =
                     actorSystem.ActorSelection(remoteAddress);
 
@@ -51,44 +70,51 @@ namespace InventoryService.Console
                 //                    Task.Delay(TimeSpan.FromSeconds(1)).TODO /* USE PROPER ASYNC AWAIT HERE */
                 //                }
 
-                var m = await inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
+                //  var m = await inventoryActor.Ask(new UpdateQuantityMessage("test", 1));
                 // m.TODO /* USE PROPER ASYNC AWAIT HERE */
                 //  var n=  m.Result;
                 var counter = 0;
-                var totalIteration = 10;
+                var totalIteration = 10000;
+                var ticketSectionNumber = new Random();
+                await Task.Delay(1000);
+
                 products.ForEach(p =>
                 {
                     for (var i = 0; i < totalIteration; i++)
                     {
                         try
                         {
-                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 1000));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 10));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            if (i % 3 == 0)
-                            {
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                                actorSystem.Terminate();
-                                inventoryActor =
-                                     ActorSystem.Create("InventoryService-Client").ActorSelection(remoteAddress);
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                                Task.Delay(TimeSpan.FromSeconds(1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            }
+                            inventoryActor.Tell(new UpdateQuantityMessage("ticketsections-" + ticketSectionNumber.Next(216, 216),10000));//.TODO /* USE PROPER ASYNC AWAIT HERE */
 
-                            if (i % 7 == 0)
-                            {
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                                actorSystem = ActorSystem.Create("InventoryService-Client");
-                                inventoryActor =
-                                  actorSystem.ActorSelection(remoteAddress);
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                                Task.Delay(TimeSpan.FromSeconds(1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                                inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
-                            }
+                            inventoryActor.Tell(new ReserveMessage("ticketsections-" + ticketSectionNumber.Next(216, 216), 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+
+                            // inventoryActor.Tell(new ReserveMessage("ticketsections-" + ticketSectionNumber.Next(1,999), i));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //inventoryActor.Ask(new ReserveMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //inventoryActor.Ask(new PlaceHoldMessage(p.Item1, 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //inventoryActor.Ask(new UpdateQuantityMessage(p.Item1, 10));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //inventoryActor.Ask(new GetInventoryMessage(p.Item1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //if (i % 3 == 0)
+                            //{
+                            //    inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //    actorSystem.Terminate();
+                            //    inventoryActor =
+                            //         ActorSystem.Create("InventoryService-Client").ActorSelection(remoteAddress);
+                            //    inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //    Task.Delay(TimeSpan.FromSeconds(1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //    inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //}
+
+                            //if (i % 7 == 0)
+                            //{
+                            //    inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //    actorSystem = ActorSystem.Create("InventoryService-Client");
+                            //    inventoryActor =
+                            //      actorSystem.ActorSelection(remoteAddress);
+                            //    inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //    Task.Delay(TimeSpan.FromSeconds(1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //    inventoryActor.ResolveOne(TimeSpan.FromSeconds(3));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            //}
                             counter++;
                         }
                         catch (Exception ex)
