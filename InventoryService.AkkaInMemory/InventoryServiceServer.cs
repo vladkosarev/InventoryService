@@ -10,6 +10,7 @@ using Microsoft.Owin.Hosting;
 using System;
 using System.Configuration;
 using System.Threading.Tasks;
+using InventoryService.BackUpService;
 
 namespace InventoryService.AkkaInMemoryServer
 {
@@ -20,7 +21,7 @@ namespace InventoryService.AkkaInMemoryServer
         private InventoryServerOptions Options { set; get; }
         private bool DontUseActorSystem { set; get; }
 
-        public InventoryServiceServer(IPerformanceService performanceService, InventoryServerOptions options = null)
+        public InventoryServiceServer(IPerformanceService performanceService, IBackUpService backUpService, InventoryServerOptions options = null)
         {
             Options = options ?? new InventoryServerOptions();
             if (Options.DontUseActorSystem)
@@ -44,7 +45,7 @@ namespace InventoryService.AkkaInMemoryServer
                     Options.InventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
                 }
 
-                InventoryServiceApplication.Start(performanceService, Options.OnInventoryActorSystemReady, Options.StorageType,
+                InventoryServiceApplication.Start(performanceService, backUpService, Options.OnInventoryActorSystemReady, Options.StorageType,
                     serverEndPoint: Options.ServerEndPoint, serverActorSystemName: Options.ServerActorSystemName,
                     serverActorSystem: Options.ServerActorSystem,
                     serverActorSystemConfig: Options.ServerActorSystemConfig);

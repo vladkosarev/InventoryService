@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Windows.Forms;
+using InventoryService.NullBackUpService;
 
 namespace InventoryService.TestUitlity
 {
@@ -28,7 +29,7 @@ namespace InventoryService.TestUitlity
                     Convert.ToInt32(InitialQuantity.Text),
                     Convert.ToInt32(InitialReservation.Text),
                     Convert.ToInt32(InitialHold.Text));
-                InventoryServiceServer helper = new InventoryServiceServer(new TestPerformanceService(), new InventoryServerOptions()
+                InventoryServiceServer helper = new InventoryServiceServer(new TestPerformanceService(), new NullBackUp(), new InventoryServerOptions()
                 {
                     StorageType = typeof(Storage.InMemoryLib.InMemory),
                     InitialInventory = inventory,

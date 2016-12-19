@@ -32,11 +32,11 @@ namespace InventoryService.WebUIDeployment
             try
             {
                 ActorSystemFactory.CreateOrSetUpActorSystem(serverActorSystemName: serverActorSystemName, actorSystem: serverActorSystem, actorSystemConfig: serverActorSystemConfig);
-                var inventoryNotificationActorAddress = ConfigurationManager.AppSettings["RemoteInventoryNotificationsActorAddress"];
+                var inventoryNotificationActorAddress = ConfigurationManager.AppSettings["RemoteInventoryInventoryQueryActorAddress"];
                 var RemoteInventoryActorAddress = ConfigurationManager.AppSettings["RemoteInventoryActorAddress"];
-                var signalRNotificationsActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRNotificationsActor(inventoryNotificationActorAddress, RemoteInventoryActorAddress)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(SignalRNotificationsActor).Name);
+                var signalRInventoryQueryActorRef = ActorSystemFactory.InventoryServiceActorSystem.ActorOf(Props.Create(() => new SignalRInventoryQueryActor(inventoryNotificationActorAddress, RemoteInventoryActorAddress)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(SignalRInventoryQueryActor).Name);
 
-                const string message = "signalRNotificationsActor created !!!!";
+                const string message = "signalRInventoryQueryActor created !!!!";
                 Log.Debug(message);
                 Console.WriteLine(message);
 
@@ -50,7 +50,7 @@ namespace InventoryService.WebUIDeployment
                        if (Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + "/web"))
                        {
                            var builder = new ContainerBuilder();
-                           builder.Register(c => signalRNotificationsActorRef).ExternallyOwned();
+                           builder.Register(c => signalRInventoryQueryActorRef).ExternallyOwned();
                            // Register your SignalR hubs.
                            builder.RegisterType<InventoryServiceHub>().ExternallyOwned();
 

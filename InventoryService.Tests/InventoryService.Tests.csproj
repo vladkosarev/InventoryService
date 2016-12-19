@@ -195,6 +195,10 @@
       <Project>{280E9442-AEDC-4E2A-8DC7-C28A1D26F1A2}</Project>
       <Name>InventoryService.AkkaInMemoryServer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService.BackUpService\InventoryService.BackUpService.csproj">
+      <Project>{E7364FC8-AE25-41F2-811A-AB00E4DD1EC3}</Project>
+      <Name>InventoryService.BackUpService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.Diagnostics\InventoryService.Diagnostics.csproj">
       <Project>{b0275619-9508-45c9-8c05-62bcd3700db4}</Project>
       <Name>InventoryService.Diagnostics</Name>
@@ -206,6 +210,10 @@
     <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
       <Name>InventoryService.Messages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.NullBackUpService\InventoryService.NullBackUpService.csproj">
+      <Project>{00FC2BBF-6E54-4836-84F4-359F52076CFD}</Project>
+      <Name>InventoryService.NullBackUpService</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Storage.Esent\InventoryService.Storage.EsentLib.csproj">
       <Project>{5515E3D0-E58F-4637-8044-48E05EE35B96}</Project>

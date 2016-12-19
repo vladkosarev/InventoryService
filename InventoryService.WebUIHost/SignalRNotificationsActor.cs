@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace InventoryService.WebUIHost
 {
-    public class SignalRNotificationsActor : ReceiveActor
+    public class SignalRInventoryQueryActor : ReceiveActor
     {
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         private SignalRNotificationService SignalRNotificationService { set; get; }
@@ -23,7 +23,7 @@ namespace InventoryService.WebUIHost
         protected double MessageSpeed = 0;
         protected double PeakMessageSpeed = 0;
 
-        public SignalRNotificationsActor(string inventoryNotificationActorAddress, string remoteInventoryActorAddress)
+        public SignalRInventoryQueryActor(string inventoryNotificationActorAddress, string remoteInventoryActorAddress)
         {
             var type = typeof(IRequestMessage);
             _requestmessageTypes = AppDomain.CurrentDomain.GetAssemblies()
@@ -39,9 +39,9 @@ namespace InventoryService.WebUIHost
 
             Receive<ExportAllInventoryMessage>(message =>
             {
-                if (NotificationsActorRef != null)
+                if (InventoryQueryActorRef != null)
                 {
-                    NotificationsActorRef.Tell(message);
+                    InventoryQueryActorRef.Tell(message);
                 }
                 else
                 {
@@ -141,9 +141,9 @@ namespace InventoryService.WebUIHost
 
             Receive<GetAllInventoryListMessage>(message =>
             {
-                if (NotificationsActorRef != null && !NotificationsActorRef.IsNobody())
+                if (InventoryQueryActorRef != null && !InventoryQueryActorRef.IsNobody())
                 {
-                    NotificationsActorRef.Tell(message);
+                    InventoryQueryActorRef.Tell(message);
                 }
                 else
                 {
@@ -156,17 +156,17 @@ namespace InventoryService.WebUIHost
             ReceiveAsync<UnSubscribedNotificationMessage>(async _ =>
             {
                 Logger.Error("Suddenly unsubscribed to notification. ");
-                NotificationsActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryNotificationActorAddress);
+                InventoryQueryActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryNotificationActorAddress);
             });
             ReceiveAsync<SubscribeToNotifications>(async _ =>
             {
-                NotificationsActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryNotificationActorAddress);
+                InventoryQueryActorRef = await SubscribeToRemoteNotificationActorMessasges(inventoryNotificationActorAddress);
             });
 
             Receive<SubScribeToNotificationCompletedMessage>(message =>
             {
                 SubscriptionId = message.SubscriptionId;
-                Context.Watch(NotificationsActorRef);
+                Context.Watch(InventoryQueryActorRef);
                 Self.Tell(new GetAllInventoryListMessage());
             });
 
@@ -197,21 +197,21 @@ namespace InventoryService.WebUIHost
             }
         }
 
-        public IActorRef NotificationsActorRef { get; set; }
+        public IActorRef InventoryQueryActorRef { get; set; }
 
         private async Task<IActorRef> SubscribeToRemoteNotificationActorMessasges(string inventoryActorAddress)
         {
-            var notificationsActor = Context.ActorSelection(inventoryActorAddress);
+            var InventoryQueryActor = Context.ActorSelection(inventoryActorAddress);
             Logger.Debug("Trying to reach remote actor at  " + inventoryActorAddress + " ....");
             var isReachable = false;
             var retryMax = 10;
             var expDelay = 0;
-            IActorRef notificationsActorRef = null;
+            IActorRef InventoryQueryActorRef = null;
             while (!isReachable && retryMax > 0)
             {
                 try
                 {
-                    notificationsActorRef = await notificationsActor.ResolveOne(TimeSpan.FromSeconds(3));
+                    InventoryQueryActorRef = await InventoryQueryActor.ResolveOne(TimeSpan.FromSeconds(3));
 
                     isReachable = true;
                     Logger.Debug("Successfully reached " + inventoryActorAddress + " ....");
@@ -228,14 +228,14 @@ namespace InventoryService.WebUIHost
             if (isReachable)
             {
                 Logger.Debug("Subscribing for notifications at " + inventoryActorAddress + " ....");
-                Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(3), notificationsActor, new SubScribeToNotificationMessage(), Self);
+                Context.System.Scheduler.ScheduleTellOnce(TimeSpan.FromSeconds(3), InventoryQueryActor, new SubScribeToNotificationMessage(), Self);
             }
             else
             {
                 //kill the actor
                 await Self.GracefulStop(TimeSpan.FromSeconds(10));
             }
-            return await Task.FromResult(notificationsActorRef);
+            return await Task.FromResult(InventoryQueryActorRef);
         }
 
         public class SubscribeToNotifications

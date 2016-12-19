@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using NLog;
 using System;
+using InventoryService.BackUpService;
 
 namespace InventoryService.Server
 {
@@ -8,7 +9,7 @@ namespace InventoryService.Server
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public void Start(IPerformanceService performanceService, Action<IActorRef, ActorSystem> onReady = null,
+        public void Start(IPerformanceService performanceService, IBackUpService backUpService, Action<IActorRef, ActorSystem> onReady = null,
             Type storageType = null
             , string serverEndPoint = null
             , string serverActorSystemName = null
@@ -19,7 +20,7 @@ namespace InventoryService.Server
             try
             {
                 InventoryServiceServerApp = new InventoryServiceServerApp();
-                InventoryServiceServerApp.StartServer(performanceService, onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
+                InventoryServiceServerApp.StartServer(performanceService, backUpService, onReady, storageType, serverActorSystemName: serverActorSystemName, serverActorSystem: serverActorSystem, serverActorSystemConfig: serverActorSystemConfig);
             }
             catch (Exception e)
             {

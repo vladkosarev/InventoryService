@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="GetMetrics.cs" />
     <Compile Include="InventoryActor.cs" />
+    <Compile Include="InventoryQueryActor.cs" />
     <Compile Include="InventoryServicePingActor.cs" />
     <Compile Include="ListOfTExtentions.cs" />
     <Compile Include="Messages\FlushStreamsMessage.cs" />
@@ -96,7 +97,7 @@
     <Compile Include="Messages\WriteReservationsMessage.cs" />
     <Compile Include="Messages\WroteInventoryMessage.cs" />
     <Compile Include="Messages\WroteReservationsMessage.cs" />
-    <Compile Include="NotificationsActor.cs" />
+    <Compile Include="PurgeInvalidSubscribers.cs" />
     <Compile Include="ProductInventoryActor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -108,6 +109,10 @@
     <ProjectReference Include="..\InventoryService.ActorMailBoxes\InventoryService.ActorMailBoxes.csproj">
       <Project>{a32b3eb0-b7cb-470b-a5a0-2fc083b774d5}</Project>
       <Name>InventoryService.ActorMailBoxes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InventoryService.BackUpService\InventoryService.BackUpService.csproj">
+      <Project>{E7364FC8-AE25-41F2-811A-AB00E4DD1EC3}</Project>
+      <Name>InventoryService.BackUpService</Name>
     </ProjectReference>
     <ProjectReference Include="..\InventoryService.Messages\InventoryService.Messages.csproj">
       <Project>{0A7A978D-2BD7-4A10-9088-28C74B5AFF80}</Project>
