@@ -110,9 +110,9 @@ namespace InventoryService.Actors
             {
                 PerformanceService.PrintMetrics();
             });
-            #if DEBUG
-                        Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
-            #endif
+#if DEBUG
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
+#endif
         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId, IPerformanceService performanceService)

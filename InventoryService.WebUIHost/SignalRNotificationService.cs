@@ -26,6 +26,7 @@ namespace InventoryService.WebUIHost
         {
             GlobalHost.ConnectionManager.GetHubContext<InventoryServiceHub>().Clients.All.jsonNotificationMessages(json);
         }
+
         //todo refactor so it does not send to every one!
         public void SendInventoryExportCsv(string csv)
         {

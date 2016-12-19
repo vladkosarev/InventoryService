@@ -18,11 +18,11 @@ namespace InventoryService.Actors
             var properties = GetPropertiesOfType<T>();
             var propertyCount = properties.Length;
             var outputBuilder = new StringBuilder();
-           
+
             for (var itemIndex = 0; itemIndex < itemCount; itemIndex++)
             {
                 var listItem = instance[itemIndex];
-                AppendListItemToOutputBuilder(outputBuilder, listItem, properties, propertyCount, delimiter, itemIndex==0);
+                AppendListItemToOutputBuilder(outputBuilder, listItem, properties, propertyCount, delimiter, itemIndex == 0);
 
                 AddNewLineIfRequired(trimTrailingNewLineIfExists, itemIndex, itemCount, outputBuilder);
             }
@@ -58,20 +58,19 @@ namespace InventoryService.Actors
             string delimiter, bool isFirstLine)
             where T : class
         {
-
             if (isFirstLine)
             {
-            for (var propertyIndex = 0; propertyIndex < properties.Count; propertyIndex += 1)
-              {
-                var property = properties[propertyIndex];
-                var propertyValue = property.Name;
-                outputBuilder.Append(propertyValue);
+                for (var propertyIndex = 0; propertyIndex < properties.Count; propertyIndex += 1)
+                {
+                    var property = properties[propertyIndex];
+                    var propertyValue = property.Name;
+                    outputBuilder.Append(propertyValue);
 
-                AddDelimiterIfRequired(outputBuilder, propertyCount, delimiter, propertyIndex);
-              }
+                    AddDelimiterIfRequired(outputBuilder, propertyCount, delimiter, propertyIndex);
+                }
                 outputBuilder.Append(Environment.NewLine);
             }
-           
+
             for (var propertyIndex = 0; propertyIndex < properties.Count; propertyIndex += 1)
             {
                 var property = properties[propertyIndex];

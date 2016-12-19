@@ -8,7 +8,6 @@ namespace InventoryService.Messages.Models
 {
     public static class EtagGeneratorExtention
     {
-
         public static long GlobalEtagGeneratorCounter = 0;
 
         public static Guid GenerateNextGuid(this IRealTimeInventory inventory)
@@ -28,22 +27,25 @@ namespace InventoryService.Messages.Models
         {
             return inventory.ETag.ToEtagComparable();
         }
+
         public static BigInteger ToEtagComparable(this Guid? eTag)
         {
             return BigInteger.Parse(eTag.ToString().Replace("-", ""), NumberStyles.AllowHexSpecifier);
         }
-        public static bool IsMostRecentThan(this IRealTimeInventory @thisRealTimeInventory,IRealTimeInventory comparedToRealTimeInventory)
+
+        public static bool IsMostRecentThan(this IRealTimeInventory @thisRealTimeInventory, IRealTimeInventory comparedToRealTimeInventory)
         {
-            return thisRealTimeInventory.ETag!=null && thisRealTimeInventory.ETag.IsMostRecentThan(comparedToRealTimeInventory.ETag);
-        }
-        public static bool IsMostRecentThan(this Guid? thisEtag, Guid? comparedToEtag)
-        {
-            return (thisEtag != null && comparedToEtag != null &&(thisEtag).ToEtagComparable() > comparedToEtag.ToEtagComparable());
+            return thisRealTimeInventory.ETag != null && thisRealTimeInventory.ETag.IsMostRecentThan(comparedToRealTimeInventory.ETag);
         }
 
-        public static Guid? GetMostRecentEtag(this Guid? thisEtag,params Guid?[] comparedToEtag)
+        public static bool IsMostRecentThan(this Guid? thisEtag, Guid? comparedToEtag)
         {
-            return comparedToEtag!=null && comparedToEtag.Length>0? comparedToEtag.OrderByDescending(x => x.ToEtagComparable()).FirstOrDefault(): thisEtag;
+            return (thisEtag != null && comparedToEtag != null && (thisEtag).ToEtagComparable() > comparedToEtag.ToEtagComparable());
+        }
+
+        public static Guid? GetMostRecentEtag(this Guid? thisEtag, params Guid?[] comparedToEtag)
+        {
+            return comparedToEtag != null && comparedToEtag.Length > 0 ? comparedToEtag.OrderByDescending(x => x.ToEtagComparable()).FirstOrDefault() : thisEtag;
         }
     }
 }

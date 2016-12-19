@@ -73,35 +73,35 @@ angular.module("InventoryServiceApp").factory("hub", function (endpoints, $timeo
 angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope, $rootScope, $http, $q, $timeout, hub) {
     var messageCount = 0;
 
-    $scope.performOperation = function (operationName,id, quantity,messageQty) {
+    $scope.performOperation = function (operationName, id, quantity, messageQty) {
         hub.server.performOperation(operationName, id, quantity, messageQty);
     };
 
     $scope.messageQuantity = 1;
     $scope.current = {};
-    $scope . setCurrent = function(inv) {
+    $scope.setCurrent = function (inv) {
         $scope.current = inv;
     };
     $scope.model = {};
     $scope.model.logMessages = true;
-    var storage = function(a,b) {
+    var storage = function (a, b) {
         if (typeof (Storage) !== "undefined") {
             if (b) {
                 localStorage.setItem(a, b);
                 return undefined;
             } else {
-             return   localStorage.getItem(a);
+                return localStorage.getItem(a);
             }
         } else {
             console.log("Sorry! No Web Storage support..");
             return undefined;
         }
     };
-    var initStorage = function() {
-        $scope.model.realtime=  storage("model.realtime");
+    var initStorage = function () {
+        $scope.model.realtime = storage("model.realtime");
         $scope.model.logMessages = false;// storage("model.logMessages") ;
     };
-    $scope.updateStorage=function () {
+    $scope.updateStorage = function () {
         storage("model.realtime", $scope.model.realtime);
         storage("model.logMessages", $scope.model.logMessages);
     }
@@ -112,16 +112,18 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     $scope.realTimeInventories = [];
 
     var line1 = new TimeSeries();
-    var smoothie = new SmoothieChart({ grid: {
-        strokeStyle: 'rgb(125, 0, 0)',
-        fillStyle: 'rgb(60, 0, 0)',
-        lineWidth: 1,
-        millisPerLine: 250,
-        verticalSections: 6
-    } });
+    var smoothie = new SmoothieChart({
+        grid: {
+            strokeStyle: 'rgb(125, 0, 0)',
+            fillStyle: 'rgb(60, 0, 0)',
+            lineWidth: 1,
+            millisPerLine: 250,
+            verticalSections: 6
+        }
+    });
     smoothie.addTimeSeries(line1);
-   smoothie.streamTo(document.getElementById("mycanvas"), 1000 /*delay*/);
-    $scope. updateGrid = function () {
+    smoothie.streamTo(document.getElementById("mycanvas"), 1000 /*delay*/);
+    $scope.updateGrid = function () {
         $scope.newUpdateAvailable = 0;
 
         $scope.realTimeInventories = $.map(lastResponseDict, function (value, index) {
@@ -153,15 +155,15 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
 
     $scope.operationNames = [];
 
-    hub.client("operationNames", function(operationNames) {
+    hub.client("operationNames", function (operationNames) {
         $scope.operationNames = operationNames;
     });
     hub.client("inventoryData", function (response) {
         if (!response) return;
-         console.log("PeakMessageSpeed: " + response.PeakMessageSpeed + "m/s   Speed: " + response.Speed+"m/s");
+        console.log("PeakMessageSpeed: " + response.PeakMessageSpeed + "m/s   Speed: " + response.Speed + "m/s");
         hasLoaded = false;
-        if (response.RealTimeInventories&& response.RealTimeInventories.length>1) {
-            console.log("Got inventory " );
+        if (response.RealTimeInventories && response.RealTimeInventories.length > 1) {
+            console.log("Got inventory ");
         }
         for (var i = 0; i < response.RealTimeInventories.length; i++) {
             var newInventory = response.RealTimeInventories[i];
@@ -178,13 +180,13 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
         }
         lastResponse = response;
         hasLoaded = true;
-        if ($scope.model.realtime ) {
+        if ($scope.model.realtime) {
             $timeout(function () {
                 if (hasLoaded) {
-                   $scope.updateGrid();
-                   hasLoaded = true;
+                    $scope.updateGrid();
+                    hasLoaded = true;
                 }
-             },10);
+            }, 10);
         }
     });
 
@@ -192,12 +194,11 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     $scope.jsonNotificationMessages = "";
     $scope.messageSpeed = "";
     $scope.model.incomingMessages = [];
-    $scope.exportInventory = function() {
+    $scope.exportInventory = function () {
         hub.server.backUpInventories();
     };
 
-    $scope.downLoadInventoryExport = function() {
-        
+    $scope.downLoadInventoryExport = function () {
         var d = new Date();
         var filename = "real-time-inventory-export-" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDay() + "_" + d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds() + ".csv";
         var data = $scope.inventoryExport;
@@ -218,11 +219,7 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     hub.client("inventoryExportCsv",
        function (response) {
            $scope.inventoryExport = response;
-          
-
        });
-
-
 
     hub.client("jsonNotificationMessages",
        function (response) {
@@ -230,12 +227,12 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
        });
 
     hub.client("serverNotificationMessages",
-        function(response) {
+        function (response) {
             $scope.serverNotificationMessages = response;
         });
     $scope.peekMessageCount = 0;
     hub.client("messageSpeed",
-        function(response) {
+        function (response) {
             var speed = parseInt(response, 10);
             $scope.messageSpeed = speed;
             line1.append(new Date().getTime(), speed);
@@ -250,15 +247,15 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
             if (!$scope.model.logMessages) {
                 return;
             }
-            $timeout(function() {
-                $scope.model.incomingMessagesFirst =messageCount+" : "+ response;
-                    if ($scope.model.logMessages) {
-                    } else {
-                        $scope.model.incomingMessages = [];
-                    }
-                    $timeout((function (incomingMessagesFirst) {
+            $timeout(function () {
+                $scope.model.incomingMessagesFirst = messageCount + " : " + response;
+                if ($scope.model.logMessages) {
+                } else {
+                    $scope.model.incomingMessages = [];
+                }
+                $timeout((function (incomingMessagesFirst) {
                     return function () {
-                     incomingMessagesFirst && $scope.model.incomingMessages.unshift(incomingMessagesFirst);
+                        incomingMessagesFirst && $scope.model.incomingMessages.unshift(incomingMessagesFirst);
                         $scope.model.incomingMessagesFirst = false;
                         if ($scope.model.incomingMessages.length > $scope.maxMessageCount) {
                             while ($scope.model.incomingMessages.length > $scope.maxMessageCount) {

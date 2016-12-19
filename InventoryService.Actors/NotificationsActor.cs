@@ -7,7 +7,6 @@ using InventoryService.Messages.Request;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using InventoryService.Actors.Messages;
 
 namespace InventoryService.Actors
 {
@@ -89,7 +88,6 @@ namespace InventoryService.Actors
                 MessageCount = 0;
             });
 
-       
             Receive<Terminated>(t =>
             {
                 Logger.Error("Removing subscriber " + t.ActorRef.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
@@ -133,7 +131,6 @@ namespace InventoryService.Actors
                 var subscriptionExists = Subscribers.Exists(x => x.Item1 == message.SubscriptionId);
                 Sender.Tell(new CheckIfNotificationSubscriptionExistsCompletedMessage(subscriptionExists));
             });
-            
         }
 
         protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
@@ -159,10 +156,6 @@ namespace InventoryService.Actors
             }
         }
     }
-
-  
-
-
 
     public class PurgeInvalidSubscribers
     {

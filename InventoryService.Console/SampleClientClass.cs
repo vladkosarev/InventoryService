@@ -84,7 +84,7 @@ namespace InventoryService.Console
                     {
                         try
                         {
-                            inventoryActor.Tell(new UpdateQuantityMessage("ticketsections-" + ticketSectionNumber.Next(216, 216),10000));//.TODO /* USE PROPER ASYNC AWAIT HERE */
+                            inventoryActor.Tell(new UpdateQuantityMessage("ticketsections-" + ticketSectionNumber.Next(216, 216), 10000));//.TODO /* USE PROPER ASYNC AWAIT HERE */
 
                             inventoryActor.Tell(new ReserveMessage("ticketsections-" + ticketSectionNumber.Next(216, 216), 1));//.TODO /* USE PROPER ASYNC AWAIT HERE */
 
