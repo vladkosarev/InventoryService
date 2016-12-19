@@ -192,6 +192,37 @@ angular.module("InventoryServiceApp").controller("ActorsCtrl", function ($scope,
     $scope.jsonNotificationMessages = "";
     $scope.messageSpeed = "";
     $scope.model.incomingMessages = [];
+    $scope.exportInventory = function() {
+        hub.server.backUpInventories();
+    };
+
+    $scope.downLoadInventoryExport = function() {
+        
+        var d = new Date();
+        var filename = "real-time-inventory-export-" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDay() + "_" + d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds() + ".csv";
+        var data = $scope.inventoryExport;
+        var blob = new Blob([data], { type: 'text/csv' });
+        if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveBlob(blob, filename);
+        }
+        else {
+            var elem = window.document.createElement('a');
+            elem.href = window.URL.createObjectURL(blob);
+            elem.download = filename;
+            document.body.appendChild(elem);
+            elem.click();
+            document.body.removeChild(elem);
+        }
+        $scope.inventoryExport = false;
+    };
+    hub.client("inventoryExportCsv",
+       function (response) {
+           $scope.inventoryExport = response;
+          
+
+       });
+
+
 
     hub.client("jsonNotificationMessages",
        function (response) {

@@ -22,9 +22,15 @@ namespace InventoryService.WebUIHost
             Log.Debug("A client has joined the system and will be receiving messages");
         }
 
-        public void PerformOperation(string operation, string id, int quantity, int numberOfTimes)
+        public void BackUpInventories()
         {
-            SignalRNotificationsActorRef.Tell(new RequestInstructionIntoRemoteServermessage(operation, id, quantity, numberOfTimes));
+            Log.Debug("Exporting inventories");
+            SignalRNotificationsActorRef.Tell(new ExportAllInventoryMessage());
+        }
+
+        public void PerformOperation(string operation, string id, int quantity, int retryCount)
+        {
+            SignalRNotificationsActorRef.Tell(new RequestInstructionIntoRemoteServermessage(operation, id, quantity, retryCount));
         }
     }
 }

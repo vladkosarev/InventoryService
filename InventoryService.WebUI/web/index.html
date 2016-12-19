@@ -130,7 +130,11 @@
 
                                 <br />
                                 <!--<div id="jsGrid1"></div>-->
-
+                                
+                                <a class="btn btn-primary" ng-hide="inventoryExport" ng-click="exportInventory()" >Export Inventories</a>
+                                <a class="btn btn-success" ng-show="inventoryExport" ng-click="downLoadInventoryExport()">Download Inventory Export</a>
+                                
+                                <!--<div >{{inventoryExport}}</div>-->
                                 <a class="btn btn-success" ng-click="updateGrid()" ng-show="newUpdateAvailable && !model.realtime" style="position: fixed; right: 0; z-index: 999;">{{newUpdateAvailable}} Updates Available</a>
                                 <div class="well">
                                     <div class="alert alert-info text-left">

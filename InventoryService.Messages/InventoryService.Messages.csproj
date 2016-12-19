@@ -46,6 +46,7 @@
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExportAllInventoryCompletedMessage.cs" />
+    <Compile Include="ExportAllInventoryMessage.cs" />
     <Compile Include="GetAllInventoryListMessage.cs" />
     <Compile Include="GetMetricsCompletedMessage.cs" />
     <Compile Include="GetMetricsMessage.cs" />

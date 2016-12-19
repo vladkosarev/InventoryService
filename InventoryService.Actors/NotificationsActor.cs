@@ -49,7 +49,7 @@ namespace InventoryService.Actors
                 }
                 catch (Exception)
                 {
-                    Sender.Tell(new ExportAllInventoryCompletedMessage(""));
+                    Sender.Tell(new ExportAllInventoryCompletedMessage(null));
                 }
             });
             Receive<QueryInventoryListMessage>(message =>
