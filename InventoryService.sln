@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.FileSystem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.NullBackUpService", "InventoryService.NullBackUpService\InventoryService.NullBackUpService.csproj", "{00FC2BBF-6E54-4836-84F4-359F52076CFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService.AzureBlobBackUpService", "InventoryService.AzureBlobBackUpService\InventoryService.AzureBlobBackUpService.csproj", "{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -177,6 +179,10 @@ Global
 		{00FC2BBF-6E54-4836-84F4-359F52076CFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00FC2BBF-6E54-4836-84F4-359F52076CFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00FC2BBF-6E54-4836-84F4-359F52076CFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -205,5 +211,6 @@ Global
 		{E7364FC8-AE25-41F2-811A-AB00E4DD1EC3} = {D677F401-086D-46AF-8B98-7AC641653EBA}
 		{78B1CF4C-224D-4BF1-849A-DB45620195B0} = {D677F401-086D-46AF-8B98-7AC641653EBA}
 		{00FC2BBF-6E54-4836-84F4-359F52076CFD} = {D677F401-086D-46AF-8B98-7AC641653EBA}
+		{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D} = {D677F401-086D-46AF-8B98-7AC641653EBA}
 	EndGlobalSection
 EndGlobal
