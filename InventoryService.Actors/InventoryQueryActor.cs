@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.Event;
 using InventoryService.BackUpService;
 using InventoryService.Messages;
 using InventoryService.Messages.Models;
 using InventoryService.Messages.NotificationSubscriptionMessages;
 using InventoryService.Messages.Request;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace InventoryService.Actors
 {
@@ -16,7 +16,6 @@ namespace InventoryService.Actors
         public readonly ILoggingAdapter Logger = Context.GetLogger();
         protected List<Tuple<string, IActorRef>> Subscribers { set; get; }
         protected HashSet<string> ActorAliveList { set; get; }
-
         protected Dictionary<string, IRealTimeInventory> RealTimeInventories { set; get; }
         private IBackUpService BackUpService { set; get; }
         protected string LastReceivedServerMessage { set; get; }
@@ -24,9 +23,7 @@ namespace InventoryService.Actors
         protected double MessageSpeed = 0;
         protected double PeakMessageSpeed = 0;
         public double MessageSampleRate = 1;
-
         public Guid? LastEtag { set; get; }
-
         public InventoryQueryActor(IBackUpService backUpService)
         {
             if (backUpService == null) throw new ArgumentNullException(nameof(backUpService));
@@ -41,22 +38,20 @@ namespace InventoryService.Actors
                 LastReceivedServerMessage = string.IsNullOrEmpty(message) ? LastReceivedServerMessage : message;
                 Logger.Debug(LastReceivedServerMessage);
             });
-
             Receive<BackUpAllInventoryMessage>(message =>
             {
                 try
                 {
                     var inventories = RealTimeInventories.Select(x => x.Value as RealTimeInventory).ToList();
                     var csv = inventories.ToDelimitedText(",", true);
-                    backUpService.BackUp("inventory-service-backup-"+ $"{DateTime.UtcNow:dddd MMMM d yyyy HH-mm-ss}" +".csv", csv);
+                    backUpService.BackUp(("inventory-service-backup-" + $"{DateTime.UtcNow:dddd MMMM d yyyy HH-mm-ss}" + ".csv").ToLower(), csv);
                     Sender.Tell(new BackUpAllInventoryCompletedMessage());
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Sender.Tell(new BackUpAllInventoryFailedMessage());
+                    Sender.Tell(new BackUpAllInventoryFailedMessage(e.Message + " : " + e.InnerException?.Message));
                 }
             });
-
             Receive<ExportAllInventoryMessage>(message =>
             {
                 try
@@ -84,12 +79,10 @@ namespace InventoryService.Actors
                 NotifySubscribersAndRemoveStaleSubscribers(message);
                 Logger.Debug("total inventories in inventory service : " + RealTimeInventories.Count);
             });
-
             Receive<GetAllInventoryListMessage>(message =>
             {
                 Sender.Tell(new QueryInventoryCompletedMessage(RealTimeInventories.Select(x => x.Value).ToList(), 0, 0));
             });
-
             Receive<IRequestMessage>(message =>
             {
                 NotifySubscribersAndRemoveStaleSubscribers(message);
@@ -106,13 +99,11 @@ namespace InventoryService.Actors
                 lastUpadteTime = DateTime.UtcNow;
                 MessageCount = 0;
             });
-
             Receive<Terminated>(t =>
             {
                 Logger.Error("Removing subscriber " + t.ActorRef.Path.ToStringWithUid() + " because no ActorAliveMessage was received over time ....");
                 Self.Tell(new UnSubScribeToNotificationMessage(t.ActorRef.Path.ToStringWithUid()));
             });
-
             Receive<SubScribeToNotificationMessage>(message =>
             {
                 if (Sender.IsNobody())
@@ -150,9 +141,8 @@ namespace InventoryService.Actors
                 var subscriptionExists = Subscribers.Exists(x => x.Item1 == message.SubscriptionId);
                 Sender.Tell(new CheckIfNotificationSubscriptionExistsCompletedMessage(subscriptionExists));
             });
-            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromHours(1),Self,new BackUpAllInventoryMessage(),Self);
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromHours(1), Self, new BackUpAllInventoryMessage(), Self);
         }
-
         protected void NotifySubscribersAndRemoveStaleSubscribers<T>(T message)
         {
             foreach (var subscriber in Subscribers)
@@ -176,6 +166,4 @@ namespace InventoryService.Actors
             }
         }
     }
-
-  
 }

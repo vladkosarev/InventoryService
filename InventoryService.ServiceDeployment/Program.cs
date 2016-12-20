@@ -1,4 +1,5 @@
-﻿using InventoryService.FileSystemBackUpService;
+﻿using InventoryService.AzureBlobBackUpService;
+using InventoryService.FileSystemBackUpService;
 using InventoryService.Server;
 using Topshelf;
 
@@ -13,7 +14,7 @@ namespace InventoryService.ServiceDeployment
                 x.Service<InventoryServiceApplication>(s =>                        //2
                 {
                     s.ConstructUsing(name => new InventoryServiceApplication());     //3
-                    s.WhenStarted(tc => tc.Start(new TestPerformanceService(), new FileSystemBackUp("c://")));              //4
+                    s.WhenStarted(tc => tc.Start(new TestPerformanceService(), new AzureBlobBackUp()));              //4
                     s.WhenStopped(tc => tc.Stop());               //5
                 });
                 x.RunAsLocalSystem();                            //6

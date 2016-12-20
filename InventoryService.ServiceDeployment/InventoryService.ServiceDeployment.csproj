@@ -183,6 +183,10 @@
       <Project>{a32b3eb0-b7cb-470b-a5a0-2fc083b774d5}</Project>
       <Name>InventoryService.ActorMailBoxes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InventoryService.AzureBlobBackUpService\InventoryService.AzureBlobBackUpService.csproj">
+      <Project>{4706B0E5-11A8-4EE0-8715-AF7D7BB48A7D}</Project>
+      <Name>InventoryService.AzureBlobBackUpService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\InventoryService.BackUpService\InventoryService.BackUpService.csproj">
       <Project>{E7364FC8-AE25-41F2-811A-AB00E4DD1EC3}</Project>
       <Name>InventoryService.BackUpService</Name>

@@ -5,14 +5,10 @@ namespace InventoryService.AzureBlobBackUpService
 {
     public class AzureBlobConfiguration
     {
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="storageBlobContainer">if storageBlobContainer is not set, it will be retrieved from appSettings by the name 'StorageContainerReference'</param>
-        public AzureBlobConfiguration(string storageBlobContainer = null)
+       public AzureBlobConfiguration(string storageBlobContainer = null)
         {
-            StorageContainerReference = string.IsNullOrWhiteSpace(storageBlobContainer) ? GetAppSettingsValueByName("StorageContainerReference") : storageBlobContainer;
-            StorageConnectionStringSettings = GetAppSettingsValueByName("StorageConnectionString");
+            StorageContainerReference = string.IsNullOrWhiteSpace(storageBlobContainer) ? GetAppSettingsValueByName("AzureStorageContainerReference") : storageBlobContainer;
+            StorageConnectionStringSettings = GetAppSettingsValueByName("AzureStorageConnectionString");
         }
 
         public static string GetAppSettingsValueByName(string appSettingsName)

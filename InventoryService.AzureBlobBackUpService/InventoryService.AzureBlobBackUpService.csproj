@@ -70,7 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureBlobConfiguration.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="AzureBlobBackUp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
