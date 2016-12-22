@@ -13,16 +13,20 @@ namespace InventoryService.AzureBlobBackUpService
 
         public AzureBlobBackUp()
         {
-            AzureBlobConfiguration = new AzureBlobConfiguration();
-            var connectionString = AzureBlobConfiguration.StorageConnectionStringSettings;
-            var storageAccount = CloudStorageAccount.Parse(connectionString);
-            BlobClient = storageAccount.CreateCloudBlobClient();
-
-            BlobClient.DefaultRequestOptions.RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(1), 5);
         }
 
         public bool BackUp(string name, string content)
         {
+            if (BlobClient == null)
+            {
+                AzureBlobConfiguration = new AzureBlobConfiguration();
+                var connectionString = AzureBlobConfiguration.StorageConnectionStringSettings;
+                var storageAccount = CloudStorageAccount.Parse(connectionString);
+                BlobClient = storageAccount.CreateCloudBlobClient();
+
+                BlobClient.DefaultRequestOptions.RetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(1), 5);
+            }
+
             var containerReference = AzureBlobConfiguration.StorageContainerReference;
             var container = BlobClient.GetContainerReference(containerReference);
             if (container == null) throw new Exception("Null ContainerReference");
