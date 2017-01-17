@@ -4,18 +4,18 @@ namespace InventoryService.WebUIHost
 {
     public class RequestInstructionIntoRemoteServermessage
     {
-        public RequestInstructionIntoRemoteServermessage(IRequestMessage message, int numberOfTimes)
+        public RequestInstructionIntoRemoteServermessage(IRequestMessage message, int retryCount)
         {
             Message = message;
-            NumberOfTimes = numberOfTimes;
+            RetryCount = retryCount;
         }
 
-        public RequestInstructionIntoRemoteServermessage(string operationName, string productId, int quantity, int numberOfTimes)
+        public RequestInstructionIntoRemoteServermessage(string operationName, string productId, int quantity, int retryCount)
         {
             OperationName = operationName;
             ProductId = productId;
             Quantity = quantity;
-            NumberOfTimes = numberOfTimes;
+            RetryCount = retryCount;
         }
 
         public IRequestMessage Message { get; }
@@ -24,6 +24,6 @@ namespace InventoryService.WebUIHost
         public string ProductId { get; }
         public int Quantity { get; }
 
-        public int NumberOfTimes { get; }
+        public int RetryCount { get; }
     }
 }

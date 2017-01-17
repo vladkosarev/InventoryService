@@ -7,7 +7,6 @@ namespace InventoryService.Actors
 {
     public static class ListOfTExtentions
     {
-      
         public static string ToDelimitedText<T>(this List<T> instance,
             string delimiter,
             bool trimTrailingNewLineIfExists = false)
@@ -23,7 +22,7 @@ namespace InventoryService.Actors
             for (var itemIndex = 0; itemIndex < itemCount; itemIndex++)
             {
                 var listItem = instance[itemIndex];
-                AppendListItemToOutputBuilder(outputBuilder, listItem, properties, propertyCount, delimiter);
+                AppendListItemToOutputBuilder(outputBuilder, listItem, properties, propertyCount, delimiter, itemIndex == 0);
 
                 AddNewLineIfRequired(trimTrailingNewLineIfExists, itemIndex, itemCount, outputBuilder);
             }
@@ -56,9 +55,21 @@ namespace InventoryService.Actors
             T listItem,
             IReadOnlyList<PropertyInfo> properties,
             int propertyCount,
-            string delimiter)
+            string delimiter, bool isFirstLine)
             where T : class
         {
+            if (isFirstLine)
+            {
+                for (var propertyIndex = 0; propertyIndex < properties.Count; propertyIndex += 1)
+                {
+                    var property = properties[propertyIndex];
+                    var propertyValue = property.Name;
+                    outputBuilder.Append(propertyValue);
+
+                    AddDelimiterIfRequired(outputBuilder, propertyCount, delimiter, propertyIndex);
+                }
+                outputBuilder.Append(Environment.NewLine);
+            }
 
             for (var propertyIndex = 0; propertyIndex < properties.Count; propertyIndex += 1)
             {

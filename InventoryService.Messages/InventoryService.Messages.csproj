@@ -43,9 +43,13 @@
   <ItemGroup>
     <Compile Include="ActorAliveMessage.cs" />
     <Compile Include="ActorAliveReceivedMessage.cs" />
+    <Compile Include="BackUpAllInventoryCompletedMessage.cs" />
+    <Compile Include="BackUpAllInventoryFailedMessage.cs" />
+    <Compile Include="BackUpAllInventoryMessage.cs" />
     <Compile Include="CompletedMessageFactory.cs" />
     <Compile Include="ErrorType.cs" />
     <Compile Include="ExportAllInventoryCompletedMessage.cs" />
+    <Compile Include="ExportAllInventoryMessage.cs" />
     <Compile Include="GetAllInventoryListMessage.cs" />
     <Compile Include="GetMetricsCompletedMessage.cs" />
     <Compile Include="GetMetricsMessage.cs" />

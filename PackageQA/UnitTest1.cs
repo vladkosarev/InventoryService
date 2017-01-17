@@ -9,6 +9,7 @@ using InventoryService.Storage.InMemoryLib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
+using InventoryService.NullBackUpService;
 
 namespace PackageQA
 {
@@ -34,7 +35,7 @@ namespace PackageQA
                   }
               "
             };
-            var InventoryserviceServer = new InventoryServiceServer(new TestPerformanceService(), serverOptions);
+            var InventoryserviceServer = new InventoryServiceServer(new TestPerformanceService(), new NullBackUp(), serverOptions);
 
             var res = InventoryserviceServer.inventoryActor.Path;
             var res2 = InventoryserviceServer.inventoryActor.Ask(new GetInventoryMessage("sample")).Result;
@@ -62,7 +63,7 @@ namespace PackageQA
               "
             };
 
-            using (var server = new InventoryServiceServer(new TestPerformanceService(), serverOptions))
+            using (var server = new InventoryServiceServer(new TestPerformanceService(), new NullBackUp() , serverOptions))
             {
                 var mySystem = Akka.Actor.ActorSystem.Create("mySystem", ConfigurationFactory.ParseString(@"
                   akka.actor{provider= ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""}

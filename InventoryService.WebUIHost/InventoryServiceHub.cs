@@ -7,24 +7,30 @@ namespace InventoryService.WebUIHost
 {
     public class InventoryServiceHub : Hub
     {
-        private IActorRef SignalRNotificationsActorRef { set; get; }
+        private IActorRef SignalRInventoryQueryActorRef { set; get; }
 
-        public InventoryServiceHub(IActorRef signalRNotificationsActorRef)
+        public InventoryServiceHub(IActorRef signalRInventoryQueryActorRef)
         {
-            SignalRNotificationsActorRef = signalRNotificationsActorRef;
+            SignalRInventoryQueryActorRef = signalRInventoryQueryActorRef;
         }
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public void GetInventoryList()
         {
-            SignalRNotificationsActorRef.Tell(new GetAllInventoryListMessage());
+            SignalRInventoryQueryActorRef.Tell(new GetAllInventoryListMessage());
             Log.Debug("A client has joined the system and will be receiving messages");
         }
 
-        public void PerformOperation(string operation, string id, int quantity, int numberOfTimes)
+        public void BackUpInventories()
         {
-            SignalRNotificationsActorRef.Tell(new RequestInstructionIntoRemoteServermessage(operation, id, quantity, numberOfTimes));
+            Log.Debug("Exporting inventories");
+            SignalRInventoryQueryActorRef.Tell(new ExportAllInventoryMessage());
+        }
+
+        public void PerformOperation(string operation, string id, int quantity, int retryCount)
+        {
+            SignalRInventoryQueryActorRef.Tell(new RequestInstructionIntoRemoteServermessage(operation, id, quantity, retryCount));
         }
     }
 }

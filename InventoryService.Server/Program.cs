@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using InventoryService.NullBackUpService;
+using NLog;
 
 namespace InventoryService.Server
 {
@@ -8,7 +9,7 @@ namespace InventoryService.Server
 
         private static void Main(string[] args)
         {
-            new InventoryServiceApplication().Start(new TestPerformanceService(), (a, s) =>
+            new InventoryServiceApplication().Start(new TestPerformanceService(), new NullBackUp(), (a, s) =>
                 {
                     Log.Debug("Server started ...");
                 }

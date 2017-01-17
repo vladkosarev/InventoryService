@@ -1,7 +1,6 @@
-﻿namespace InventoryService.Actors.Messages
+﻿namespace InventoryService.Messages
 {
     public class ExportAllInventoryMessage
     {
-
     }
 }

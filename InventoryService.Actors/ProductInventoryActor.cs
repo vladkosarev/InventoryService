@@ -18,14 +18,14 @@ namespace InventoryService.Actors
         public readonly ILoggingAdapter Logger = null;// Context.GetLogger();
         public IActorRef NotificationActorRef { get; set; }
 
-        public ProductInventoryActor(IInventoryStorage inventoryStorage, IActorRef notificationsActorRef, string id, bool withCache, IPerformanceService performanceService)
+        public ProductInventoryActor(IInventoryStorage inventoryStorage, IActorRef InventoryQueryActorRef, string id, bool withCache, IPerformanceService performanceService)
         {
             PerformanceService = performanceService;
             _id = id;
             _withCache = withCache;
             InventoryStorage = inventoryStorage;
             RealTimeInventory = RealTimeInventory.InitializeFromStorage(InventoryStorage, id);
-            NotificationActorRef = notificationsActorRef;
+            NotificationActorRef = InventoryQueryActorRef;
             ReceiveAsync<GetInventoryMessage>(async message =>
             {
                 if (!CanProcessMessage(message.ProductId, message))

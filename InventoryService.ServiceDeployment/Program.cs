@@ -1,4 +1,7 @@
-﻿using InventoryService.Server;
+﻿using System;
+using InventoryService.AzureBlobBackUpService;
+using InventoryService.FileSystemBackUpService;
+using InventoryService.Server;
 using Topshelf;
 
 namespace InventoryService.ServiceDeployment
@@ -7,20 +10,28 @@ namespace InventoryService.ServiceDeployment
     {
         private static void Main(string[] args)
         {
-            HostFactory.Run(x =>                                 //1
+            try
             {
-                x.Service<InventoryServiceApplication>(s =>                        //2
+                HostFactory.Run(x =>                                 //1
                 {
-                    s.ConstructUsing(name => new InventoryServiceApplication());     //3
-                    s.WhenStarted(tc => tc.Start(new ConsolePerformanceService()));              //4
-                    s.WhenStopped(tc => tc.Stop());               //5
+                    x.Service<InventoryServiceApplication>(s =>                        //2
+                    {
+                        s.ConstructUsing(name => new InventoryServiceApplication());     //3
+                        s.WhenStarted(tc => tc.Start(new TestPerformanceService(), new AzureBlobBackUp()));              //4
+                        s.WhenStopped(tc => tc.Stop());               //5
+                    });
+                    x.RunAsLocalSystem();                            //6
+                    x.UseNLog();
+                    x.SetDescription("Inventory MicroService");        //7
+                    x.SetDisplayName("Inventory Service");                       //8
+                    x.SetServiceName("InventoryService");                   //9
                 });
-                x.RunAsLocalSystem();                            //6
-                x.UseNLog();
-                x.SetDescription("Inventory MicroService");        //7
-                x.SetDisplayName("Inventory Service");                       //8
-                x.SetServiceName("InventoryService");                   //9
-            });                                                  //10
+            }
+            catch (Exception t)
+            {
+                
+                throw;
+            }                                         //10
         }
     }
 }

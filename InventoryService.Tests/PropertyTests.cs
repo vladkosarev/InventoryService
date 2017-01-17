@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using InventoryService.NullBackUpService;
 using Xunit;
 using Random = System.Random;
 
@@ -27,7 +28,7 @@ namespace InventoryService.Tests
            #endif
            */
             // return new InventoryServiceServer(new InventoryServerOptions() { InitialInventory = inventory });
-            return new InventoryServiceServer(new TestPerformanceService(), new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
+            return new InventoryServiceServer(new TestPerformanceService(), new NullBackUp(), new InventoryServerOptions() { InitialInventory = inventory, DontUseActorSystem = true });
         }
 
         [Property(Arbitrary = new[] { typeof(InventoryArbitrary) }, MaxTest = 1000)]

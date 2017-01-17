@@ -8,6 +8,7 @@ using InventoryService.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using InventoryService.BackUpService;
 
 namespace InventoryService.Actors
 {
@@ -20,9 +21,11 @@ namespace InventoryService.Actors
         private readonly bool _withCache;
         public IActorRef NotificationActorRef { get; set; }
         public IActorRef InventoryServicePingActor { set; get; }
-
-        public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService, bool withCache = true)
+        private IBackUpService BackUpService { set; get; }
+        public InventoryActor(IInventoryStorage inventoryStorage, IPerformanceService performanceService,IBackUpService backUpService, bool withCache = true)
         {
+            if (backUpService == null) throw new ArgumentNullException(nameof(backUpService));
+            BackUpService = backUpService;
             PerformanceService = performanceService;
             PerformanceService.Init();
             Logger.Debug("Starting Inventory Actor ....");
@@ -64,7 +67,7 @@ namespace InventoryService.Actors
         {
             Logger.Debug("Inventory Actor Processing started ...");
 
-            NotificationActorRef = Context.ActorOf(Props.Create(() => new NotificationsActor()).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(NotificationsActor).Name);
+            NotificationActorRef = Context.ActorOf(Props.Create(() => new InventoryQueryActor(BackUpService)).WithMailbox(nameof(GetAllInventoryListMailbox)), typeof(InventoryQueryActor).Name);
             InventoryServicePingActor = Context.ActorOf(Props.Create(() => new InventoryServicePingActor()), typeof(InventoryServicePingActor).Name);
 
             Receive<RemoveProductMessage>(message =>
@@ -110,9 +113,9 @@ namespace InventoryService.Actors
             {
                 PerformanceService.PrintMetrics();
             });
-            #if DEBUG
-                        Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
-            #endif
+#if DEBUG
+            Context.System.Scheduler.ScheduleTellRepeatedly(TimeSpan.Zero, TimeSpan.FromMilliseconds(1000), Self, new GetMetrics(), Nobody.Instance);
+#endif
         }
 
         private IActorRef GetActorRef(IInventoryStorage inventoryStorage, string productId, IPerformanceService performanceService)

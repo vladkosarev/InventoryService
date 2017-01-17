@@ -5,6 +5,7 @@ using InventoryService.Storage;
 using NLog;
 using System;
 using System.Configuration;
+using InventoryService.BackUpService;
 
 namespace InventoryService.Server
 {
@@ -19,7 +20,7 @@ namespace InventoryService.Server
 
         private ActorSystemFactory ActorSystemFactory { set; get; }
 
-        public void StartServer(IPerformanceService performanceService, Action<IActorRef, ActorSystem> onReady = null, Type storageType = null, string serverActorSystemName = null,
+        public void StartServer(IPerformanceService performanceService, IBackUpService backUpService, Action<IActorRef, ActorSystem> onReady = null, Type storageType = null, string serverActorSystemName = null,
             ActorSystem serverActorSystem = null, string serverActorSystemConfig = null)
         {
             Log.Debug("Initializing ...");
@@ -56,7 +57,7 @@ namespace InventoryService.Server
 
             inventoryActor =
                ActorSystemFactory.InventoryServiceActorSystem.ActorOf(
-                   Props.Create(() => new InventoryActor(inventoryStorage, performanceService, true)),
+                   Props.Create(() => new InventoryActor(inventoryStorage, performanceService, backUpService, true)),
                    typeof(InventoryActor).Name);
 
             if (inventoryActor == null || inventoryActor.IsNobody())

@@ -150,7 +150,7 @@ Target "CreateNuget" (fun _ ->
 Target "Deploy" (fun _ ->
     !! (buildDir + "/**/*.*") 
         -- "*.zip" 
-        |> Zip buildDir (deployDir + "InventoryService." + version + ".zip")
+        |> Zip buildDir (deployDir + "InventoryService.ui." + version + ".zip")
 )
 
 
